@@ -1,5 +1,8 @@
 clear all,close all,clc
 f=imread('test.jpg'); 
+img_size = size(f);
+img_height = img_size(1,1);
+img_width = img_size(1,2);
 i=rgb2gray(f); 
 i_long =size(i,1); 
 i_width=size(i,2); 
@@ -63,9 +66,9 @@ red = f(:,:,1);
 green = f(:,:,2);
 blue = f(:,:,3);
 
-red_coef = red - 3.*green;
+red_coef = red - green;
 d_red_coef = im2double(red_coef);
-mouth = d_red_coef(2:266,2:195) + 0.3*d_red_coef(1:265,2:195) + 0.3*d_red_coef(3:267,2:195) + 0.3*d_red_coef(2:266,3:196) + 0.1*d_red_coef(2:266,1:194);
+mouth = d_red_coef(2:img_height-1,2:img_width-1) + 0.3*d_red_coef(1:img_height-2,2:img_width-1) + 0.3*d_red_coef(3:img_height,2:img_width-1) + 0.3*d_red_coef(2:img_height-1,3:img_width) + 0.1*d_red_coef(2:img_height-1,1:img_width-2);
 mouth_to_eye = 14*left_eye(3);
 width = 4*left_eye(3);
 left_mouth_corner_domain = mouth(left_eye(1)+0.5*mouth_to_eye:left_eye(1)+mouth_to_eye, left_eye(2)-0.5*width:left_eye(2)+0.5*width);
