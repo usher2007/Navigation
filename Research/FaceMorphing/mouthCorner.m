@@ -3,7 +3,7 @@ function[left_mouth,right_mouth] = mouthCorner(left_eye,right_eye,image)
     green = image(:,:,2);
     blue = image(:,:,3);
     f_gray = rgb2gray(image);
-
+    [im_height,im_width,tun] = size(image);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %find the mouth corner just by color%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,7 +49,10 @@ function[left_mouth,right_mouth] = mouthCorner(left_eye,right_eye,image)
     mouth_weight = zeros(1,100);
     mouth_index = 1;
     for i=1:length(harris_row)
-        red_weight = d_red_coef(harris_row(i), harris_col(i));
+        if (harris_row(i)<3) || (harris_row(i)>(im_height-3)) || (harris_col(i) < 3) || (harris_col(i) > (im_width-3))
+            continue;
+        end
+        red_weight = max(max(d_red_coef(harris_row(i)-2:harris_row(i)+2, harris_col(i)-2:harris_col(i)+2)));
         harris_weight = harris_metric(harris_row(i), harris_col(i));
         distance_y = abs(left_eye(1)-harris_row(i));
         if red_weight > red_thres && distance_y > mouth_to_eye_min && distance_y < mouth_to_eye_max 

@@ -1,21 +1,11 @@
 function[left_eye,right_eye] = myhough2(image)
-    img_size = size(image);
-    img_height = img_size(1,1);
-    img_width = img_size(1,2);
     f_gray=rgb2gray(image); 
-    i_long =size(f_gray,1); 
-    i_width=size(f_gray,2); 
     i_edge=edge(f_gray,'sobel');
     figure,imshow(i_edge)
     r_min = 7;
     r_max = 10;
     r_step = 0.5;
     [hough_space,hough_circle_param,para] = hough_circle(i_edge,r_step,0.02,r_min,r_max,1);
-    %para
-    %[m n] = size(para);
-    %for i = 1:n    
-    %    g = drawcircle(f,para(:,i),[255 0 0]);    
-    %end
     g = drawcircle(image,para(:,1),[0 255 0]);  
     left_eye = para;
     %find the next eye by covering the first eye
