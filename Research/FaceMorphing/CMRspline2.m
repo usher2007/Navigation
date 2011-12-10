@@ -34,11 +34,12 @@ end
 qt(3*N+1,:) = P(end,:);
 
 %resample qt according to the flag
+N=3*N+1;
 qts = zeros(N,2);
 qts(1,:) = qt(1,:);
 qts(N,:) = qt(end,:);
-interpx = qt(1,1):1/(N-1):qt(end,1);
-interpy = qt(1,2):1/(N-1):qt(end,2);
+interpx = qt(1,1):(qt(end,1)-qt(1,1))/(N-1):qt(end,1);
+interpy = qt(1,2):(qt(end,2)-qt(1,2))/(N-1):qt(end,2);
 for i = 2:N-1
     if flag == 1
         qts(i,1) = interpx(i);
@@ -48,9 +49,10 @@ for i = 2:N-1
         qts(i,1) = myresample(qt,interpy(i),flag);
     end        
 end
-end
 
-% figure,plot(qt(:,1),qt(:,2),'bx')
+
+% figure;
+% plot(qt(:,1),qt(:,2),'bx')
 % hold on
 % plot(P2(:,1),P2(:,2),'ro')
-% end
+end
