@@ -1,7 +1,7 @@
 function[left_eye,right_eye] = myhough2(image)
     f_gray=rgb2gray(image); 
     i_edge=edge(f_gray,'sobel');
-    figure,imshow(i_edge)
+    %figure,imshow(i_edge)
     r_min = 7;
     r_max = 10;
     r_step = 0.5;

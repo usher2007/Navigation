@@ -26,8 +26,8 @@ function[left_mouth,right_mouth] = mouthCorner(left_eye,right_eye,image)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     harris_metric = cornermetric(f_gray, 'Harris');
     harris_metric = imadjust(harris_metric);
-    figure;
-    imshow(harris_metric);
+    %figure;
+    %imshow(harris_metric);
     harris_max = max(max(harris_metric));
     harris_thres = 0.3*harris_max;
     [harris_row,harris_col] = find(harris_metric>harris_thres);
@@ -35,8 +35,8 @@ function[left_mouth,right_mouth] = mouthCorner(left_eye,right_eye,image)
     red_coef = red - 2*green;
     d_red_coef = im2double(red_coef);
     d_red_coef = imadjust(d_red_coef);
-    figure;
-    imshow(d_red_coef);
+    %figure;
+    %imshow(d_red_coef);
     red_thres = max(max(d_red_coef)) * 0.5;
 
     %eye params
