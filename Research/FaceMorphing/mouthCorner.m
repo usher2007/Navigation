@@ -32,7 +32,7 @@ function[left_mouth,right_mouth] = mouthCorner(left_eye,right_eye,image)
     harris_thres = 0.3*harris_max;
     [harris_row,harris_col] = find(harris_metric>harris_thres);
 
-    red_coef = red - 3*green;
+    red_coef = red - 2*green;
     d_red_coef = im2double(red_coef);
     d_red_coef = imadjust(d_red_coef);
     figure;
@@ -77,6 +77,12 @@ function[left_mouth,right_mouth] = mouthCorner(left_eye,right_eye,image)
         if col-col_first>mouth_width_thres
             break;
         end
+        row = 0;
+        col = 0;
+    end
+    if row == 0 && col == 0
+        row = row_first;
+        col = im_width - col_first;
     end
     h = drawcircle(h,[row,col,3],[0 255 0]);
 
