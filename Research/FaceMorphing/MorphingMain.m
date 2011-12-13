@@ -22,3 +22,8 @@ second_control_group_y = [1 right_eye2(2) left_eye2(2) img_width;
                          1 right_eye2(2) left_eye2(2) img_width;
                          1 left_mouth2(2) right_mouth2(2) img_width;
                          1 left_mouth2(2) right_mouth2(2) img_width];
+first_control_group(1,:,:) = first_control_group_x(:,:);
+first_control_group(2,:,:) = first_control_group_y(:,:);
+second_control_group(1,:,:) = second_control_group_x(:,:);
+second_control_group(2,:,:) = second_control_group_y(:,:);
+suc = GetMorphingPics(first_control_group, second_control_group, img_1, img_2, 10);
