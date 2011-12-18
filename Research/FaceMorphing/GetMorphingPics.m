@@ -8,13 +8,14 @@ function [suc]= GetMorphingPics(control_group_src, control_group_des, img_src, i
     median_ys = interpolation(src_y, des_y, pic_num);
     suc = false;
     for i=1:pic_num
+        i
         if i==1
-            img_name = ['Data\' int2str(i) '.jpg'];
+            img_name = ['Data\' int2str(i) 'm.jpg'];
             imwrite(img_src, img_name, 'JPG');
            continue;
         end
         if i==pic_num
-            img_name = ['Data\' int2str(i) '.jpg'];
+            img_name = ['Data\' int2str(i) 'm.jpg'];
             imwrite(img_des, img_name, 'JPG');
             continue;
         end
@@ -24,7 +25,7 @@ function [suc]= GetMorphingPics(control_group_src, control_group_des, img_src, i
         img_tmp_1 = GetMidianImg(img_src, src_x, src_y, median_x, median_y);
         img_tmp_2 = GetMidianImg(img_des, des_x, des_y, median_x, median_y);
         img_tmp = img_tmp_1*(1-percent) + img_tmp_2*percent; 
-        img_name = ['Data\' int2str(i) '.jpg'];
+        img_name = ['Data\' int2str(i) 'm.jpg'];
         imwrite(img_tmp/256, img_name, 'JPG');
     end
     suc = true;
