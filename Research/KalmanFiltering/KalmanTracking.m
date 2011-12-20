@@ -7,6 +7,7 @@ P = diag(ones(1,6));
 H = [1 0 0 0 0 0;
      0 1 0 0 0 0];
 N = 100;
+circle = im2double(imread('frame.bmp'));
 if video.NumberOfFrames < 100
     N = video.NumberOfFrames;
 end
@@ -17,9 +18,12 @@ end
 for index = 1:video.NumberOfFrames
     frame = im2double(read(video,index));
     x = findTarget(frame,avg_frame);
-    if index == 1
-        x_p = [x 0.5 0.5 0.5 0.5]';
-    end
-    [xk_p,P] = kalmanFiltering(A,P,Q,H,R,x,x_p);
-    x_p = xk_p;
+    frame = noteTarget(frame, x, circle);
+    filename = ['DataRaw\' int2str(index) '.jpg'];
+    imwrite(frame, filename, 'JPG');
+%     if index == 1
+%         x_p = [x 0.5 0.5 0.5 0.5]';
+%     end
+%     [xk_p,P] = kalmanFiltering(A,P,Q,H,R,x,x_p);
+%     x_p = xk_p;
 end

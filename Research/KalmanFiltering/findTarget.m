@@ -5,9 +5,9 @@ function position = findTarget(frame,avg_frame)
     diff_gr = green - red;
     [x,y] = find(diff_gr > 150/255);
     diff_cur_avg = frame-avg_frame;
-    imshow(diff_gr);
-    figure;
-    imshow(diff_cur_avg);
+    %imshow(diff_gr);
+    %figure;
+    %imshow(diff_cur_avg);
     max_count = 0;
     max_x = 0;
     max_y = 0;
