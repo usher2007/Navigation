@@ -6,9 +6,17 @@ R = zeros(2);
 P = diag(ones(1,6));
 H = [1 0 0 0 0 0;
      0 1 0 0 0 0];
+N = 100;
+if video.NumberOfFrames < 100
+    N = video.NumberOfFrames;
+end
+avg_frame = im2double(read(video,1))/N;
+for index = 2:N
+    avg_frame = avg_frame + im2double(read(video,index))/N;
+end
 for index = 1:video.NumberOfFrames
-    frame = read(video,index);
-    x = findTarget(frame);
+    frame = im2double(read(video,index));
+    x = findTarget(frame,avg_frame);
     if index == 1
         x_p = [x 0.5 0.5 0.5 0.5]';
     end

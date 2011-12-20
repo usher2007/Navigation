@@ -1,9 +1,13 @@
-function position = findTarget(frame)
+function position = findTarget(frame,avg_frame)
     [height width] = size(frame);
     red = frame(:,:,1);
     green = frame(:,:,2);
     diff_gr = green - red;
-    [x,y] = find(diff_gr > 200);
+    [x,y] = find(diff_gr > 150/255);
+    diff_cur_avg = frame-avg_frame;
+    imshow(diff_gr);
+    figure;
+    imshow(diff_cur_avg);
     max_count = 0;
     max_x = 0;
     max_y = 0;
@@ -15,7 +19,7 @@ function position = findTarget(frame)
             count = 0;
             for xinner=x_range(1,1):x_range(1,2)
                 for yinner=y_range(1,1):y_range(1,2)
-                    if diff_gr(xinner,yinner) > 200
+                    if diff_gr(xinner,yinner) > 150/255
                         count = count + 1;
                     end
                 end
