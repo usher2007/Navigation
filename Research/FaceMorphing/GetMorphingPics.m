@@ -1,4 +1,5 @@
 function [suc]= GetMorphingPics(control_group_src, control_group_des, img_src, img_des, pic_num)
+%Get all the midian pics using src/des group of control points
     [tunnel,row,col] = size(control_group_src);
     src_x(1:row,1:col) = control_group_src(1,1:row,1:col);
     src_y(1:row,1:col) = control_group_src(2,1:row,1:col);

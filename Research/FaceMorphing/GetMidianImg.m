@@ -1,4 +1,5 @@
 function [img] = GetMidianImg(img_src, src_x, src_y, des_x, des_y)
+%Get one midian image using two group of control points
     [row_x,col_x] = size(src_x);
     [row_y,col_y] = size(src_y);
     aux_x = src_x;
