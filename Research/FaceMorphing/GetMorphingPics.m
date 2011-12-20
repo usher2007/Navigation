@@ -26,7 +26,11 @@ function [suc]= GetMorphingPics(control_group_src, control_group_des, img_src, i
         img_tmp_2 = GetMidianImg(img_des, des_x, des_y, median_x, median_y);
         img_tmp = img_tmp_1*(1-percent) + img_tmp_2*percent; 
         img_name = ['Data\' int2str(i) 'm.jpg'];
+        img_name_tmp1 = ['Data\tmp1_' int2str(i) '.jpg'];
+        img_name_tmp2 = ['Data\tmp2_' int2str(i) '.jpg'];
         imwrite(img_tmp/256, img_name, 'JPG');
+        imwrite(img_tmp_1/256, img_name_tmp1, 'JPG');
+        imwrite(img_tmp_2/256, img_name_tmp2, 'JPG');
     end
     suc = true;
 end
