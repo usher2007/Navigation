@@ -1,10 +1,10 @@
 function position = findTarget(frame,avg_frame)
-    [height width] = size(frame);
+    [height width tun] = size(frame);
     red = frame(:,:,1);
     green = frame(:,:,2);
     diff_gr = green - red;
-    [x,y] = find(diff_gr > 150/255);
-    diff_cur_avg = frame-avg_frame;
+    [x,y] = find(diff_gr > 180/255);
+    %diff_cur_avg = frame-avg_frame;
     %imshow(diff_gr);
     %figure;
     %imshow(diff_cur_avg);
