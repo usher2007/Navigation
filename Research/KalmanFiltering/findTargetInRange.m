@@ -7,7 +7,7 @@ function position = findTargetInRange(frame,avg_frame,range)
     [v,x] = max(diff_gr);
     [v,y] = max(v);
     position = [x(1,y),y];
-    if diff_gr(position(1,1),position(1,2)) < 180/255
+    if diff_gr(position(1,1),position(1,2)) < 150/255
         position = [0,0];
     end
     if max(position) > 0
