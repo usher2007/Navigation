@@ -4,8 +4,8 @@ height = video.Height;
 width = video.Width;
 range = [1 height 1 width];
 A = [1 0 1 0 0.5 0;0 1 0 1 0 0.5;0 0 1 0 1 0;0 0 0 1 0 1;0 0 0 0 1 0;0 0 0 0 0 1];
-Q = diag(ones(1,6)*0.00001);
-R = diag(ones(1,2)*0.001);
+Q = diag(ones(1,6)*0.001);
+R = diag(ones(1,2)*0.01);
 P = zeros(6);
 H = [1 0 0 0 0 0;
      0 1 0 0 0 0];
@@ -20,6 +20,8 @@ avg_frame = im2double(read(video,1))/N;
 % end
 x_last = [100 100];
 count_of_fail = 0;
+count_of_fail_total = 0;
+t0 = cputime;
 for index = 1:video.NumberOfFrames
     index
     frame = im2double(read(video,index));
@@ -39,7 +41,7 @@ for index = 1:video.NumberOfFrames
     x = round(x_p);
     range = [x(1,1)-25 x(1,1)+25 x(2,1)-25 x(2,1)+25];
     if range(1,1)<1
-        range(1,1) = 1
+        range(1,1) = 1;
     end
     if range(1,2) > height
         range(1,2) = height;
@@ -55,9 +57,11 @@ for index = 1:video.NumberOfFrames
     %if didn't find the target in the region
     if max(x) < 1
         count_of_fail = count_of_fail + 1;
+        count_of_fail_total = count_of_fail_total + 1;
         x = x_last;
         if count_of_fail >= 1
-            x = findTarget(frame,avg_frame);
+            range = [1 height 1 width];
+            x = findTargetInRange(frame,avg_frame,range);
         end
     else
         count_of_fail = 0;
@@ -77,7 +81,8 @@ for index = 1:video.NumberOfFrames
     end
     x = round(x);
     frame = noteTarget(frame, x, circle);
-    filename = ['DataKalmanPredict\' int2str(index) '.jpg'];
-    imwrite(frame, filename, 'JPG');
+    filename = ['DataKalmanPredictTest\' int2str(index) '.jpg'];
+    %imwrite(frame, filename, 'JPG');
     x_last = x;
 end
+t1 = cputime;
