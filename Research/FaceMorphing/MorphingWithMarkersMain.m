@@ -1,0 +1,10 @@
+clear all, close all;
+img_1 = imread('test1.jpg');
+img_2 = imread('test2.jpg');
+[img_height, img_width,img_tun] = size(img_1);
+load('markers2.mat');
+first_control_group(1,:,:) = first_group_x(:,:);
+first_control_group(2,:,:) = first_group_y(:,:);
+second_control_group(1,:,:) = second_group_x(:,:);
+second_control_group(2,:,:) = second_group_y(:,:);
+suc = GetMorphingPics(first_control_group, second_control_group, img_1, img_2, 20);

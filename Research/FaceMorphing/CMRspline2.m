@@ -31,7 +31,7 @@ for i = 1:m-1
         qt(j+(i-1)*N,:) = 0.5*u*A*Ptemp;
     end
 end
-qt(3*N+1,:) = P(end,:);
+qt((m-1)*N+1,:) = P(end,:);
 
 %resample qt according to the flag
 N=3*N+1;
