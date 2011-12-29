@@ -1,5 +1,6 @@
 import smtplib,datetime
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 mailto_list=["usher2007@foxmail.com"]
 mail_host="smtp.qq.com"
 mail_user="523977091"
@@ -9,10 +10,12 @@ mail_postfix="qq.com"
 def send_mail(to_list,sub,content):
 	
 	me = mail_user+"<"+mail_user+"@"+mail_postfix+">"
-	msg = MIMEText(content)
+	msg = MIMEMultipart('alternative')
+	message = MIMEText(content, 'HTML')
 	msg['Subject'] = sub
 	msg['From'] = me
 	msg['To'] = ";".join(to_list)
+	msg.attach(message)
 	try:
 		s = smtplib.SMTP()
 		s.connect(mail_host)
@@ -27,7 +30,15 @@ def send_mail(to_list,sub,content):
 
 if __name__ == '__main__':
 	today = datetime.datetime.today()
-	content = "Today is " + today.strftime("%B %d, %A") + ". Don't forget sending weekly report!"
+	content = "\
+			<html>\
+				<body>\
+					<p style=\"font-weight:bold;font-size:24px;\">Hey, yubo</p>\
+					<p>Today is " + today.strftime("%B %d, %A") + ". <a style=\"font-weight:bold;font-size:24px;\">Don't</a> forget the Weekly Report!</p>\
+				</body>\
+			</html>\
+			"
+
 	send_mail(mailto_list, "Weekly Report Reminder", content)
 
 
