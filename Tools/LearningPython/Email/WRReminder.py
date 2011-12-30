@@ -2,10 +2,10 @@ import smtplib,datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 mailto_list=["usher2007@foxmail.com"]
-mail_host="smtp.qq.com"
-mail_user="*********"
-mail_pass="*********"
-mail_postfix="qq.com"
+mail_host="smtp.126.com"
+mail_user="ReminderOfYubo"
+mail_pass="123456aaa"
+mail_postfix="126.com"
 
 def send_mail(to_list,sub,content):
 	
