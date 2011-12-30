@@ -3,8 +3,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 mailto_list=["usher2007@foxmail.com"]
 mail_host="smtp.qq.com"
-mail_user="523977091"
-mail_pass="zhzl2135360"
+mail_user="*********"
+mail_pass="*********"
 mail_postfix="qq.com"
 
 def send_mail(to_list,sub,content):
