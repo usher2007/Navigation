@@ -16,7 +16,7 @@ class Person(object):
             lunarOrSolar = "农历"
         return "%s(再过%d天)是%s的%s%d岁生日，别忘了送去祝福哦" % (self.birthday.strftime("%B %d"), self.timespan, self.name, lunarOrSolar, self.age)
 def checkFriends(today):
-    birthData = file('Birthday.txt','r')
+    birthData = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\Birthday.txt','r')
     Persons = []
     for line in birthData.readlines():
         name = line.split(' ')[0]
