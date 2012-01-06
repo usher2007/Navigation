@@ -42,5 +42,9 @@ if __name__ == '__main__':
     print recentBirthdays
     for friend in recentBirthdays:
         EmailHelper.send_mail(mailto_list, "Birthday Reminder", title + friend.__str__())
+	logfile = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\log.txt', 'w')
+	logfile.write('Send BirthdayReminder %s \n'%(today.strftime("%B %d, %A")))
+	logfile.close()
+	
 
 

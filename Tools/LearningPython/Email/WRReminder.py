@@ -40,5 +40,8 @@ if __name__ == '__main__':
 			"
 
 	send_mail(mailto_list, "Weekly Report Reminder", content)
+	logfile = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\log.txt', 'w')
+	logfile.write('Send WRReminder %s \n'%(today.strftime("%B %d, %A")))
+	logfile.close()
 
 
