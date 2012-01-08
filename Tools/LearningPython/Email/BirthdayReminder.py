@@ -39,12 +39,16 @@ if __name__ == '__main__':
     today = datetime.datetime.today()
     recentBirthdays = checkFriends(today)
     title = "Hello:\n"
-    print recentBirthdays
-    for friend in recentBirthdays:
-        EmailHelper.send_mail(mailto_list, "Birthday Reminder", title + friend.__str__())
-	logfile = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\log.txt', 'w')
-	logfile.write('Send BirthdayReminder %s \n'%(today.strftime("%B %d, %A")))
-	logfile.close()
+    logfile = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\log.txt', 'a')
+    if len(recentBirthdays) > 0 :
+        for friend in recentBirthdays :
+            EmailHelper.send_mail(mailto_list, "Birthday Reminder", title + friend.__str__())
+            logfile.write('Send BirthdayReminder %s \n'%(today.strftime("%B %d, %A")))
+    else:
+        logfile.write('No BirthdayReminder %s \n'%(today.strftime("%B %d, %A")))
+    logfile.close()
 	
+
+    
 
 
