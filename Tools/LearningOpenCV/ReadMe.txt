@@ -1,0 +1,1 @@
+Please config the project as http://blog.csdn.net/sichuanpb/article/details/6671857 .
