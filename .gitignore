@@ -9,4 +9,19 @@ Research/KalmanFiltering/DataKalmanPredict
 Research/KalmanFiltering/DataKalmanPredictTmp
 Research/KalmanFiltering/DataRaw
 Research/KalmanFiltering/DataSimpRange
+Research/ImageSegmentationDemo/ImageSegmentationDemo/Properties
+Research/ImageSegmentationDemo/ImageSegmentationDemo/bin
+Research/ImageSegmentationDemo/ImageSegmentationDemo/obj
+Tools/MixCAndCSharp/CPPBasedCSharpProject/Properties
+Tools/MixCAndCSharp/CPPBasedCSharpProject/bin
+Tools/MixCAndCSharp/CPPBasedCSharpProject/obj
+Tools/MixCAndCSharp/Debug
+Tools/MixCAndCSharp/MgdLib/Debug
+Tools/MixCAndCSharp/PureCPPSLib/Debug
+Tools/MixCAndCSharp/PureCPPSLib/Release
+Tools/MixcAndCSharp/Release
+Tools/MixCAndCSharp/ipch
+Tools/LearningOpenCV/LearningOpenCV/Debug
+Tools/LearningOpenCV/LearningOpenCV/LearningOpenCV/Debug
+Tools/LearningOpenCV/LearningOpenCV/ipch
 

@@ -42,6 +42,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\OpenCV_build\install\include;D:\OpenCV_build\install\include\opencv;D:\Program Files\tbb30_20100406oss\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\OpenCV_build\lib\Debug;D:\OpenCV_build\lib\Release;D:\Program Files\tbb30_20100406oss\lib\ia32\vc10;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -57,6 +59,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_core230d.lib;opencv_highgui230d.lib;opencv_video230d.lib;opencv_ml230d.lib;opencv_legacy230d.lib;opencv_imgproc230d.lib;opencv_objdetect230d.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -101,6 +104,11 @@
   <ItemGroup>
     <ProjectReference Include="..\PureCPPSLib\PureCPPSLib.vcxproj">
       <Project>{80102ea0-213d-40af-a19c-6dc84cbe5391}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,27 +1,13 @@
 #include "PureCPPSLib.h"
+using namespace cv;
+MyImage::MyImage(const string& imageName)
+{
+	this->_img = imread(imageName);
+}
 
-PureCClass::PureCClass()  
-{}  
-PureCClass::~PureCClass(void)  
-{}  
-LPCTSTR PureCClass::getFirstName()  
-{  
-	return (LPCTSTR)m_FirstName;  
-}  
-void PureCClass::setFirstName(LPCTSTR fistName)  
-{  
-	m_FirstName = fistName;  
-}  
-LPCTSTR PureCClass::getLastName()  
-{  
-	return (LPCTSTR)m_LastName;  
-}  
-void PureCClass::setLastName(LPCTSTR lastName)  
-{  
-	m_LastName = lastName;  
-}  
-LPCTSTR PureCClass::joinName()  
-{  
-	m_fullName = m_FirstName + _T(" ") +m_LastName;  
-	return (LPCTSTR)(m_fullName);  
-} 
+void MyImage::ShowImage()
+{
+	namedWindow("lena", CV_WINDOW_AUTOSIZE);
+	imshow("lena", _img);
+	waitKey();
+}

@@ -1,18 +1,14 @@
-#include "afxwin.h"
+#include "cv.h"
+#include "highgui.h"
+#include <string>
+using namespace std;
+using namespace cv;
+class MyImage
+{
+public:
+	MyImage(const string& imageName);
+	void ShowImage();
+private:
+	Mat _img;
+};
 
-class PureCClass  
-{  
-public:  
-	PureCClass();  
-	~PureCClass(void);  
-public:  
-	LPCTSTR getFirstName();  
-	void setFirstName(LPCTSTR fistName);  
-	LPCTSTR getLastName();  
-	void setLastName(LPCTSTR lastName);  
-	LPCTSTR joinName();  
-private:  
-	CString m_FirstName;  
-	CString m_LastName;  
-	CString m_fullName;  
-};  

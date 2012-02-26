@@ -15,18 +15,9 @@ namespace MgdLib {
 		!mgClass();  
 	public:  
 		~mgClass();  
-		property String^ FirstName  
-		{  
-			String ^ get ();  
-			void set (String ^str);  
-		}  
-		property String^ LastName  
-		{  
-			String ^ get ();  
-			void set (String ^str);  
-		}  
-		String^ JoinName();  
+		void ShowImage();
+		void SetFileName(System::String^ imageName);
 	private:  
-		PureCClass* m_pImpObj;  
+		MyImage* m_pImpObj;  
 	};  
 }
