@@ -24,4 +24,8 @@ Tools/MixCAndCSharp/ipch
 Tools/LearningOpenCV/LearningOpenCV/Debug
 Tools/LearningOpenCV/LearningOpenCV/LearningOpenCV/Debug
 Tools/LearningOpenCV/LearningOpenCV/ipch
+Tools/CSharpConsole/CsharpConsole/Properties
+Tools/CSharpConsole/CsharpConsole/bin
+Tools/CSharpConsole/CsharpConsole/obj
+Tools/CSharpConsole/MyThreadWalkthroughApp
 

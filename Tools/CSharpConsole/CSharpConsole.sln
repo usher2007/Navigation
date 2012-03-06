@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpConsole", "CSharpConsole\CSharpConsole.csproj", "{25234F5F-6757-439F-9911-001243FB7B05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyThreadWalkthroughApp", "MyThreadWalkthroughApp\MyThreadWalkthroughApp.csproj", "{E2D31202-8046-4AFA-978F-49C363908188}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{25234F5F-6757-439F-9911-001243FB7B05}.Debug|x86.Build.0 = Debug|x86
 		{25234F5F-6757-439F-9911-001243FB7B05}.Release|x86.ActiveCfg = Release|x86
 		{25234F5F-6757-439F-9911-001243FB7B05}.Release|x86.Build.0 = Release|x86
+		{E2D31202-8046-4AFA-978F-49C363908188}.Debug|x86.ActiveCfg = Debug|x86
+		{E2D31202-8046-4AFA-978F-49C363908188}.Debug|x86.Build.0 = Debug|x86
+		{E2D31202-8046-4AFA-978F-49C363908188}.Release|x86.ActiveCfg = Release|x86
+		{E2D31202-8046-4AFA-978F-49C363908188}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
