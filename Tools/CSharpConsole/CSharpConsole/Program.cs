@@ -9,10 +9,22 @@ namespace CSharpConsole
     {
         static void Main(string[] args)
         {
+            Type testenum = (Type)Enum.Parse(typeof(Type), "Default");
+            
+            Type testenum3 = (Type)Enum.Parse(typeof(Type), "Video");
+            Type testenum2;
+            Enum.TryParse("VIDEO", true, out testenum2);
+
+            bool defined = Enum.IsDefined(typeof(Type), "Default");
+            object value;
+            value = Enum.Parse(typeof(Type), "default", true);
             HashSet<Int32> set1 = new HashSet<Int32>(){1,2,3};
             HashSet<Int32> set2 = new HashSet<Int32>() { 2, 3, 4 };
             set1.UnionWith(set2);
-
+            int p1 = 10;
+            int p2 = 5;
+            int p3 = 30;
+            int p = (p1 << 25) + (p2 << 15) + (p3 << 10);
             Int32 type = (Int32)Type.Default;
             Type t = (Type)5;
             bool b = t.Equals(Type.Default);

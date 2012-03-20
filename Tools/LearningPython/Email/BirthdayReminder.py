@@ -11,12 +11,12 @@ class Person(object):
         self.isLunar = isLunar
 
     def __str__(self):
-        lunarOrSolar = "公历"
+        lunarOrSolar = "gongli"
         if self.isLunar:
-            lunarOrSolar = "农历"
-        return "%s(再过%d天)是%s的%s%d岁生日，别忘了送去祝福哦" % (self.birthday.strftime("%B %d"), self.timespan, self.name, lunarOrSolar, self.age)
+            lunarOrSolar = "nongli"
+        return "%s(in %d days) is %s's %s %d birthday" % (self.birthday.strftime("%B %d"), self.timespan, self.name, lunarOrSolar, self.age)
 def checkFriends(today):
-    birthData = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\Birthday.txt','r')
+    birthData = file('D:\OtherCode\Navigation\Tools\LearningPython\Email\Birthday.txt','r')
     Persons = []
     for line in birthData.readlines():
         name = line.split(' ')[0]
@@ -27,10 +27,10 @@ def checkFriends(today):
         if string.atoi(isLunar):
             birthDateLunar = LunarDate(birthDate.date().year, birthDate.date().month, birthDate.date().day).toSolarDate()
             birthDate = datetime.datetime.combine(birthDateLunar, datetime.time())
-        birthDate = birthDate.replace(year=today.date().year)
+        birthDate = birthDate.replace(year=today.year)
         timespan = birthDate - today
-        if timespan.days >= 0 and timespan.days <= 2:
-            Persons.append(Person(name, birthDate, timespan.days, age, string.atoi(isLunar)))
+        if timespan.days >= -1 and timespan.days <= 2:
+            Persons.append(Person(name, birthDate, timespan.days+1, age, string.atoi(isLunar)))
 
     return Persons
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     today = datetime.datetime.today()
     recentBirthdays = checkFriends(today)
     title = "Hello:\n"
-    logfile = file('E:\OtherCode\Navigation\Tools\LearningPython\Email\log.txt', 'a')
+    logfile = file('D:\OtherCode\Navigation\Tools\LearningPython\Email\log.txt', 'a')
     if len(recentBirthdays) > 0 :
         for friend in recentBirthdays :
             EmailHelper.send_mail(mailto_list, "Birthday Reminder", title + friend.__str__())
