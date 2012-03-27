@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SWDemo", "SWDemo\SWDemo.vcxproj", "{B33384B7-E0E4-41D0-A25F-263AF3C71F95}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SWDemoSetup", "SWDemoSetup\SWDemoSetup.vdproj", "{A8181188-F4CE-4CA0-B21F-D6BE8D523F5F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B33384B7-E0E4-41D0-A25F-263AF3C71F95}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B33384B7-E0E4-41D0-A25F-263AF3C71F95}.Debug|Win32.Build.0 = Debug|Win32
+		{B33384B7-E0E4-41D0-A25F-263AF3C71F95}.Release|Win32.ActiveCfg = Release|Win32
+		{B33384B7-E0E4-41D0-A25F-263AF3C71F95}.Release|Win32.Build.0 = Release|Win32
+		{A8181188-F4CE-4CA0-B21F-D6BE8D523F5F}.Debug|Win32.ActiveCfg = Debug
+		{A8181188-F4CE-4CA0-B21F-D6BE8D523F5F}.Release|Win32.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
