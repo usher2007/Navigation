@@ -1,0 +1,31 @@
+<html>
+	<body>
+		<canvas id="diagonal" style="border: 1px solid;" width="200" height="200">
+		</canvas>
+		<script>
+		function drawDiagonal() {
+			var canvas = document.getElementById('diagonal');
+			var context = canvas.getContext('2d');
+			
+			//context.beginPath();
+			//context.moveTo(70,140);
+			//context.lineTo(140,70);
+			
+			//context.stroke();
+			
+			context.save();
+			
+			context.translate(70,140);
+			
+			context.beginPath();
+			context.moveTo(0,0);
+			context.lineTo(70,-70);
+			context.stroke();
+			
+			context.restore();
+		}
+		
+		window.addEventListener("load", drawDiagonal, true);
+		</script>
+	</body>
+</html>
