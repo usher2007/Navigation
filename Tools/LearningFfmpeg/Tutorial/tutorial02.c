@@ -16,11 +16,12 @@
 // to play the video stream on your screen.
 
 
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 
-#include <SDL.h>
-#include <SDL_thread.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
 
 #ifdef __MINGW32__
 #undef main /* Prevents SDL from overriding main() */
@@ -69,7 +70,7 @@ int main(int argc, char *argv[]) {
   // Find the first video stream
   videoStream=-1;
   for(i=0; i<pFormatCtx->nb_streams; i++)
-    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO) {
+    if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) {
       videoStream=i;
       break;
     }
@@ -117,8 +118,8 @@ int main(int argc, char *argv[]) {
     // Is this a packet from the video stream?
     if(packet.stream_index==videoStream) {
       // Decode video frame
-      avcodec_decode_video(pCodecCtx, pFrame, &frameFinished, 
-			   packet.data, packet.size);
+      avcodec_decode_video2(pCodecCtx, pFrame, &frameFinished, 
+			   &packet);
       
       // Did we get a video frame?
       if(frameFinished) {
@@ -134,9 +135,9 @@ int main(int argc, char *argv[]) {
 	pict.linesize[2] = bmp->pitches[1];
 
 	// Convert the image into YUV format that SDL uses
-	img_convert(&pict, PIX_FMT_YUV420P,
-                    (AVPicture *)pFrame, pCodecCtx->pix_fmt, 
-		    pCodecCtx->width, pCodecCtx->height);
+	static struct SwsContext *img_convert_ctx;
+	img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height, PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+	sws_scale(img_convert_ctx, (const uint8_t* const *)pFrame->data, pFrame->linesize, 0, pCodecCtx->height, pict.data, pict.linesize);
 	
 	SDL_UnlockYUVOverlay(bmp);
 	
