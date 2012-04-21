@@ -17,11 +17,12 @@
 // to play the stream on your screen.
 
 
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 
-#include <SDL.h>
-#include <SDL_thread.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
 
 #ifdef __MINGW32__
 #undef main /* Prevents SDL from overriding main() */
@@ -78,8 +79,7 @@ int packet_queue_put(PacketQueue *q, AVPacket *pkt) {
 static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 {
   AVPacketList *pkt1;
-  int ret;
-  
+  int ret; 
   SDL_LockMutex(q->mutex);
   
   for(;;) {
@@ -114,23 +114,20 @@ static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size) {
 
   static AVPacket pkt;
-  static uint8_t *audio_pkt_data = NULL;
-  static int audio_pkt_size = 0;
 
-  int len1, data_size;
+  int len1, data_size, pkt_origin_size;
 
   for(;;) {
-    while(audio_pkt_size > 0) {
+    while(pkt.size > 0) {
       data_size = buf_size;
-      len1 = avcodec_decode_audio2(aCodecCtx, (int16_t *)audio_buf, &data_size, 
-				  audio_pkt_data, audio_pkt_size);
+      len1 = avcodec_decode_audio3(aCodecCtx, (int16_t *)audio_buf, &data_size, &pkt);
       if(len1 < 0) {
 	/* if error, skip frame */
-	audio_pkt_size = 0;
+	pkt.size = 0;
 	break;
       }
-      audio_pkt_data += len1;
-      audio_pkt_size -= len1;
+      pkt.data += len1;
+      pkt.size -= len1;
       if(data_size <= 0) {
 	/* No data yet, get more frames */
 	continue;
@@ -139,8 +136,11 @@ int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_si
       return data_size;
     }
     if(pkt.data)
-      av_free_packet(&pkt);
-
+	{
+	  pkt.data -= (pkt_origin_size - pkt.size);
+	  pkt.size = pkt_origin_size;
+      //av_free_packet(&pkt);
+	}
     if(quit) {
       return -1;
     }
@@ -148,8 +148,7 @@ int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_si
     if(packet_queue_get(&audioq, &pkt, 1) < 0) {
       return -1;
     }
-    audio_pkt_data = pkt.data;
-    audio_pkt_size = pkt.size;
+	pkt_origin_size = pkt.size;
   }
 }
 
@@ -184,6 +183,12 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
     audio_buf_index += len1;
   }
 }
+
+int decode_interrupt_cb(void)
+{
+	return quit;
+}
+
 
 int main(int argc, char *argv[]) {
   AVFormatContext *pFormatCtx;
@@ -231,11 +236,11 @@ int main(int argc, char *argv[]) {
   videoStream=-1;
   audioStream=-1;
   for(i=0; i<pFormatCtx->nb_streams; i++) {
-    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO &&
+    if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO &&
        videoStream < 0) {
       videoStream=i;
     }
-    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_AUDIO &&
+    if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_AUDIO &&
        audioStream < 0) {
       audioStream=i;
     }
@@ -282,7 +287,8 @@ int main(int argc, char *argv[]) {
   // Open codec
   if(avcodec_open(pCodecCtx, pCodec)<0)
     return -1; // Could not open codec
-  
+  // Set the interrupt event poll function for ffmpeg
+  url_set_interrupt_cb(decode_interrupt_cb);
   // Allocate video frame
   pFrame=avcodec_alloc_frame();
 
@@ -311,8 +317,8 @@ int main(int argc, char *argv[]) {
     // Is this a packet from the video stream?
     if(packet.stream_index==videoStream) {
       // Decode video frame
-      avcodec_decode_video(pCodecCtx, pFrame, &frameFinished, 
-			   packet.data, packet.size);
+      avcodec_decode_video2(pCodecCtx, pFrame, &frameFinished, 
+			   &packet);
       
       // Did we get a video frame?
       if(frameFinished) {
@@ -328,9 +334,9 @@ int main(int argc, char *argv[]) {
 	pict.linesize[2] = bmp->pitches[1];
 
 	// Convert the image into YUV format that SDL uses
-	img_convert(&pict, PIX_FMT_YUV420P,
-                    (AVPicture *)pFrame, pCodecCtx->pix_fmt, 
-		    pCodecCtx->width, pCodecCtx->height);
+	static struct SwsContext *img_convert_ctx;
+	img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height, PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+	sws_scale(img_convert_ctx, (const uint8_t* const *)pFrame->data, pFrame->linesize, 0, pCodecCtx->height, pict.data, pict.linesize);
 	
 	SDL_UnlockYUVOverlay(bmp);
 	
