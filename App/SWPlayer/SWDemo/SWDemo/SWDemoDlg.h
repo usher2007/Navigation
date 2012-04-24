@@ -6,6 +6,10 @@
 #include "MyVideoWindow.h"
 #include "DXGraph.h"
 #include "afxwin.h"
+extern "C"
+{
+#include "hasp_api.h"
+};
 #define  UNICODE
 #define  _UNICODE
 // CSWDemoDlg dialog
@@ -29,8 +33,13 @@ protected:
 	CString mSourceFile;
 	BOOL m_bRecord;
 	BOOL m_bPlay;
+	// For testing the hasp key performance
+	long totalTime;
+	int checkCount;
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
+	void checkHLKey();
+	void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
