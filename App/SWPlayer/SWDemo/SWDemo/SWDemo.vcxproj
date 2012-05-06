@@ -56,7 +56,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>strmiids.lib</AdditionalDependencies>
+      <AdditionalDependencies>strmiids.lib;libhasp_windows_demo.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Navigation\App\SWPlayer\SWDemo\SWDemo</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -84,7 +85,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>D:\dx9sdkcp\SDK (C++)\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>strmiids.lib</AdditionalDependencies>
+      <AdditionalDependencies>strmiids.lib;haspds_windows.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -104,6 +105,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXGraph.h" />
+    <ClInclude Include="haspds.h" />
+    <ClInclude Include="hasp_api.h" />
     <ClInclude Include="iRGBFilters.h" />
     <ClInclude Include="MyVideoWindow.h" />
     <ClInclude Include="Resource.h" />

@@ -6,6 +6,7 @@
 #include "SWDemo.h"
 #include "SWDemoDlg.h"
 #include "afxdialogex.h"
+#include <time.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -36,6 +37,7 @@ BEGIN_MESSAGE_MAP(CSWDemoDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_ERASEBKGND()
+	//ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_PLAY, &CSWDemoDlg::OnBnClickedButtonPlay)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CSWDemoDlg::OnBnClickedButtonStop)
 	ON_BN_CLICKED(IDC_BUTTON_RESOLUTION, &CSWDemoDlg::OnBnClickedButtonResolution)
@@ -64,9 +66,105 @@ BOOL CSWDemoDlg::OnInitDialog()
 	m_bRecord = FALSE;
 	m_bPlay = FALSE;
 	GetDlgItem(IDC_BUTTON_STOP)->EnableWindow(FALSE);
+	checkHLKey();
+	SetTimer(1,5000,0);
+	totalTime = 0;
+	checkCount = 0;
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
+void CSWDemoDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	clock_t beginTime = clock();
+	this->checkHLKey();
+	clock_t endTime = clock();
+	totalTime += (endTime - beginTime);
+	checkCount ++;
+	if (checkCount > 100)
+	{
+		double timePerCheck = (double)(totalTime) / checkCount;
+	}
+	CDialogEx::OnTimer(nIDEvent);
+	return;
+}
 
+void CSWDemoDlg::checkHLKey()
+{
+	const hasp_feature_t feature = 26;
+
+	hasp_handle_t handle = HASP_INVALID_HANDLE_VALUE;
+	hasp_status_t status;
+
+	/*unsigned char vendor_code[] =
+		"AzIceaqfA1hX5wS+M8cGnYh5ceevUnOZIzJBbXFD6dgf3tBkb9cvUF/Tkd/iKu2fsg9wAysYKw7RMAsV"
+		"vIp4KcXle/v1RaXrLVnNBJ2H2DmrbUMOZbQUFXe698qmJsqNpLXRA367xpZ54i8kC5DTXwDhfxWTOZrB"
+		"rh5sRKHcoVLumztIQjgWh37AzmSd1bLOfUGI0xjAL9zJWO3fRaeB0NS2KlmoKaVT5Y04zZEc06waU2r6"
+		"AU2Dc4uipJqJmObqKM+tfNKAS0rZr5IudRiC7pUwnmtaHRe5fgSI8M7yvypvm+13Wm4Gwd4VnYiZvSxf"
+		"8ImN3ZOG9wEzfyMIlH2+rKPUVHI+igsqla0Wd9m7ZUR9vFotj1uYV0OzG7hX0+huN2E/IdgLDjbiapj1"
+		"e2fKHrMmGFaIvI6xzzJIQJF9GiRZ7+0jNFLKSyzX/K3JAyFrIPObfwM+y+zAgE1sWcZ1YnuBhICyRHBh"
+		"aJDKIZL8MywrEfB2yF+R3k9wFG1oN48gSLyfrfEKuB/qgNp+BeTruWUk0AwRE9XVMUuRbjpxa4YA67SK"
+		"unFEgFGgUfHBeHJTivvUl0u4Dki1UKAT973P+nXy2O0u239If/kRpNUVhMg8kpk7s8i6Arp7l/705/bL"
+		"Cx4kN5hHHSXIqkiG9tHdeNV8VYo5+72hgaCx3/uVoVLmtvxbOIvo120uTJbuLVTvT8KtsOlb3DxwUrwL"
+		"zaEMoAQAFk6Q9bNipHxfkRQER4kR7IYTMzSoW5mxh3H9O8Ge5BqVeYMEW36q9wnOYfxOLNw6yQMf8f9s"
+		"JN4KhZty02xm707S7VEfJJ1KNq7b5pP/3RjE0IKtB2gE6vAPRvRLzEohu0m7q1aUp8wAvSiqjZy7FLaT"
+		"tLEApXYvLvz6PEJdj4TegCZugj7c8bIOEqLXmloZ6EgVnjQ7/ttys7VFITB3mazzFiyQuKf4J6+b/a/Y";*/
+
+	unsigned char vendor_code[] =
+		"AzIceaqfA1hX5wS+M8cGnYh5ceevUnOZIzJBbXFD6dgf3tBkb9cvUF/Tkd/iKu2fsg9wAysYKw7RMAsV"
+		"vIp4KcXle/v1RaXrLVnNBJ2H2DmrbUMOZbQUFXe698qmJsqNpLXRA367xpZ54i8kC5DTXwDhfxWTOZrB"
+		"rh5sRKHcoVLumztIQjgWh37AzmSd1bLOfUGI0xjAL9zJWO3fRaeB0NS2KlmoKaVT5Y04zZEc06waU2r6"
+		"AU2Dc4uipJqJmObqKM+tfNKAS0rZr5IudRiC7pUwnmtaHRe5fgSI8M7yvypvm+13Wm4Gwd4VnYiZvSxf"
+		"8ImN3ZOG9wEzfyMIlH2+rKPUVHI+igsqla0Wd9m7ZUR9vFotj1uYV0OzG7hX0+huN2E/IdgLDjbiapj1"
+		"e2fKHrMmGFaIvI6xzzJIQJF9GiRZ7+0jNFLKSyzX/K3JAyFrIPObfwM+y+zAgE1sWcZ1YnuBhICyRHBh"
+		"aJDKIZL8MywrEfB2yF+R3k9wFG1oN48gSLyfrfEKuB/qgNp+BeTruWUk0AwRE9XVMUuRbjpxa4YA67SK"
+		"unFEgFGgUfHBeHJTivvUl0u4Dki1UKAT973P+nXy2O0u239If/kRpNUVhMg8kpk7s8i6Arp7l/705/bL"
+		"Cx4kN5hHHSXIqkiG9tHdeNV8VYo5+72hgaCx3/uVoVLmtvxbOIvo120uTJbuLVTvT8KtsOlb3DxwUrwL"
+		"zaEMoAQAFk6Q9bNipHxfkRQER4kR7IYTMzSoW5mxh3H9O8Ge5BqVeYMEW36q9wnOYfxOLNw6yQMf8f9s"
+		"JN4KhZty02xm707S7VEfJJ1KNq7b5pP/3RjE0IKtB2gE6vAPRvRLzEohu0m7q1aUp8wAvSiqjZy7FLaT"
+		"tLEApXYvLvz6PEJdj4TegCZugj7c8bIOEqLXmloZ6EgVnjQ7/ttys7VFITB3mazzFiyQuKf4J6+b/a/Y";
+	status = hasp_login(feature, vendor_code, &handle);
+	CString haspMsg;
+	if (status != HASP_STATUS_OK)
+	{
+		switch (status)
+		{
+		case HASP_FEATURE_NOT_FOUND:
+			haspMsg = "Feature not found!";
+			break;
+		case HASP_HASP_NOT_FOUND:
+			haspMsg = "Required Sentinel HASP protection key not found!";
+			break;
+		case HASP_OLD_DRIVER:
+			haspMsg = "Can't find request Feature!";
+			break;
+		case HASP_NO_DRIVER:
+			haspMsg = "Driver not installed!";
+			break;
+		case HASP_INV_VCODE:
+			haspMsg = "Invalid Vendor Code!";
+			break;
+		case HASP_FEATURE_TYPE_NOT_IMPL:
+			haspMsg = "Requested Feature type not available!";
+			break;
+		case HASP_TMOF:
+			haspMsg = "Too many open sessions!";
+			break;
+		case HASP_TS_DETECTED:
+			haspMsg = "Program is running on a Terminal Server!";
+			break;
+		case HASP_FEATURE_EXPIRED:
+			haspMsg = "Feature has been expired!";
+			break;
+		default:
+			haspMsg = "Unknown Error!";
+			break;
+		}
+		if(MessageBox(haspMsg, L"HASP Login Info", MB_OK) == IDOK)
+		{
+			this->DestroyWindow();
+		}
+	}
+	return;
+}
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
