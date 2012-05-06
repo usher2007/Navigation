@@ -5,7 +5,6 @@
 % Measurement function:
 %           y(k) = (x(k)^2)/20 + v(k)
 %
-% Date: 3/31/2006
 
 clear;                    %清除workspace
 clc;                      %清除Command Window
@@ -26,6 +25,7 @@ for k = 2:T                                  % Simulate the system
     y(k) = (x(k)^2)/20+ sqrt(R)*randn(1);    % 计算真实值y
 end
 xTrue = x;                                   % 真实值
+yOrigin = y;
 
 x = sqrt(P0)*randn(1,N);                     % Initialize the particles
 xpf(1) = mean(x);
@@ -68,7 +68,18 @@ plot(1:T,xpf,'r^-');
 legend('原始值','particle滤波值');
 xlabel('Time');
 axis([0 50 -40 40]);
+
 figure(2)
+clf;
+% plot(1:T,xTrue,'b*-',1:T,xpf,'r^-'); % 真实值蓝色*表示，滤波值红色三角表示
+plot(1:T,xpf,'r^-');
+hold on
+plot(1:T,yOrigin, 'go-');
+legend('particle滤波值','观测值');
+xlabel('Time');
+axis([0 50 -40 40]);
+
+figure(3)
 clf;
 plot(xpf,xTrue,'+');
 hold on;
