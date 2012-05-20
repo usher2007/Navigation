@@ -19,13 +19,14 @@ int main(int argc, char** argv)
 	IplImage* pFrame = NULL;
 	IplImage* pBkImg = NULL;
 	IplImage* pFrImg = NULL;
+	IplImage* pFrResImg = NULL;
+	IplImage* pMask = NULL;
 	char videoFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_rgb.avi";
 	if(!(pCapture = cvCaptureFromFile(videoFileName)))
 	{
 		fprintf(stderr, "Can't open video file %s\n", videoFileName);
 		return -1;
 	}
-
 	int nofs = 0; //number of frames conatined in the file (each file is a video sequence of depth maps)
 	int ncols = 0;
 	int nrows = 0;
@@ -35,8 +36,10 @@ int main(int argc, char** argv)
 
 	cvNamedWindow("Depth Image", 1);
 	cvNamedWindow("Foreground", 1);
-	cvMoveWindow("Depth Image", 30, 0);
-	cvMoveWindow("Foreground", 360, 360);
+	cvNamedWindow("Segment Result", 1);
+	cvMoveWindow("Depth Image", 0, 0);
+	cvMoveWindow("Foreground", 0, 640);
+	cvMoveWindow("Segment Result", 480, 0);
 	
 	GaussBGM *bgModel= NULL;
 	int frameCount = 0;
@@ -48,9 +51,11 @@ int main(int argc, char** argv)
 		//the data will be stored in <depthMap>
 		ReadDepthMapSktBinFileNextFrame(fp, ncols, nrows, depthMap);
 
-		if(frameCount < 10)
+		if(frameCount == 1)
 		{
 			bgModel = new GaussBGM(pFrame);
+			pMask = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_8U, 1);
+			pFrResImg = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_8U, 3);
 		}
 		else
 		{
@@ -64,11 +69,14 @@ int main(int argc, char** argv)
 			pImage = cvCreateImage(mImgSize,IPL_DEPTH_8U,1);
 			depthMap.convertToChar((uchar *)pImage->imageData);
 			cvShowImage("Depth Image", pImage);
-
+			pMask->imageData = (char *)depthMap.GetForegroundMask();
+			memset(pFrResImg->imageData, 0, pFrame->imageSize);
+			cvCopy(pFrame, pFrResImg, pMask);
 			bgModel->UpdateModel(pFrame);
 			pBkImg = bgModel->GetBackgroundImg();
 			pFrImg = bgModel->GetForegroundImg();
 			cvShowImage("Foreground", pFrImg);
+			cvShowImage("Segment Result", pFrResImg);
 
 			cvWaitKey(2);
 			cvReleaseImage(&pImage);

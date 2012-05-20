@@ -30,12 +30,14 @@ public:
 	int NumberOfNonZeroPoints() const;
 	float AvgNonZeroDepth() const;
 	float* GetPtr();
+	char* GetForegroundMask();
 
 	int NumPointsWithSkeletonID(uint8_t val) const;
 protected:
 	int m_ncols; //ncols
 	int m_nrows; //nrows
 	float * m_depthVals; //nrows * ncols
+	char *m_foregroundMask;
 	uint8_t* m_skIDVals; //nrows * ncols
 	float m_nonZeroMaxVals;
 	float m_nonZeroMinVals;

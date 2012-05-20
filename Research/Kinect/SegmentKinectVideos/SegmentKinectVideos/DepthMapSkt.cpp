@@ -9,6 +9,11 @@ CDepthMapSkt::CDepthMapSkt(void)
 	m_nrows = 0;
 	m_depthVals = NULL;
 	m_skIDVals = NULL;
+	m_foregroundMask = NULL;
+	m_nonZeroMaxVals = 0.0;
+	m_nonZeroMinVals = 0.0;
+	m_nonZeroCount = 0;
+	m_nonZeroSum = 0;
 }
 
 //from pixel+depth to XYZ coordinates. Make sure this is done consistently everywhere.
@@ -34,6 +39,7 @@ CDepthMapSkt::CDepthMapSkt( int ncols, int nrows, uchar* raw_data )
 			m_depthVals[i*ncols+j] = data[i*ncols+j];
 		}
 
+	m_foregroundMask = NULL;
 	m_nonZeroMaxVals = 0.0;
 	m_nonZeroMinVals = 0.0;
 	m_nonZeroCount = 0;
@@ -231,4 +237,29 @@ int CDepthMapSkt::NumPointsWithSkeletonID(uint8_t val) const
 		}
 
 	return count;
+}
+
+char* CDepthMapSkt::GetForegroundMask()
+{
+	if(m_foregroundMask == NULL)
+	{
+		m_foregroundMask = new char[m_ncols * m_nrows];
+	}
+	float avgDepth = AvgNonZeroDepth();
+	for(int i=0; i<m_nrows; i++)
+	{
+		for(int j=0; j<m_ncols; j++)
+		{
+			if(m_depthVals[i*m_ncols+j] != 0.0 && m_depthVals[i*m_ncols+j] <= avgDepth)
+			{
+				m_foregroundMask[i*m_ncols+j] = 255;
+			}
+			else
+			{
+				m_foregroundMask[i*m_ncols+j] = 0;
+			}
+		}
+	}
+
+	return m_foregroundMask;
 }
