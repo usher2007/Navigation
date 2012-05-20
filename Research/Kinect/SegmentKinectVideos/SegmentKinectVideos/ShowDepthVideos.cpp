@@ -34,44 +34,47 @@ int main(int argc, char** argv)
 	printf("number of frames=%i\n", nofs);
 
 	cvNamedWindow("Depth Image", 1);
-	cvNamedWindow("Video", 1);
-	cvNamedWindow("Background", 1);
 	cvNamedWindow("Foreground", 1);
 	cvMoveWindow("Depth Image", 30, 0);
-	cvMoveWindow("Video", 30, 360);
-	cvMoveWindow("Background", 360, 0);
 	cvMoveWindow("Foreground", 360, 360);
 	
 	GaussBGM *bgModel= NULL;
+	int frameCount = 0;
 	while(pFrame = cvQueryFrame(pCapture))
 	{
+		frameCount ++;
 		CDepthMapSkt depthMap;
 		depthMap.SetSize(ncols, nrows); //it allocates space
 		//the data will be stored in <depthMap>
 		ReadDepthMapSktBinFileNextFrame(fp, ncols, nrows, depthMap);
-		CvSize mImgSize;
-		mImgSize.width = ncols;
-		mImgSize.height = nrows;
-		pImage = cvCreateImage(mImgSize,IPL_DEPTH_8U,1);
-		depthMap.convertToChar((uchar *)pImage->imageData);
-		cvShowImage("Depth Image", pImage);
 
-		if(bgModel == NULL)
+		if(frameCount < 10)
 		{
 			bgModel = new GaussBGM(pFrame);
 		}
 		else
 		{
+			float scaleWidth = pFrame->width/(float)ncols;
+			float scaleHeight = pFrame->height/(float)nrows;
+			depthMap.ScaleSizeNN(scaleWidth, scaleHeight);
+
+			CvSize mImgSize;
+			mImgSize.width = pFrame->width;
+			mImgSize.height = pFrame->height;
+			pImage = cvCreateImage(mImgSize,IPL_DEPTH_8U,1);
+			depthMap.convertToChar((uchar *)pImage->imageData);
+			cvShowImage("Depth Image", pImage);
+
 			bgModel->UpdateModel(pFrame);
 			pBkImg = bgModel->GetBackgroundImg();
 			pFrImg = bgModel->GetForegroundImg();
-			cvShowImage("Video", pFrame);
-			cvShowImage("Background", pBkImg);
 			cvShowImage("Foreground", pFrImg);
+
+			cvWaitKey(2);
+			cvReleaseImage(&pImage);
 		}
 
-		cvWaitKey(2);
-		cvReleaseImage(&pImage);
+		
 	}
 
 	fclose(fp);

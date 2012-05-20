@@ -143,6 +143,30 @@ void CDepthMapSkt::ScaleSizeNN(float scaleFactor)
 	}
 }
 
+void CDepthMapSkt::ScaleSizeNN(float scaleFactorWidth, float scaleFactorHeight)
+{
+	//buffer the original depthmap
+	CDepthMapSkt bufDepthMap;
+	CopyDepthMapTo(bufDepthMap);
+
+	int new_ncols = floor(m_ncols * scaleFactorWidth);
+	int new_nrows = floor(m_nrows * scaleFactorHeight);
+
+	SetSize(new_ncols, new_nrows);
+
+	int r,c;
+	for(r=0; r<GetNRows(); r++)
+	{
+		for(c=0; c<GetNCols(); c++)
+		{
+			int origR = floor(r/scaleFactorHeight);
+			int origC = floor(c/scaleFactorWidth);
+			float origVal = bufDepthMap.GetItem(origR, origC);
+			SetItem(r,c, origVal);
+		}
+	}
+}
+
 void CDepthMapSkt::CopyDepthMapTo(CDepthMapSkt & dstMap) const
 {
 	dstMap.SetSize(m_ncols, m_nrows);
