@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	IplImage* pImage;
+	IplImage* pScaledDepthImage;
 	CvCapture* pCapture = NULL;
 	IplImage* pFrame = NULL;
 	IplImage* pBkImg = NULL;
@@ -60,17 +60,17 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			float scaleWidth = pFrame->width/(float)ncols;
-			float scaleHeight = pFrame->height/(float)nrows;
-			depthMap.ScaleSizeNN(scaleWidth, scaleHeight);
+			float scaleWidthCoeff = pFrame->width/(float)ncols;
+			float scaleHeightCoeff = pFrame->height/(float)nrows;
+			depthMap.ScaleSizeNN(scaleWidthCoeff, scaleHeightCoeff);
 			depthMap.ShiftNN(10,30);
 
-			CvSize mImgSize;
-			mImgSize.width = pFrame->width;
-			mImgSize.height = pFrame->height;
-			pImage = cvCreateImage(mImgSize,IPL_DEPTH_8U,1);
-			depthMap.convertToChar((uchar *)pImage->imageData);
-			cvShowImage("Depth Image", pImage);
+			CvSize scaledDepthImgSize;
+			scaledDepthImgSize.width = pFrame->width;
+			scaledDepthImgSize.height = pFrame->height;
+			pScaledDepthImage = cvCreateImage(scaledDepthImgSize,IPL_DEPTH_8U,1);
+			depthMap.convertToChar((uchar *)pScaledDepthImage->imageData);
+			cvShowImage("Depth Image", pScaledDepthImage);
 			pMask->imageData = (char *)depthMap.GetForegroundMask();
 			memset(pFrResImg->imageData, 0, pFrame->imageSize);
 			cvCopy(pFrame, pFrResImg, pMask);
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 			cvShowImage("Segment Result", pFrResImg);
 
 			cvWaitKey(2);
-			cvReleaseImage(&pImage);
+			cvReleaseImage(&pScaledDepthImage);
 		}
 
 		
