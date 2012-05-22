@@ -3,9 +3,14 @@
 #include "DepthMapSkt.h"
 #include "DepthMapSktBinFileIO.h"
 #include "GaussBGM.h"
+#include <string>
+#include <iostream>
+using std::string;
+using std::to_string;
 
 int main(int argc, char** argv)
 {
+	void saveImage(int, IplImage*, IplImage*,IplImage*,IplImage*);
 	IplImage* pScaledDepthImage;
 	CvCapture* pCapture = NULL;
 	IplImage* pFrame = NULL;
@@ -70,15 +75,17 @@ int main(int argc, char** argv)
 			scaledDepthImgSize.height = pFrame->height;
 			pScaledDepthImage = cvCreateImage(scaledDepthImgSize,IPL_DEPTH_8U,1);
 			depthMap.convertToChar((uchar *)pScaledDepthImage->imageData);
-			cvShowImage("Depth Image", pScaledDepthImage);
 			pMask->imageData = (char *)depthMap.GetForegroundMask();
 			memset(pFrResImg->imageData, 0, pFrame->imageSize);
 			cvCopy(pFrame, pFrResImg, pMask);
 			bgModel->UpdateModel(pFrame);
 			pBkImg = bgModel->GetBackgroundImg();
 			pFrImg = bgModel->GetForegroundImg();
+
+			/*cvShowImage("Depth Image", pScaledDepthImage);
 			cvShowImage("Foreground", pFrImg);
-			cvShowImage("Segment Result", pFrResImg);
+			cvShowImage("Segment Result", pFrResImg);*/
+			saveImage(frameCount, pFrame, pScaledDepthImage, pFrImg, pFrResImg);
 
 			cvWaitKey(2);
 			cvReleaseImage(&pScaledDepthImage);
@@ -91,4 +98,26 @@ int main(int argc, char** argv)
 	fp=NULL;
 
 	return 0;
+}
+string resultFolder = "D:\\Navigation\\Research\\Kinect\\SegmentKinectVideos\\Data\\";
+string originalFolder = "Original\\";
+string depthFolder = "DepthImage\\";
+string foregroundFolder = "GBMForeground\\";
+string segmentFolder = "SegmentResult\\";
+void saveImage(int index, IplImage *pOriginal, IplImage *pDepthImage, IplImage *pForegroundImage, IplImage *pSegmentResult)
+{
+	std::stringstream ssIndex;
+	ssIndex << index;
+	string s = resultFolder + originalFolder + ssIndex.str() + ".bmp";
+	const char *fileName = s.c_str();
+	cvSaveImage(fileName, pOriginal);
+	s = resultFolder + depthFolder + ssIndex.str() + ".bmp";
+	fileName = s.c_str();
+	cvSaveImage(fileName, pDepthImage);
+	s = resultFolder + foregroundFolder + ssIndex.str() + ".bmp";
+	fileName = s.c_str();
+	cvSaveImage(fileName, pForegroundImage);
+	s = resultFolder + segmentFolder + ssIndex.str() + ".bmp";
+	fileName = s.c_str();
+	cvSaveImage(fileName, pSegmentResult);
 }
