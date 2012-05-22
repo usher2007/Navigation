@@ -26,6 +26,7 @@ public:
 	void Scale(float s); //scale the depth
 	void ScaleSizeNN(float scaleFactor); //ncols = floor(scaleFactor * ncols), nrows = floor(scaleFactor * nrows)
 	void ScaleSizeNN(float scaleFactorWidth, float scaleFactorHeight);
+	void ShiftNN(int column, int width);
     void convertToInt( uint8_t* dst ) const;
 	int NumberOfNonZeroPoints() const;
 	float AvgNonZeroDepth() const;

@@ -173,6 +173,33 @@ void CDepthMapSkt::ScaleSizeNN(float scaleFactorWidth, float scaleFactorHeight)
 	}
 }
 
+void CDepthMapSkt::ShiftNN(int column, int row)
+{
+	CDepthMapSkt bufDepthMap;
+	CopyDepthMapTo(bufDepthMap);
+	if(column < 0 || row < 0)
+	{
+		return;
+	}
+	int r,c;
+	for(r=0; r<GetNRows(); r++)
+	{
+		for(c=0; c<GetNCols(); c++)
+		{
+			if(r < row || c < column)
+			{
+				SetItem(r,c, 0.0);
+			}
+			else
+			{
+				float shiftedValue = bufDepthMap.GetItem(r-row, c-column);
+				SetItem(r, c, shiftedValue);
+			}
+		}
+	}
+	return;
+}
+
 void CDepthMapSkt::CopyDepthMapTo(CDepthMapSkt & dstMap) const
 {
 	dstMap.SetSize(m_ncols, m_nrows);

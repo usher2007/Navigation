@@ -7,14 +7,6 @@
 int main(int argc, char** argv)
 {
 	IplImage* pImage;
-	char depthFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_depth.bin";
-	FILE * fp = fopen(depthFileName, "rb");
-	if(fp == NULL)
-	{
-		fprintf(stderr, "Can't open video file %s\n", depthFileName);
-		return -1;
-	}
-
 	CvCapture* pCapture = NULL;
 	IplImage* pFrame = NULL;
 	IplImage* pBkImg = NULL;
@@ -22,14 +14,23 @@ int main(int argc, char** argv)
 	IplImage* pFrResImg = NULL;
 	IplImage* pMask = NULL;
 	char videoFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_rgb.avi";
+	char depthFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_depth.bin";
+	int nofs = 0; //number of frames conatined in the file (each file is a video sequence of depth maps)
+	int ncols = 0;
+	int nrows = 0;
+	FILE * fp = fopen(depthFileName, "rb");
+
+	if(fp == NULL)
+	{
+		fprintf(stderr, "Can't open video file %s\n", depthFileName);
+		return -1;
+	}
 	if(!(pCapture = cvCaptureFromFile(videoFileName)))
 	{
 		fprintf(stderr, "Can't open video file %s\n", videoFileName);
 		return -1;
 	}
-	int nofs = 0; //number of frames conatined in the file (each file is a video sequence of depth maps)
-	int ncols = 0;
-	int nrows = 0;
+	
 	ReadDepthMapSktBinFileHeader(fp, nofs, ncols, nrows);
 
 	printf("number of frames=%i\n", nofs);
@@ -62,6 +63,7 @@ int main(int argc, char** argv)
 			float scaleWidth = pFrame->width/(float)ncols;
 			float scaleHeight = pFrame->height/(float)nrows;
 			depthMap.ScaleSizeNN(scaleWidth, scaleHeight);
+			depthMap.ShiftNN(10,30);
 
 			CvSize mImgSize;
 			mImgSize.width = pFrame->width;
