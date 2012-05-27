@@ -283,8 +283,8 @@ char* CDepthMapSkt::GetForegroundMask()
 		{
 			if(m_depthVals[i*m_ncols+j] != 0.0 && m_depthVals[i*m_ncols+j] <= avgDepth)
 			{
-				m_foregroundMask[i*m_ncols+j] = m_depthVals[i*m_ncols+j];
-				m_avgMaskValue += m_depthVals[i*m_ncols+j];
+				m_foregroundMask[i*m_ncols+j] = m_depthVals[i*m_ncols+j]/16;
+				m_avgMaskValue += m_depthVals[i*m_ncols+j]/16;
 				maskPixelCount += 1;
 			}
 			else

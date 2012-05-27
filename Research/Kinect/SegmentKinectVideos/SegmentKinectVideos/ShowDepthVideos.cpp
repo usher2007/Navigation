@@ -12,6 +12,9 @@ using std::to_string;
 double getColorRelationWeight(int row, int col, IplImage *pFrame, int index);
 void saveImage(int, IplImage*, IplImage*,IplImage*,IplImage*);
 double getDepthRelationWeight(int row, int col, IplImage *pMask, double avgDepth, int index);
+void generateLikelyhood(CvMat *pProbFrMask, IplImage *pMask, IplImage *pFrame, float avgMaskDepth);
+void matMultipleNum(CvMat *pMat, double num);
+double maxLikelyhood = 0.0;
 int main(int argc, char** argv)
 {
 	IplImage* pScaledDepthImage;
@@ -22,6 +25,7 @@ int main(int argc, char** argv)
 	IplImage* pFrResImg = NULL;
 	IplImage* pMask = NULL;
 	CvMat* pProbFrMask = NULL;
+	IplImage* pProbForShow = NULL;
 	char videoFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_rgb.avi";
 	char depthFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_depth.bin";
 	int nofs = 0; //number of frames conatined in the file (each file is a video sequence of depth maps)
@@ -65,6 +69,7 @@ int main(int argc, char** argv)
 		{
 			bgModel = new GaussBGM(pFrame);
 			pMask = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_8U, 1);
+			pProbForShow = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_32F, 1);
 			pFrResImg = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_8U, 3);
 		}
 		else
@@ -82,6 +87,10 @@ int main(int argc, char** argv)
 			pMask->imageData = (char *)depthMap.GetForegroundMask();
 
 			pProbFrMask = cvCreateMat(scaledDepthImgSize.height, scaledDepthImgSize.width, CV_32FC1);
+			generateLikelyhood(pProbFrMask, pMask, pFrame, depthMap.GetAvgMaskValue()/16);
+//ForDebug
+matMultipleNum(pProbFrMask, 1.0 / maxLikelyhood);	
+			cvGetImage(pProbFrMask, pProbForShow);
 
 			memset(pFrResImg->imageData, 0, pFrame->imageSize);
 			cvCopy(pFrame, pFrResImg, pMask);
@@ -89,8 +98,8 @@ int main(int argc, char** argv)
 			pBkImg = bgModel->GetBackgroundImg();
 			pFrImg = bgModel->GetForegroundImg();
 
-			cvShowImage("Depth Image", pMask);
-			cvShowImage("Foreground", pFrImg);
+			cvShowImage("Depth Image", pProbForShow);
+			cvShowImage("Foreground", pMask);
 			cvShowImage("Segment Result", pFrResImg);
 			//saveImage(frameCount, pFrame, pScaledDepthImage, pFrImg, pFrResImg);
 
@@ -110,7 +119,8 @@ int main(int argc, char** argv)
 void generateLikelyhood(CvMat *pProbFrMask, IplImage *pMask, IplImage *pFrame, float avgMaskDepth)
 {
 	double colorRelationWeights[4] = {0.0}, depthRelationWeights[4];
-	
+	maxLikelyhood = 0.0;
+
 	for(int i=0; i<pMask->height; i++)
 	{
 		for(int j=0; j<pMask->width; j++)
@@ -133,6 +143,8 @@ void generateLikelyhood(CvMat *pProbFrMask, IplImage *pMask, IplImage *pFrame, f
 				probWeight += (colorRelationWeights[k]/sumOfColorRelationWeight*depthRelationWeights[k]);
 			}
 			cvmSet(pProbFrMask, i, j, probWeight);
+			if(probWeight > maxLikelyhood)
+				maxLikelyhood = probWeight;
 		}
 	}
 }
@@ -195,6 +207,18 @@ double getDepthRelationWeight(int row, int col, IplImage *pMask, double avgDepth
 		return 0.0;
 
 	return avgDepth/neighbourDepth;
+}
+
+void matMultipleNum(CvMat *pMat, double num)
+{
+	for(int i=0; i< pMat->rows; i++)
+		for(int j=0; j< pMat->cols;j++)
+		{
+			double val = cvmGet(pMat, i, j);
+			val = val * num;
+			cvmSet(pMat, i, j, val);
+		}
+	return;
 }
 
 string resultFolder = "D:\\Navigation\\Research\\Kinect\\SegmentKinectVideos\\Data\\";
