@@ -34,6 +34,7 @@ public:
 	char* GetForegroundMask();
 
 	int NumPointsWithSkeletonID(uint8_t val) const;
+	float GetAvgMaskValue() const;
 protected:
 	int m_ncols; //ncols
 	int m_nrows; //nrows
@@ -44,5 +45,6 @@ protected:
 	float m_nonZeroMinVals;
 	int m_nonZeroCount;
 	float m_nonZeroSum;
+	float m_avgMaskValue;
 };
 #endif

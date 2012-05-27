@@ -14,6 +14,7 @@ CDepthMapSkt::CDepthMapSkt(void)
 	m_nonZeroMinVals = 0.0;
 	m_nonZeroCount = 0;
 	m_nonZeroSum = 0;
+	m_avgMaskValue = 0.0;
 }
 
 //from pixel+depth to XYZ coordinates. Make sure this is done consistently everywhere.
@@ -44,6 +45,7 @@ CDepthMapSkt::CDepthMapSkt( int ncols, int nrows, uchar* raw_data )
 	m_nonZeroMinVals = 0.0;
 	m_nonZeroCount = 0;
 	m_nonZeroSum = 0;
+	m_avgMaskValue = 0.0;
 }
 
 CDepthMapSkt::~CDepthMapSkt(void)
@@ -273,13 +275,17 @@ char* CDepthMapSkt::GetForegroundMask()
 		m_foregroundMask = new char[m_ncols * m_nrows];
 	}
 	float avgDepth = AvgNonZeroDepth();
+	int maskPixelCount = 0;
+	m_avgMaskValue = 0.0;
 	for(int i=0; i<m_nrows; i++)
 	{
 		for(int j=0; j<m_ncols; j++)
 		{
 			if(m_depthVals[i*m_ncols+j] != 0.0 && m_depthVals[i*m_ncols+j] <= avgDepth)
 			{
-				m_foregroundMask[i*m_ncols+j] = 255;
+				m_foregroundMask[i*m_ncols+j] = m_depthVals[i*m_ncols+j];
+				m_avgMaskValue += m_depthVals[i*m_ncols+j];
+				maskPixelCount += 1;
 			}
 			else
 			{
@@ -287,6 +293,11 @@ char* CDepthMapSkt::GetForegroundMask()
 			}
 		}
 	}
-
+	m_avgMaskValue = m_avgMaskValue / maskPixelCount;
 	return m_foregroundMask;
+}
+
+float CDepthMapSkt::GetAvgMaskValue() const
+{
+	return m_avgMaskValue;
 }
