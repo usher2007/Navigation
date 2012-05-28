@@ -3,6 +3,7 @@
 #include "DepthMapSkt.h"
 #include "DepthMapSktBinFileIO.h"
 #include "GaussBGM.h"
+#include "SkeletonReader.h"
 #include <string>
 #include <iostream>
 using std::string;
@@ -16,6 +17,7 @@ void generateLikelyhood(CvMat *pProbFrMask, IplImage *pMask, IplImage *pFrame, f
 void matMultipleNum(CvMat *pMat, double num);
 void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask, IplImage *pGBMFrImg);
 void getCandidateFromGBMFr(IplImage *pFrImg);
+void drawSkeleton(IplImage *pImg, double *rows, double *cols, int numOfPoints);
 double maxLikelyhood = 0.0;
 int main(int argc, char** argv)
 {
@@ -29,9 +31,13 @@ int main(int argc, char** argv)
 	IplImage* pProbForShow = NULL;
 	char videoFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_rgb.avi";
 	char depthFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_depth.bin";
+	char skeletonFileName[] = "D:\\code\\Data\\cheer up\\a08_s01_e02_skeleton.txt";
 	int nofs = 0; //number of frames conatined in the file (each file is a video sequence of depth maps)
 	int ncols = 0;
 	int nrows = 0;
+	double skRows[20];
+	double skCols[20];
+	SkeletonReader skReader(skeletonFileName);
 	FILE * fp = fopen(depthFileName, "rb");
 
 	if(fp == NULL)
@@ -72,9 +78,12 @@ int main(int argc, char** argv)
 			pMask = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_8U, 1);
 			pProbForShow = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_32F, 1);
 			pFrResImg = cvCreateImage(cvSize(pFrame->width, pFrame->height), IPL_DEPTH_8U, 3);
+			skReader.ReadNextFrame(skRows, skCols);
 		}
 		else
 		{
+			skReader.ReadNextFrame(skRows, skCols);
+
 			float scaleWidthCoeff = pFrame->width/(float)ncols;
 			float scaleHeightCoeff = pFrame->height/(float)nrows;
 			depthMap.ScaleSizeNN(scaleWidthCoeff, scaleHeightCoeff);
@@ -102,7 +111,7 @@ int main(int argc, char** argv)
 			memset(pFrResImg->imageData, 0, pFrame->imageSize);
 			cvCopy(pFrame, pFrResImg, pMask);
 			
-
+			drawSkeleton(pFrResImg, skRows, skCols, 20);
 			/*cvShowImage("Depth Image", pMask);
 			cvShowImage("Foreground", pFrImg);
 			cvShowImage("Segment Result", pFrResImg);*/
@@ -249,7 +258,7 @@ void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask, IplImage *pGBMFrImg)
 
 void getCandidateFromGBMFr(IplImage *pFrImg)
 {
-	const int rangeOfCandidate = 25;
+	const int rangeOfCandidate = 20;
 	IplImage *pTmp = cvCreateImage(cvSize(pFrImg->width, pFrImg->height), IPL_DEPTH_8U, 1);
 	uchar *pFrData = (uchar *)pFrImg->imageData;
 	uchar *pTmpData = (uchar *)pTmp->imageData;
@@ -284,6 +293,16 @@ void getCandidateFromGBMFr(IplImage *pFrImg)
 		}
 	}
 	cvReleaseImage(&pTmp);
+}
+
+void drawSkeleton(IplImage *pImg, double *rows, double *cols, int numOfPoints)
+{
+	for(int i=0; i<numOfPoints; i++)
+	{
+		int row = rows[i] * pImg->height;
+		int col = cols[i] * pImg->width;
+		cvCircle(pImg, cvPoint(col, row), 3, cvScalar(0,0,255), -1);
+	}
 }
 
 string resultFolder = "D:\\Navigation\\Research\\Kinect\\SegmentKinectVideos\\Data\\";

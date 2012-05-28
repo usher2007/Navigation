@@ -281,7 +281,7 @@ char* CDepthMapSkt::GetForegroundMask()
 	{
 		for(int j=0; j<m_ncols; j++)
 		{
-			if(m_depthVals[i*m_ncols+j] != 0.0 && m_depthVals[i*m_ncols+j] <= avgDepth)
+			if(m_depthVals[i*m_ncols+j] != 0.0 && m_depthVals[i*m_ncols+j] <= avgDepth*0.95)
 			{
 				m_foregroundMask[i*m_ncols+j] = m_depthVals[i*m_ncols+j]/16;
 				m_avgMaskValue += m_depthVals[i*m_ncols+j]/16;

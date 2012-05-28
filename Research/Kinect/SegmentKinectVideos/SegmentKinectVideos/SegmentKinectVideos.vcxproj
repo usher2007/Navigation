@@ -67,12 +67,14 @@
     <ClInclude Include="DepthMapSkt.h" />
     <ClInclude Include="DepthMapSktBinFileIO.h" />
     <ClInclude Include="GaussBGM.h" />
+    <ClInclude Include="SkeletonReader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DepthMapSkt.cpp" />
     <ClCompile Include="DepthMapSktBinFileIO.cpp" />
     <ClCompile Include="GaussBGM.cpp" />
     <ClCompile Include="ShowDepthVideos.cpp" />
+    <ClCompile Include="SkeletonReader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
