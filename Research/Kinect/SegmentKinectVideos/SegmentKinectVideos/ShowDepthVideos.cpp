@@ -14,14 +14,14 @@ void saveImage(int, IplImage*, IplImage*,IplImage*,IplImage*);
 double getDepthRelationWeight(int row, int col, IplImage *pMask, double avgDepth, int index);
 void generateLikelyhood(CvMat *pProbFrMask, IplImage *pMask, IplImage *pFrame, float avgMaskDepth);
 void matMultipleNum(CvMat *pMat, double num);
-void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask);
+void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask, IplImage *pGBMFrImg);
+void getCandidateFromGBMFr(IplImage *pFrImg);
 double maxLikelyhood = 0.0;
 int main(int argc, char** argv)
 {
 	IplImage* pScaledDepthImage;
 	CvCapture* pCapture = NULL;
 	IplImage* pFrame = NULL;
-	IplImage* pBkImg = NULL;
 	IplImage* pFrImg = NULL;
 	IplImage* pFrResImg = NULL;
 	IplImage* pMask = NULL;
@@ -93,17 +93,18 @@ int main(int argc, char** argv)
 //matMultipleNum(pProbFrMask, 255.0 / maxLikelyhood);	
 //cvGetImage(pProbFrMask, pProbForShow);
 
-			reAdjustFrMask(pMask, pProbFrMask);
+			bgModel->UpdateModel(pFrame);
+			pFrImg = bgModel->GetForegroundImg();
+			getCandidateFromGBMFr(pFrImg);
+			reAdjustFrMask(pMask, pProbFrMask, pFrImg);
 
 
 			memset(pFrResImg->imageData, 0, pFrame->imageSize);
 			cvCopy(pFrame, pFrResImg, pMask);
-			bgModel->UpdateModel(pFrame);
-			pBkImg = bgModel->GetBackgroundImg();
-			pFrImg = bgModel->GetForegroundImg();
+			
 
-			/*cvShowImage("Depth Image", pProbForShow);
-			cvShowImage("Foreground", pMask);
+			/*cvShowImage("Depth Image", pMask);
+			cvShowImage("Foreground", pFrImg);
 			cvShowImage("Segment Result", pFrResImg);*/
 			saveImage(frameCount, pFrame, pMask, pFrImg, pFrResImg);
 			std::cout<<"frame cout:"<<frameCount<<std::endl;
@@ -226,14 +227,15 @@ void matMultipleNum(CvMat *pMat, double num)
 	return;
 }
 
-void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask)
+void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask, IplImage *pGBMFrImg)
 {
 	uchar *maskData = (uchar *)pMask->imageData;
+	uchar *pGBMFrData = (uchar *)pGBMFrImg->imageData;
 	for(int i=0; i<pProbFrMask->rows; i++)
 	{
 		for(int j=0; j<pProbFrMask->cols; j++)
 		{
-			if(cvmGet(pProbFrMask, i, j) > maxLikelyhood*0.7)
+			if(cvmGet(pProbFrMask, i, j) > maxLikelyhood*0.7 && pGBMFrData[i*pGBMFrImg->widthStep + j] == 255)
 			{
 				maskData[i*pMask->widthStep+j] = 255;
 			}
@@ -243,6 +245,45 @@ void reAdjustFrMask(IplImage *pMask, CvMat *pProbFrMask)
 			}
 		}
 	}
+}
+
+void getCandidateFromGBMFr(IplImage *pFrImg)
+{
+	const int rangeOfCandidate = 25;
+	IplImage *pTmp = cvCreateImage(cvSize(pFrImg->width, pFrImg->height), IPL_DEPTH_8U, 1);
+	uchar *pFrData = (uchar *)pFrImg->imageData;
+	uchar *pTmpData = (uchar *)pTmp->imageData;
+	for(int i=0; i<pFrImg->height; i++)
+	{
+		for(int j=0; j<pFrImg->width; j++)
+		{
+			if(pFrData[i*pFrImg->widthStep + j] != 0)
+			{
+				int rowFrom = i-rangeOfCandidate >= 0 ? i-rangeOfCandidate : 0;
+				int rowTo = i+rangeOfCandidate <= pFrImg->height-1 ? i+rangeOfCandidate : pFrImg->height-1;
+				int colFrom = j-rangeOfCandidate >= 0 ? j-rangeOfCandidate : 0;
+				int colTo = j+rangeOfCandidate <= pFrImg->width-1 ? j+rangeOfCandidate : pFrImg->width-1;
+				for(int x=rowFrom; x<= rowTo; x++)
+				{
+					for(int y= colFrom; y<=colTo; y++)
+					{
+						pTmpData[x*pFrImg->widthStep + y] = 255;
+					}
+				}
+			}
+		}
+	}
+	for(int i=0; i<pFrImg->height; i++)
+	{
+		for(int j=0; j<pFrImg->width; j++)
+		{
+			if(pTmpData[i*pFrImg->widthStep + j] == 255)
+			{
+				pFrData[i*pFrImg->widthStep + j] = 255;
+			}
+		}
+	}
+	cvReleaseImage(&pTmp);
 }
 
 string resultFolder = "D:\\Navigation\\Research\\Kinect\\SegmentKinectVideos\\Data\\";
