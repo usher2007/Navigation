@@ -44,7 +44,31 @@ for i=1:5
     training_data = [bedroom_sample house_sample industry_sample];
     test_data = [bedroom_test house_test industry_test];
     
-    ada = fitensemble(training_data', training_labels, 'AdaBoostM2', 500, 'tree', 'LearnRate', 0.1);
+    ada = fitensemble(training_data', training_labels, 'AdaBoostM2', 200, 'tree');
     plot(resubLoss(ada,'mode','cumulative'));
     [test_labels score] = predict(ada, test_data');
+    
+    wrong_count_bedroom = 0;
+    wrong_count_house = 0;
+    wrong_count_industry = 0;
+    for k=1:383
+        if k>0 && k<=108
+            if ~strcmp(test_labels{k},'bedroom')
+                wrong_count_bedroom = wrong_count_bedroom + 1;
+            end
+        end
+        if k>108 && k<=228
+            if ~strcmp(test_labels{k},'house')
+                wrong_count_house = wrong_count_house + 1;
+            end
+        end
+        if k>228 && k<=383
+            if ~strcmp(test_labels{k},'industry')
+                wrong_count_industry = wrong_count_industry + 1;
+            end
+        end
+    end
+    wrong_count_bedroom
+    wrong_count_house
+    wrong_count_industry
 end
