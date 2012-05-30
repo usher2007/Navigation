@@ -23,7 +23,9 @@ house_and_industry_labels(121:275) = {'industry'};
 industry_and_bedroom_labels(1:155) = {'industry'};
 industry_and_bedroom_labels(156:263) = {'bedroom'};
 
-wrong_counts = zeros(1,5);
+wrong_bedroom_counts = zeros(1,5);
+wrong_house_counts = zeros(1,5);
+wrong_industry_counts = zeros(1,5);
 for i=1:5
     rand_order = randperm(216);
     sample_pos = rand_order(1, 1:108);
@@ -85,14 +87,15 @@ for i=1:5
         end
     end
     
-    wrong_count_bedroom
-    wrong_count_house
-    wrong_count_industry
+    wrong_bedroom_counts(i) = wrong_count_bedroom;
+    wrong_house_counts(i) = wrong_count_house;
+    wrong_industry_counts(i) = wrong_count_industry;
     
     wrong_count_bedroom = 0;
     wrong_count_house = 0;
     wrong_count_industry = 0;
-    %wrong_counts(i) = wrong_count;
 end
 
-ave_wrong_count = mean(wrong_counts);
+ave_wrong_bedroom_count = mean(wrong_bedroom_counts)
+ave_wrong_house_count = mean(wrong_house_counts)
+ave_wrong_industry_count = mean(wrong_industry_counts)

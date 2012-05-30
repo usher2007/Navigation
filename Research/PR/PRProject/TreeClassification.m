@@ -24,6 +24,10 @@ industry_test = zeros(dim, 155);
 
 not_bedroom_sample = zeros(dim, 275);
 
+wrong_bedroom_counts = zeros(1,5);
+wrong_house_counts = zeros(1,5);
+wrong_industry_counts = zeros(1,5);
+
 for i=1:5
     rand_order = randperm(216);
     sample_pos = rand_order(1, 1:108);
@@ -105,8 +109,11 @@ for i=1:5
         end
     end
     
-    wrong_count_bedroom
-    wrong_count_house
-    wrong_count_industry
-    
+    wrong_bedroom_counts(i) = wrong_count_bedroom;
+    wrong_house_counts(i) = wrong_count_house;
+    wrong_industry_counts(i) = wrong_count_industry;
 end
+
+ave_wrong_bedroom_count = mean(wrong_bedroom_counts)
+ave_wrong_house_count = mean(wrong_house_counts)
+ave_wrong_industry_count = mean(wrong_industry_counts)
