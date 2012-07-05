@@ -5,6 +5,7 @@
 #pragma once
 #include "RecordGraph.h"
 
+#define MAXLENGTH 250
 // CAudioCaptureDlg dialog
 class CAudioCaptureDlg : public CDialogEx
 {
@@ -33,4 +34,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedOk();
+	CEdit m_strFileName;
 };

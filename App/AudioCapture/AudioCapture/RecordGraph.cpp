@@ -108,7 +108,7 @@ HRESULT RecordGraph::BuildGraph(CString recordFileName)
 	pmt.majortype = MEDIATYPE_Stream;
 	pmt.subtype = MEDIASUBTYPE_WAVE;
 	pmt.formattype = FORMAT_WaveFormatEx;
-	hr = pFileSetter->SetFileName(L"D:\\record.wav", &pmt);
+	hr = pFileSetter->SetFileName(recordFileName, &pmt);
 
 	hr = ConnectFilters(pBuilder, pAudioCapture, pWaveDest, MEDIATYPE_NULL);if(FAILED(hr)) return hr;
 	hr = ConnectFilters(pBuilder, pWaveDest, pFileWriter, MEDIATYPE_NULL);//if(FAILED(hr)) return hr;

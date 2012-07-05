@@ -58,6 +58,7 @@ CAudioCaptureDlg::CAudioCaptureDlg(CWnd* pParent /*=NULL*/)
 void CAudioCaptureDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDIT_FILENAME, m_strFileName);
 }
 
 BEGIN_MESSAGE_MAP(CAudioCaptureDlg, CDialogEx)
@@ -103,6 +104,7 @@ BOOL CAudioCaptureDlg::OnInitDialog()
 	pRecordGraph = new RecordGraph();
 	pRecordGraph->Create(this->GetSafeHwnd());
 	m_bRecord = FALSE;
+	m_strFileName.SetWindowTextW(L"D:\\example.wav");
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -168,6 +170,9 @@ void CAudioCaptureDlg::OnBnClickedOk()
 	else
 	{
 		CString fileName(L"D:\\record.wav");
+		TCHAR tFileName[MAXLENGTH];
+		m_strFileName.GetWindowTextW(T2W(tFileName), MAXLENGTH);
+		fileName.Format(_T("%s"), tFileName);
 		pRecordGraph->BuildGraph(fileName);
 		pRecordGraph->Run();
 		this->GetDlgItem(IDOK)->SetWindowTextW(L"Stop");
