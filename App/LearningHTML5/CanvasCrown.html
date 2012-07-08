@@ -26,11 +26,16 @@
 			function drawTrails() {
 				var canvas = document.getElementById('trails');
 				var context = canvas.getContext('2d');
+				var trunkGradient = context.createLinearGradient(-5, -50, 5, -50);
 				
 				context.save();
-				context.translate(130,250);
+				context.translate(130, 250);
 				
 				createCanopyPath(context);
+				
+				trunkGradient.addColorStop(0, '#663300');
+				trunkGradient.addColorStop(0.4, '#996600');
+				trunkGradient.addColorStop(1, '#552200');
 				
 				context.lineWidth = 4;
 				context.lineJoin = 'round';
@@ -38,8 +43,14 @@
 				context.fillStyle = '#339900';
 				context.fill();
 				context.stroke();
-				context.fillStyle = '#663300'
+				context.fillStyle = trunkGradient;
 				context.fillRect(-5, -50, 10, 50)
+				
+				var canopyShadow = context.createLinearGradient(0, -50, 0, 0);
+				canopyShadow.addColorStop(0, 'rgba(0,0,0,0.5)');
+				canopyShadow.addColorStop(0.2, 'rgba(0,0,0,0.0)');
+				context.fillStyle = canopyShadow;
+				context.fillRect(-5, -50, 10, 50);
 				context.restore();
 				
 				context.save();
