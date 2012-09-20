@@ -73,12 +73,18 @@ int main( int argc, char** argv )
 	int hsize = 16;
 	float hranges[] = {0,180};
 	const float* phranges = hranges;
+	bool useCapture = false;
 
 	if( argc == 1 || (argc == 2 && strlen(argv[1]) == 1 && isdigit(argv[1][0])))
+	{
 		cap.open(argc == 2 ? argv[1][0] - '0' : 0);
+		useCapture = true;
+	}
 	else if( argc == 2 )
+	{
 		cap.open(argv[1]);
-
+		useCapture = false;
+	}
 	if( !cap.isOpened() )
 	{
 		help();
@@ -97,7 +103,11 @@ int main( int argc, char** argv )
 
 	Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(200, 320, CV_8UC3), backproj;
 	bool paused = false;
-
+	cap >> frame;
+	if(!useCapture)
+	{
+		paused = true;
+	}
 	for(;;)
 	{
 		if( !paused )
@@ -106,7 +116,6 @@ int main( int argc, char** argv )
 			if( frame.empty() )
 				break;
 		}
-
 		frame.copyTo(image);
 
 		if( !paused )
@@ -170,7 +179,7 @@ int main( int argc, char** argv )
 
 		if( selectObject && selection.width > 0 && selection.height > 0 )
 		{
-			Mat roi(image, selection);
+			Mat roi(image, selection); 
 			bitwise_not(roi, roi);
 		}
 
