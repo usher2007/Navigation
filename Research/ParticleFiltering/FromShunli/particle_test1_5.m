@@ -170,7 +170,8 @@ for ii=2:nb_frame-offset_frame
     plot(x,y,'r-');
     hold off
 %     pause,
-    
+    filename = sprintf('%d.bmp', ii);
+    saveas(fig, filename, 'bmp');
 end
 
 
