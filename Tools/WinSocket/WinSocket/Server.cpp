@@ -24,6 +24,7 @@ DWORD WINAPI ClientThread(LPVOID lpParameter)
 			break;
 		}
 		cout<<"Client Info:"<<RecvBuffer<<endl;
+		send(ClientSocket,RecvBuffer,strlen(RecvBuffer)-1, 0);
 	}
 	return 0;
 }

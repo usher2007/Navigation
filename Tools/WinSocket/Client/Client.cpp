@@ -54,6 +54,15 @@ int main(int argc, char *argv[])
 			cout<<"Send Info Error"<<GetLastError()<<endl;
 			break;
 		}
+		char RecvBuffer[MAX_PATH];
+		memset(RecvBuffer, 0x00, sizeof(RecvBuffer));
+		Ret = recv(ClientSocket, RecvBuffer, MAX_PATH, 0);
+		if(Ret == 0 || Ret == SOCKET_ERROR)
+		{
+			cout<<"Server Quit!"<<endl;
+			break;
+		}
+		cout<<"Sever Info:"<<RecvBuffer<<endl;
 	}
 
 	closesocket(ClientSocket);
