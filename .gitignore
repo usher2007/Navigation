@@ -74,8 +74,12 @@ Tools/WinSocket/WinSocket/Debug/
 Tools/WinSocket/ipch/
 Tools/LearningOpenCV/DetectorsAndDescriptors/DetectorsAndDescriptors/Debug/
 Tools/LearningOpenCV/DetectorsAndDescriptors/Debug
+Tools/LearningOpenCV/SurfDescriptor/Debug/
+Tools/LearningOpenCV/SurfDescriptor/SurfDescriptor/Debug/
+Tools/LearningOpenCV/SurfDescriptor/ipch/
 *.bmp
 *.sdf
 *.filters
 *.user
 *.suo
+*.opensdf
