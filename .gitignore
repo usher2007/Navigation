@@ -77,6 +77,9 @@ Tools/LearningOpenCV/DetectorsAndDescriptors/Debug
 Tools/LearningOpenCV/SurfDescriptor/Debug/
 Tools/LearningOpenCV/SurfDescriptor/SurfDescriptor/Debug/
 Tools/LearningOpenCV/SurfDescriptor/ipch/
+Tools/LearningOpenCV/ParticleTracking/ipch/
+Tools/LearningOpenCV/ParticleTracking/Debug/
+Tools/LearningOpenCV/ParticleTracking/ParticleTracking/Debug/
 *.bmp
 *.sdf
 *.filters
