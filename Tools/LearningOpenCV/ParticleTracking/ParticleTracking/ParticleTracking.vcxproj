@@ -50,10 +50,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\SDK\OpenCV_build\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>H:\SDK\OpenCV_build\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core230d.lib;opencv_highgui230d.lib;opencv_video230d.lib;opencv_ml230d.lib;opencv_legacy230d.lib;opencv_imgproc230d.lib;opencv_features2d230d.lib;opencv_flann230d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,6 +77,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ParticleTracking.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ParticleTracking.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
