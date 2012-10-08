@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 	namedWindow( "Particle Demo", 0 );
 	setMouseCallback( "Particle Demo", onMouse, 0 );
 	imshow("Particle Demo", image);
+
 	for(;;)
 	{
 		if(trackObject < 0)
@@ -69,6 +70,9 @@ int main(int argc, char **argv)
 		imshow("Particle Demo", image);
 		waitKey(10);
 	}
+
+	trackingAlg.particleGroup.generateParticleList(trackingAlg.originParticle, 20);
+
 	Rect lastObjectRegion;
 	frame.copyTo(image);
 	lastObjectRegion.x = trackingAlg.originParticle.xPos;
