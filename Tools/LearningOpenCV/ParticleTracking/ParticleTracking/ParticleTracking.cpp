@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	const float* phranges = hranges;
 	cap >> frame;
 	frame.copyTo(image);
-	namedWindow( "Particle Demo", 0 );
+	namedWindow( "Particle Demo", CV_WINDOW_AUTOSIZE );
 	setMouseCallback( "Particle Demo", onMouse, 0 );
 	imshow("Particle Demo", image);
 
@@ -72,6 +72,7 @@ int main(int argc, char **argv)
 	}
 
 	trackingAlg.particleGroup.generateParticleList(trackingAlg.originParticle, 20);
+	double particleWeight[20];
 
 	Rect lastObjectRegion;
 	frame.copyTo(image);
@@ -79,7 +80,9 @@ int main(int argc, char **argv)
 	lastObjectRegion.y = trackingAlg.originParticle.yPos;
 	lastObjectRegion.width = trackingAlg.originParticle.width;
 	lastObjectRegion.height = trackingAlg.originParticle.height;
+	lastObjectRegion &= Rect(0, 0, image.cols, image.rows);
 	CalcHsvHist(trackingAlg.originHist, image, lastObjectRegion, phranges);
+	int frameCount = 0;
 	for(;;)
 	{
 		cap >> frame;
@@ -88,11 +91,47 @@ int main(int argc, char **argv)
 			break;
 		}
 		frame.copyTo(image);
+		vector<Particle>::iterator particleIter;
+		double sumpdf = 0.0;
+		int index = 0;
+		for(particleIter = trackingAlg.particleGroup.ParticleList.begin();particleIter != trackingAlg.particleGroup.ParticleList.end(); particleIter++)
+		{
+			Rect particleRegion;
+			particleRegion.x = particleIter->xPos;
+			particleRegion.y = particleIter->yPos;
+			particleRegion.width = particleIter->width;
+			particleRegion.height = particleIter->height;
+			particleRegion &= Rect(0, 0, image.cols, image.rows);
+			CalcHsvHist(trackingAlg.hist, image, particleRegion, phranges);
+			double dist = trackingAlg.calcDistance(trackingAlg.originHist, trackingAlg.hist);
+			double pdf = 1/(sqrt(2*PI)*noiseWeight)*exp(-(1-dist)/2/(noiseWeight*noiseWeight));
+			sumpdf += pdf;
+			particleWeight[index] = pdf;
+			index++;
+		}
+
+		for(int i=0; i<20; i++)
+		{
+			particleWeight[i] /= sumpdf;
+			trackingAlg.particleGroup.ParticleList[i].weight = particleWeight[i];
+		}
+		index = 0;
+		double newX = 0.0;
+		double newY =0.0;
+		for(particleIter = trackingAlg.particleGroup.ParticleList.begin();particleIter != trackingAlg.particleGroup.ParticleList.end(); particleIter++)
+		{
+			newX += particleWeight[index] * particleIter->xPos;
+			newY += particleWeight[index] * particleIter->yPos;
+			index++;
+		}
+		trackingAlg.particleGroup.resampleParticle();
+
+		trackingAlg.originParticle.xPos = newX;
+		trackingAlg.originParticle.yPos = newY;
 		lastObjectRegion.x = trackingAlg.originParticle.xPos;
 		lastObjectRegion.y = trackingAlg.originParticle.yPos;
-		lastObjectRegion.width = trackingAlg.originParticle.width;
-		lastObjectRegion.height = trackingAlg.originParticle.height;
-		CalcHsvHist(trackingAlg.originHist, image, lastObjectRegion, phranges);
+		std::cout<<"Frame Count: "<<frameCount<<"\n"<<"X:"<<newX<<" Y:"<<newY<<std::endl;
+		frameCount ++;
 	}
 }
 
@@ -165,12 +204,11 @@ int ParticleGroup::resampleParticle()
 	}
 
 	double randNum = 0.0;
-	srand(time(0));
 	particleIter = ParticleList.begin();
 	RNG rng;
 	for(int i=0; i<particleNum; i++)
 	{
-		randNum = getRand(0.0, sum);
+		randNum = rng.uniform(0.0, sum);
 		int j;
 		for(j=0; j<particleNum; j++)
 		{

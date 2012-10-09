@@ -15,6 +15,7 @@ const int yNoise = 2;
 const int widthNoise = 0;
 const int heightNoise = 0;
 const double noiseWeight = 0.05;
+const double PI=3.1415926;
 class Particle
 {
 public:
