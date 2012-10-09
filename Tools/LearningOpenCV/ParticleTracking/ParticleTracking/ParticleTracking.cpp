@@ -75,6 +75,7 @@ int main(int argc, char **argv)
 	double particleWeight[20];
 
 	Rect lastObjectRegion;
+	cap >> frame;
 	frame.copyTo(image);
 	lastObjectRegion.x = trackingAlg.originParticle.xPos;
 	lastObjectRegion.y = trackingAlg.originParticle.yPos;
@@ -132,6 +133,21 @@ int main(int argc, char **argv)
 		lastObjectRegion.y = trackingAlg.originParticle.yPos;
 		std::cout<<"Frame Count: "<<frameCount<<"\n"<<"X:"<<newX<<" Y:"<<newY<<std::endl;
 		frameCount ++;
+		Point pt1, pt2;
+		pt1.x = newX;
+		pt1.y = newY;
+		pt2.x = newX + trackingAlg.originParticle.width;
+		pt2.y = newY + trackingAlg.originParticle.height;
+		rectangle(image, pt1, pt2, Scalar(0,0,0));
+		Mat hsv, hue;
+		cvtColor(image, hsv, CV_BGR2HSV);
+		inRange(hsv, Scalar(0, 0, 0),
+			Scalar(180, 256, 256), mask);
+		hue.create(hsv.size(), hsv.depth());
+		int ch[] = {0, 0};
+		mixChannels(&hsv, 1, &hue, 1, ch, 1);
+		imshow("Particle Demo", hue);
+		waitKey(2);
 	}
 }
 
@@ -158,10 +174,10 @@ double ParticleTrackingAlg::calcDistance(const Mat &histOrig, const Mat &histTmp
 	{
 		firstLen += (histOrig.data[i] * histOrig.data[i]);
 		secondLen += (histTmp.data[i] * histTmp.data[i]);
-		double dist = histOrig.data[i] - histTmp.data[i];
-		distanceSum += (dist * dist);
+		double dist = histOrig.data[i] * histTmp.data[i];
+		distanceSum += dist;
 	}
-	return sqrt(distanceSum)/(sqrt(firstLen * secondLen));
+	return (distanceSum)/(sqrt(firstLen * secondLen));
 }
 
 int ParticleGroup::normalize()
