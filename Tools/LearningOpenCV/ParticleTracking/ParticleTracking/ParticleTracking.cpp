@@ -7,7 +7,7 @@ int trackObject = 0;
 bool selectObject = false;
 Rect selection;
 Point origin;
-int histSize = 6;
+int histSize = 16;
 int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges);
 void onMouse( int event, int x, int y, int, void* )
 {
@@ -147,7 +147,8 @@ int main(int argc, char **argv)
 		hue.create(hsv.size(), hsv.depth());
 		int ch[] = {0, 0};
 		mixChannels(&hsv, 1, &hue, 1, ch, 1);
-		imshow("Particle Demo", hue);
+		imshow("Particle Demo", image);
+		imshow("Debug", hue);
 		waitKey(2);
 	}
 }
@@ -164,25 +165,17 @@ int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges)
 
 	Mat roi(hue, selectRoi), maskroi(mask, selectRoi);
 	calcHist(&roi, 1, 0, Mat(), hist, 1, &histSize, &phranges);
-	std::cout<<hist<<std::endl;
 	Scalar histSum = sum(hist);
 	hist = hist / histSum.val[0];
-	std::cout<<hist<<std::endl;
-	imshow("Debug", mask);
 	return 0;
 }
 
 double ParticleTrackingAlg::calcDistance(const Mat &histOrig, const Mat &histTmp)
 {
 	double distanceSum = 0.0, firstLen = 0.0, secondLen = 0.0;
-	for(int i=0; i<histSize; i++)
-	{
-		/*firstLen += (histOrig.data[i] * histOrig.data[i]);
-		secondLen += (histTmp.data[i] * histTmp.data[i]);*/
-		double dist = histOrig.data[i] * histTmp.data[i];
-		distanceSum += dist;
-	}
-	return (distanceSum);
+	//std::cout<<"========="<<std::endl<<histOrig<<std::endl<<histTmp<<std::endl;
+	distanceSum = histOrig.dot(histTmp);
+	return distanceSum;
 }
 
 int ParticleGroup::normalize()
