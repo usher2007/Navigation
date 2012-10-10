@@ -7,7 +7,7 @@ int trackObject = 0;
 bool selectObject = false;
 Rect selection;
 Point origin;
-int histSize = 16;
+int histSize = 6;
 int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges);
 void onMouse( int event, int x, int y, int, void* )
 {
@@ -44,10 +44,11 @@ int main(int argc, char **argv)
 	ParticleTrackingAlg trackingAlg;
 	Mat frame, hsv, hue, mask;
 	float hranges[] = {0,180};
-	const float* phranges = hranges;
+	const float* phranges = {hranges};
 	cap >> frame;
 	frame.copyTo(image);
 	namedWindow( "Particle Demo", CV_WINDOW_AUTOSIZE );
+	namedWindow( "Debug", CV_WINDOW_AUTOSIZE);
 	setMouseCallback( "Particle Demo", onMouse, 0 );
 	imshow("Particle Demo", image);
 
@@ -141,7 +142,7 @@ int main(int argc, char **argv)
 		rectangle(image, pt1, pt2, Scalar(0,0,0));
 		Mat hsv, hue;
 		cvtColor(image, hsv, CV_BGR2HSV);
-		inRange(hsv, Scalar(0, 0, 0),
+		inRange(hsv, Scalar(0, 30, 10),
 			Scalar(180, 256, 256), mask);
 		hue.create(hsv.size(), hsv.depth());
 		int ch[] = {0, 0};
@@ -155,15 +156,19 @@ int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges)
 {
 	Mat hsv,  hue, mask;
 	cvtColor(image, hsv, CV_BGR2HSV);
-	inRange(hsv, Scalar(0, 0, 0),
-		Scalar(180, 256, 256), mask);
+	inRange(hsv, Scalar(0, 30, 10),
+		Scalar(180, 255, 255), mask);
 	hue.create(hsv.size(), hsv.depth());
 	int ch[] = {0, 0};
 	mixChannels(&hsv, 1, &hue, 1, ch, 1);
 
 	Mat roi(hue, selectRoi), maskroi(mask, selectRoi);
-	calcHist(&roi, 1, 0, maskroi,hist, 1, &histSize, &phranges);
-	normalize(hist, hist, 0, 255, CV_MINMAX);
+	calcHist(&roi, 1, 0, Mat(), hist, 1, &histSize, &phranges);
+	std::cout<<hist<<std::endl;
+	Scalar histSum = sum(hist);
+	hist = hist / histSum.val[0];
+	std::cout<<hist<<std::endl;
+	imshow("Debug", mask);
 	return 0;
 }
 
@@ -172,12 +177,12 @@ double ParticleTrackingAlg::calcDistance(const Mat &histOrig, const Mat &histTmp
 	double distanceSum = 0.0, firstLen = 0.0, secondLen = 0.0;
 	for(int i=0; i<histSize; i++)
 	{
-		firstLen += (histOrig.data[i] * histOrig.data[i]);
-		secondLen += (histTmp.data[i] * histTmp.data[i]);
+		/*firstLen += (histOrig.data[i] * histOrig.data[i]);
+		secondLen += (histTmp.data[i] * histTmp.data[i]);*/
 		double dist = histOrig.data[i] * histTmp.data[i];
 		distanceSum += dist;
 	}
-	return (distanceSum)/(sqrt(firstLen * secondLen));
+	return (distanceSum);
 }
 
 int ParticleGroup::normalize()
