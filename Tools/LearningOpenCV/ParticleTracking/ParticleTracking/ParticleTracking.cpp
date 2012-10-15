@@ -7,8 +7,13 @@ int trackObject = 0;
 bool selectObject = false;
 Rect selection;
 Point origin;
-int histSize = 16;
-int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges);
+int hbins = 6, sbins = 6, vbins = 6;
+int histSize[] = {hbins, sbins, vbins};
+float hranges[] = {0, 180};
+float sranges[] = {0, 256};
+float vranges[] = {0, 256};
+const float* phranges[] = {hranges, sranges, vranges};
+int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi);
 void onMouse( int event, int x, int y, int, void* )
 {
 	if( selectObject )
@@ -43,8 +48,6 @@ int main(int argc, char **argv)
 
 	ParticleTrackingAlg trackingAlg;
 	Mat frame, hsv, hue, mask;
-	float hranges[] = {0,180};
-	const float* phranges = {hranges};
 	cap >> frame;
 	frame.copyTo(image);
 	namedWindow( "Particle Demo", CV_WINDOW_AUTOSIZE );
@@ -83,7 +86,7 @@ int main(int argc, char **argv)
 	lastObjectRegion.width = trackingAlg.originParticle.width;
 	lastObjectRegion.height = trackingAlg.originParticle.height;
 	lastObjectRegion &= Rect(0, 0, image.cols, image.rows);
-	CalcHsvHist(trackingAlg.originHist, image, lastObjectRegion, phranges);
+	CalcHsvHist(trackingAlg.originHist, image, lastObjectRegion);
 	int frameCount = 0;
 	for(;;)
 	{
@@ -104,7 +107,7 @@ int main(int argc, char **argv)
 			particleRegion.width = particleIter->width;
 			particleRegion.height = particleIter->height;
 			particleRegion &= Rect(0, 0, image.cols, image.rows);
-			CalcHsvHist(trackingAlg.hist, image, particleRegion, phranges);
+			CalcHsvHist(trackingAlg.hist, image, particleRegion);
 			double dist = trackingAlg.calcDistance(trackingAlg.originHist, trackingAlg.hist);
 			double pdf = 1/(sqrt(2*PI)*noiseWeight)*exp(-(1-dist)/2/(noiseWeight*noiseWeight));
 			sumpdf += pdf;
@@ -153,7 +156,7 @@ int main(int argc, char **argv)
 	}
 }
 
-int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges)
+int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi)
 {
 	Mat hsv,  hue, mask;
 	cvtColor(image, hsv, CV_BGR2HSV);
@@ -162,9 +165,17 @@ int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi, const float *phranges)
 	hue.create(hsv.size(), hsv.depth());
 	int ch[] = {0, 0};
 	mixChannels(&hsv, 1, &hue, 1, ch, 1);
-
-	Mat roi(hue, selectRoi), maskroi(mask, selectRoi);
-	calcHist(&roi, 1, 0, Mat(), hist, 1, &histSize, &phranges);
+	//Mat roi(hue, selectRoi), maskroi(mask, selectRoi);
+	Mat roi(hsv, selectRoi), maskroi(mask, selectRoi);
+	int channels[3] = {0, 1, 2};
+	calcHist(&roi, 1, channels, Mat(), hist, 3, histSize, phranges);
+	int num = 0;
+	for(int i=0; i<6; i++)
+		for(int j=0; j<6; j++)
+			for(int k=0; k<6; k++)
+			{
+				num = hist.at<float>(i,j,k);
+			}
 	Scalar histSum = sum(hist);
 	hist = hist / histSum.val[0];
 	return 0;
