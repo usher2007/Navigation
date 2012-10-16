@@ -2,17 +2,6 @@
 #include <time.h>
 using namespace cv;
 
-Mat image;
-int trackObject = 0;
-bool selectObject = false;
-Rect selection;
-Point origin;
-int hbins = 6, sbins = 6, vbins = 6;
-int histSize[] = {hbins, sbins, vbins};
-float hranges[] = {0, 256};
-float sranges[] = {0, 256};
-float vranges[] = {0, 256};
-const float* phranges[] = {hranges, sranges, vranges};
 int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi);
 void onMouse( int event, int x, int y, int, void* )
 {
@@ -75,8 +64,8 @@ int main(int argc, char **argv)
 		waitKey(10);
 	}
 
-	trackingAlg.particleGroup.generateParticleList(trackingAlg.originParticle, 20);
-	double particleWeight[20];
+	trackingAlg.particleGroup.generateParticleList(trackingAlg.originParticle, particleNum);
+	double particleWeight[particleNum];
 
 	Rect lastObjectRegion;
 	cap >> frame;
@@ -117,7 +106,7 @@ int main(int argc, char **argv)
 			index++;
 		}
 
-		for(int i=0; i<20; i++)
+		for(int i=0; i<particleNum; i++)
 		{
 			particleWeight[i] /= sumpdf;
 			trackingAlg.particleGroup.ParticleList[i].weight = particleWeight[i];
