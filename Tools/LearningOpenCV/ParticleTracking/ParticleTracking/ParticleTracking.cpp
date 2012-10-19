@@ -79,9 +79,13 @@ int main(int argc, char **argv)
 	int frameCount = 0;
 	double dist = 0.0;
 	double pdf = 0.0;
+	long start = 0;
+	long endTime = 0;
+	long sumTime = 0;
 	for(;;)
 	{
 		cap >> frame;
+		start = clock();
 		if(frame.empty())
 		{
 			break;
@@ -143,8 +147,11 @@ int main(int argc, char **argv)
 		mixChannels(&hsv, 1, &hue, 1, ch, 1);
 		imshow("Particle Demo", image);
 		//imshow("Debug", hue);
+		endTime = clock();
+		sumTime += (endTime - start);
 		waitKey(2);
 	}
+	std::cout<<"SumTime: "<<sumTime*1.0/CLOCKS_PER_SEC<<std::endl;
 }
 
 int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi)
