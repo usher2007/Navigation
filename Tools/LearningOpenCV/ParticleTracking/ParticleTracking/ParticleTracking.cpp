@@ -138,13 +138,6 @@ int main(int argc, char **argv)
 		pt2.x = newX + trackingAlg.originParticle.width;
 		pt2.y = newY + trackingAlg.originParticle.height;
 		rectangle(image, pt1, pt2, Scalar(0,0,0));
-		Mat hsv, hue;
-		cvtColor(image, hsv, CV_BGR2HSV);
-		inRange(hsv, Scalar(0, 30, 10),
-			Scalar(180, 256, 256), mask);
-		hue.create(hsv.size(), hsv.depth());
-		int ch[] = {0, 0};
-		mixChannels(&hsv, 1, &hue, 1, ch, 1);
 		imshow("Particle Demo", image);
 		//imshow("Debug", hue);
 		endTime = clock();
@@ -156,15 +149,10 @@ int main(int argc, char **argv)
 
 int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi)
 {
-	Mat hsv,  hue, mask;
+	Mat hsv, mask;
 	cvtColor(image, hsv, CV_BGR2HSV);
-	inRange(hsv, Scalar(0, 30, 10),
-		Scalar(256, 256, 256), mask);
-	hue.create(hsv.size(), hsv.depth());
-	int ch[] = {0, 0};
-	mixChannels(&hsv, 1, &hue, 1, ch, 1);
 	//Mat roi(hue, selectRoi), maskroi(mask, selectRoi);
-	Mat roi(hsv, selectRoi), maskroi(mask, selectRoi);
+	Mat roi(hsv, selectRoi);
 	int channels[3] = {0, 1, 2};
 	calcHist(&roi, 1, channels, Mat(), hist, 3, histSize, phranges);
 	Scalar histSum = sum(hist);
