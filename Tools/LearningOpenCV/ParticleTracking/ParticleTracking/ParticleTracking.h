@@ -16,6 +16,17 @@ const int widthNoise = 0;
 const int heightNoise = 0;
 const double noiseWeight = 0.05;
 const double PI=3.1415926;
+Mat image;
+int trackObject = 0;
+bool selectObject = false;
+Rect selection;
+Point origin;
+int hbins = 8, sbins = 8, vbins = 4;
+int histSize[] = {hbins, sbins, vbins};
+float hranges[] = {0, 256};
+float sranges[] = {0, 256};
+float vranges[] = {0, 256};
+const float* phranges[] = {hranges, sranges, vranges};
 class Particle
 {
 public:
