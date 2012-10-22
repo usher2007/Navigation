@@ -171,21 +171,6 @@ double ParticleTrackingAlg::calcDistance(const Mat &histOrig, const Mat &histTmp
 	return distanceSum;
 }
 
-int ParticleGroup::normalize()
-{
-	std::vector<Particle>::iterator particleIter; 
-	double weightSum = 0.0;
-	for(particleIter = ParticleList.begin(); particleIter != ParticleList.end(); ++particleIter)
-	{
-		weightSum += particleIter->weight;
-	}
-
-	for(particleIter = ParticleList.begin(); particleIter != ParticleList.end(); ++particleIter)
-	{
-		particleIter->weight /= weightSum;
-	}
-	return 0;
-}
 
 double getRand(double min, double max)
 {
