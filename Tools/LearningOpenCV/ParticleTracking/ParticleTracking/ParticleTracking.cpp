@@ -46,6 +46,7 @@ int main(int argc, char **argv)
 
 	for(;;)
 	{
+		Mat tmpImage;
 		if(trackObject < 0)
 		{
 			trackingAlg.originParticle.xPos = selection.x;
@@ -57,10 +58,14 @@ int main(int argc, char **argv)
 		}
 		if( selectObject && selection.width > 0 && selection.height > 0 )
 		{
-			Mat roi(image, selection); 
-			bitwise_not(roi, roi);
+			image.copyTo(tmpImage);
+			rectangle(tmpImage,selection, Scalar(0,0,0));
+			imshow("Particle Demo", tmpImage);
 		}
-		imshow("Particle Demo", image);
+		else
+		{
+			imshow("Particle Demo", image);
+		}
 		waitKey(10);
 	}
 
