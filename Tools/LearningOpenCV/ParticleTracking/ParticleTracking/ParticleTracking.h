@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace cv;
 const string videoFileName = "H:\\GitHubCode\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
-const int particleNum = 20;
+const int particleNum = 100;
 const int xNoise = 5;
 const int yNoise = 2;
 const double noiseWeight = 0.05;

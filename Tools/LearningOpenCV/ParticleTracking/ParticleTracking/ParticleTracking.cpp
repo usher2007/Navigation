@@ -75,12 +75,14 @@ int main(int argc, char **argv)
 	Rect lastObjectRegion;
 	cap >> frame;
 	frame.copyTo(image);
+	hsv;
+	cvtColor(image, hsv, CV_BGR2HSV);
 	lastObjectRegion.x = trackingAlg.originParticle.xPos;
 	lastObjectRegion.y = trackingAlg.originParticle.yPos;
 	lastObjectRegion.width = trackingAlg.originParticle.width;
 	lastObjectRegion.height = trackingAlg.originParticle.height;
 	lastObjectRegion &= Rect(0, 0, image.cols, image.rows);
-	CalcHsvHist(trackingAlg.originHist, image, lastObjectRegion);
+	CalcHsvHist(trackingAlg.originHist, hsv, lastObjectRegion);
 	int frameCount = 0;
 	double dist = 0.0;
 	double pdf = 0.0;
@@ -96,6 +98,8 @@ int main(int argc, char **argv)
 			break;
 		}
 		frame.copyTo(image);
+		Mat hsv;
+		cvtColor(image, hsv, CV_BGR2HSV);
 		vector<Particle>::iterator particleIter;
 		double sumpdf = 0.0;
 		int index = 0;
@@ -107,7 +111,7 @@ int main(int argc, char **argv)
 			particleRegion.width = particleIter->width;
 			particleRegion.height = particleIter->height;
 			particleRegion &= Rect(0, 0, image.cols, image.rows);
-			CalcHsvHist(trackingAlg.hist, image, particleRegion);
+			CalcHsvHist(trackingAlg.hist, hsv, particleRegion);
 			dist = trackingAlg.calcDistance(trackingAlg.originHist, trackingAlg.hist);
 			pdf = 1/(sqrt(2*PI)*noiseWeight)*exp(-(1-dist)/2/(noiseWeight*noiseWeight));
 			sumpdf += pdf;
@@ -155,9 +159,9 @@ int main(int argc, char **argv)
 int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi)
 {
 	Mat hsv, mask;
-	cvtColor(image, hsv, CV_BGR2HSV);
+	//cvtColor(image, hsv, CV_BGR2HSV);
 	//Mat roi(hue, selectRoi), maskroi(mask, selectRoi);
-	Mat roi(hsv, selectRoi);
+	Mat roi(image, selectRoi);
 	int channels[3] = {0, 1, 2};
 	calcHist(&roi, 1, channels, Mat(), hist, 3, histSize, phranges);
 	Scalar histSum = sum(hist);
@@ -169,19 +173,11 @@ int CalcHsvHist(Mat &hist, Mat image, Rect &selectRoi)
 double ParticleTrackingAlg::calcDistance(const Mat &histOrig, const Mat &histTmp)
 {
 	double distanceSum = 0.0, firstLen = 0.0, secondLen = 0.0;
-	//std::cout<<"========="<<std::endl<<histOrig<<std::endl<<histTmp<<std::endl;
+	//std::cout<<"========="<<std::endl<<histOrig<<std::endl<<histTmp<<std::endl;//
 	Mat result = histOrig.mul(histTmp);
 	sqrt(result, result);
 	distanceSum = sum(result).val[0];
 	return distanceSum;
-}
-
-
-double getRand(double min, double max)
-{
-	int randRaw = rand()%100 + 1;
-	double result = (randRaw - 1)*1.0/(100 - 1)*(max - min) + min;
-	return result;
 }
 
 int ParticleGroup::resampleParticle()
