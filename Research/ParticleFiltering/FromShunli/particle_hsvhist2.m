@@ -30,8 +30,8 @@ for i=1:Ty
         
 %         [ind_p1 ind_p2 ind_p3 ind]
         
-        kr = 1 - ((i-Ty/2)^2+(j-Tx/2)^2)/wa^2; 
-                  
+        %kr = 1 - ((i-Ty/2)^2+(j-Tx/2)^2)/wa^2; 
+        kr = 1;         
         p(ind) = p(ind) + kr; 
     end
 end

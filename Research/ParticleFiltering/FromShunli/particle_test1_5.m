@@ -63,7 +63,7 @@ range = 1;
 PT = [Px;Py;Tx;Ty];
 
 % 2.4 initialize the number of the particles
-Particle_num = 10;
+Particle_num = 20;
 State_num = 4;
 
 State = zeros(State_num,Particle_num);
