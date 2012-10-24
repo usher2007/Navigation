@@ -39,6 +39,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>H:\SDK\OpenCV_build\bin\Debug;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>H:\SDK\OpenCV_build\install\include;$(IncludePath)</IncludePath>
+    <LibraryPath>H:\SDK\OpenCV_build\lib\Debug;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>H:\SDK\OpenCV_build\install\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>H:\SDK\OpenCV_build\lib\debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_core230d.lib;opencv_highgui230d.lib;opencv_video230d.lib;opencv_ml230d.lib;opencv_legacy230d.lib;opencv_imgproc230d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
