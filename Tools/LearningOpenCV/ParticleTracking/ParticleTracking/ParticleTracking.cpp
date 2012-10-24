@@ -75,14 +75,13 @@ int main(int argc, char **argv)
 	Rect lastObjectRegion;
 	cap >> frame;
 	frame.copyTo(image);
-	hsv;
-	cvtColor(image, hsv, CV_BGR2HSV);
+	//cvtColor(image, hsv, CV_BGR2HSV);
 	lastObjectRegion.x = trackingAlg.originParticle.xPos;
 	lastObjectRegion.y = trackingAlg.originParticle.yPos;
 	lastObjectRegion.width = trackingAlg.originParticle.width;
 	lastObjectRegion.height = trackingAlg.originParticle.height;
 	lastObjectRegion &= Rect(0, 0, image.cols, image.rows);
-	CalcHsvHist(trackingAlg.originHist, hsv, lastObjectRegion);
+	CalcHsvHist(trackingAlg.originHist, image, lastObjectRegion);
 	int frameCount = 0;
 	double dist = 0.0;
 	double pdf = 0.0;
@@ -98,8 +97,8 @@ int main(int argc, char **argv)
 			break;
 		}
 		frame.copyTo(image);
-		Mat hsv;
-		cvtColor(image, hsv, CV_BGR2HSV);
+		//Mat hsv;
+		//cvtColor(image, hsv, CV_BGR2HSV);
 		vector<Particle>::iterator particleIter;
 		double sumpdf = 0.0;
 		int index = 0;
@@ -111,7 +110,7 @@ int main(int argc, char **argv)
 			particleRegion.width = particleIter->width;
 			particleRegion.height = particleIter->height;
 			particleRegion &= Rect(0, 0, image.cols, image.rows);
-			CalcHsvHist(trackingAlg.hist, hsv, particleRegion);
+			CalcHsvHist(trackingAlg.hist, image, particleRegion);
 			dist = trackingAlg.calcDistance(trackingAlg.originHist, trackingAlg.hist);
 			pdf = 1/(sqrt(2*PI)*noiseWeight)*exp(-(1-dist)/2/(noiseWeight*noiseWeight));
 			sumpdf += pdf;
