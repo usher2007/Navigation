@@ -7,8 +7,12 @@ using namespace cv;
 class ParticleFeature
 {
 public:
+	ParticleFeature(double weight):featureWeight(weight){}
+	virtual double GetFeatureWeight(){return featureWeight;}
 	virtual double CalcSimilarityToOrigin(const Mat& particleRoi) = 0;
 	virtual int GenerateOriginFeature(const Mat& roi) = 0;
 	virtual ~ParticleFeature(){}
+private:
+	double featureWeight;
 };
 

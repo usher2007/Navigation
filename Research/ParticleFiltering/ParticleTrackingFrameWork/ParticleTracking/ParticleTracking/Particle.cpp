@@ -9,6 +9,13 @@ Particle::Particle(const int xPos, const int yPos, const int width, const int he
 	this->weight = 0.0;
 }
 
+Particle::Particle(const Rect& region, const double rndX /* = 0.0 */, const double rndY /* = 0.0 */)
+{
+	this->particleRegion = region;
+	this->particleRegion.x += rndX;
+	this->particleRegion.y += rndY;
+}
+
 Mat Particle::GetParticleRoi(const Mat& image)
 {
 	particleRegion &= Rect(0, 0, image.cols, image.rows);
@@ -16,13 +23,17 @@ Mat Particle::GetParticleRoi(const Mat& image)
 	return roi;
 }
 
-inline double Particle::GetParticleWeight()
+double Particle::GetParticleWeight()
 {
 	return weight;
 }
-
-inline int Particle::SetParticleWeight(double weight)
+int Particle::SetParticleWeight(double weight)
 {
 	this->weight = weight;
 	return 0;
+}
+
+const Rect& Particle::GetParticleRegion()
+{
+	return particleRegion;
 }

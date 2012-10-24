@@ -1,7 +1,8 @@
 #include "RGBHistFeature.h"
 #include "Utility.h"
 
-RGBHistFeature::RGBHistFeature(const int rBins /* = 6 */, const int gBins /* = 6 */, const int bBins /* = 6  */, const float rMin /* = 0 */, const float rMax /* = 256 */, const float gMin /* = 0 */, const float gMax /* = 256 */, const float bMin /* = 0 */, const float bMax /* = 256 */, const double noiseWeight /* = 0.05 */)
+RGBHistFeature::RGBHistFeature(const int rBins /* = 6 */, const int gBins /* = 6 */, const int bBins /* = 6  */, const float rMin /* = 0 */, const float rMax /* = 256 */, const float gMin /* = 0 */, const float gMax /* = 256 */, const float bMin /* = 0 */, const float bMax /* = 256 */, const double noiseWeight /* = 0.05 */, const double featureWeight /* = 1.0 */)
+	: ParticleFeature(featureWeight)
 {
 	histSize[0] = rBins;
 	histSize[1] = gBins;
@@ -57,11 +58,15 @@ int RGBHistFeature::GenerateOriginFeature(const Mat& roi)
 	return 0;
 }
 
-const Mat& RGBHistFeature::generateHist(const Mat& roi)
+Mat RGBHistFeature::generateHist(const Mat& roi)
 {
+	float hranges[] = {0, 256};
+	float sranges[] = {0, 256};
+	float vranges[] = {0, 256};
+	const float* phranges[] = {hranges, sranges, vranges};
 	int channels[3] = {0, 1, 2};
 	Mat hist;
-	calcHist(&roi, 1, channels, Mat(), hist, 3, histSize, (const float **)pRanges);
+	calcHist(&roi, 1, channels, Mat(), hist, 3, histSize, phranges);
 	Scalar histSum = sum(hist);
 	hist = hist / histSum.val[0];
 
