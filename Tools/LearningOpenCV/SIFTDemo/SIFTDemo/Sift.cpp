@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	namedWindow("SIFT Demo", 0);
 	if(argc == 1)
 	{
-		sprintf(fileName, "H:\\Example1.jpg");
+		sprintf(fileName, "H:\\Example-Copy.jpg");
 	}
 	else
 	{
@@ -33,10 +33,10 @@ int main(int argc, char** argv)
 	{
 		circle(img, kpIter->pt, 2, Scalar(0, 0, 255));
 		i ++;
-		if(kpIter->size < 100)
+		if(kpIter->size < 60)
 			break;
 	}
 	imshow("SIFT Demo", img);
 	waitKey(0);
-	imwrite("H:\\Example1.bmp", img);
+	imwrite("H:\\Example.bmp", img);
 }
