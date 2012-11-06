@@ -7,9 +7,10 @@
 #include "ParticleFeature.h"
 #include "Utility.h"
 #include <time.h>
+#include <iostream>
 using namespace cv;
 
-const string videoFileName = "H:\\GitHubCode\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
+const string videoFileName = "D:\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
 bool selectObject = false;
 Rect selection;
 Point origin;
@@ -82,6 +83,7 @@ int main(int argc, char **argv)
 	startTime = clock();
 	particleTrackingAlg.Tracking(cap);
 	endTime = clock();
-	double totalTime = (endTime - startTime)/CLOCKS_PER_SEC;
+	double totalTime = (endTime - startTime)*1.0/CLOCKS_PER_SEC;
+	std::cout<<"Total Time: "<<totalTime<<std::endl;
 	return 0;
 }

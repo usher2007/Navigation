@@ -92,11 +92,11 @@ int main(int argc, char **argv)
 	for(;;)
 	{
 		cap >> frame;
-		
 		if(frame.empty())
 		{
 			break;
 		}
+		start = clock();
 		frame.copyTo(image);
 		//Mat hsv;
 		//cvtColor(image, hsv, CV_BGR2HSV);
@@ -148,8 +148,6 @@ int main(int argc, char **argv)
 		pt2.y = newY + trackingAlg.originParticle.height;
 		rectangle(image, pt1, pt2, Scalar(0,0,0));
 		imshow("Particle Demo", image);
-		//imshow("Debug", hue);
-		
 		waitKey(2);
 	}
 	endTime = clock();

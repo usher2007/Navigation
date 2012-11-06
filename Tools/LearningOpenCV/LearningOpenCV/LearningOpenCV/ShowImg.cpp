@@ -6,6 +6,7 @@ int main( int argc, char* argv[])
 {
 	Mat img = imread("E:\\4341055.bmp");
 
+
 	if (!img.data)
 	{
 		return -1;

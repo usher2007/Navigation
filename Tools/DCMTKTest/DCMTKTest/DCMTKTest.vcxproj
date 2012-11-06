@@ -39,8 +39,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Program Files\DCMTK\include\dcmtk;D:\OpenCV_build\install\include;D:\OpenCV_build\install\include\opencv;D:\Program Files\tbb30_20100406oss\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\OpenCV_build\lib\Debug;D:\OpenCV_build\lib\Release;D:\Program Files\tbb30_20100406oss\lib\ia32\vc10;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Program Files\DCMTK\include\dcmtk;D:\SDK\OpenCV_build\install\include;D:\OpenCV_build\install\include\opencv;D:\Program Files\tbb30_20100406oss\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\SDK\OpenCV_build\lib\Debug;D:\SDK\OpenCV_build\lib\Release;D:\Program Files\tbb30_20100406oss\lib\ia32\vc10;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

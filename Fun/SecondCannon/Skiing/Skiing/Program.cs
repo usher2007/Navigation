@@ -26,13 +26,16 @@ namespace Skiing
                 }
             }
             int maxResult = 0;
+            List<KeyValuePair<int, int>> maxRoad = new List<KeyValuePair<int, int>>();
             for(int i=0; i<rows; i++)
                 for (int j = 0; j < rows; j++)
                 {
-                    int result = GetMaxRoad(i, j, maze, rows, cols);
+                    List<KeyValuePair<int, int>> road = new List<KeyValuePair<int, int>>();
+                    int result = GetMaxRoad(i, j, maze, rows, cols, road);
                     if (result > maxResult)
                     {
                         maxResult = result;
+                        maxRoad = road;
                     }
                 }
 
@@ -40,7 +43,7 @@ namespace Skiing
 
         }
 
-        static int GetMaxRoad(int ipos, int jpos, int[,] maze, int rows, int cols)
+        static int GetMaxRoad(int ipos, int jpos, int[,] maze, int rows, int cols, List<KeyValuePair<int, int>> road)
         {
             int[] neighbor = new int[4];
             neighbor[0] = (ipos > 0) ? maze[ipos - 1, jpos] : -1;
@@ -49,18 +52,26 @@ namespace Skiing
             neighbor[3] = (jpos < cols - 1) ? maze[ipos, jpos + 1] : -1;
             int[,] steps = {{-1, 0},{0,-1}, {1,0}, {0,1}};
             int maxResult = 0;
+            road.Add(new KeyValuePair<int, int>(ipos, jpos));
+            List<KeyValuePair<int, int>> maxRoad = new List<KeyValuePair<int, int>>();
             for (int i = 0; i < 4; i++)
             {
                 if (neighbor[i] >= 0 && neighbor[i] < maze[ipos, jpos])
                 {
-                    int result = 1 + GetMaxRoad(ipos + steps[i, 0], jpos + steps[i, 1], maze, rows, cols);
+                    List<KeyValuePair<int, int>> curRoad = new List<KeyValuePair<int, int>>();
+                    int result = 1 + GetMaxRoad(ipos + steps[i, 0], jpos + steps[i, 1], maze, rows, cols, curRoad);
                     if (result > maxResult)
                     {
                         maxResult = result;
+                        maxRoad = curRoad;
                     }
                 }
             }
-            return maxResult;
+            for (int i = 0; i < maxRoad.Count; i++)
+            {
+                road.Add(maxRoad[i]);
+            }
+                return maxResult;
         }
     }
 }

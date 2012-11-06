@@ -1,5 +1,7 @@
 #include "RGBHistFeature.h"
 #include "Utility.h"
+#include <time.h>
+#include <iostream>
 
 RGBHistFeature::RGBHistFeature(const int rBins /* = 6 */, const int gBins /* = 6 */, const int bBins /* = 6  */, const float rMin /* = 0 */, const float rMax /* = 256 */, const float gMin /* = 0 */, const float gMax /* = 256 */, const float bMin /* = 0 */, const float bMax /* = 256 */, const double noiseWeight /* = 0.05 */, const double featureWeight /* = 1.0 */)
 	: ParticleFeature(featureWeight)

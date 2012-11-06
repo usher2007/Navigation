@@ -4,7 +4,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 using namespace cv;
-const string videoFileName = "H:\\GitHubCode\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
+
+const string videoFileName = "d:\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
 const int particleNum = 50;
 const int xNoise = 5;
 const int yNoise = 2;

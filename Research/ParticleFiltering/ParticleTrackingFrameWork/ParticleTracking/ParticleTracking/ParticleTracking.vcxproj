@@ -97,12 +97,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>H:\SDK\OpenCV_build\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\SDK\OpenCVX64\OpenCV2.3ForVS2010\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>H:\SDK\OpenCV_build\install\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\SDK\OpenCVX64\OpenCV2.3ForVS2010\install\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_core230d.lib;opencv_highgui230d.lib;opencv_video230d.lib;opencv_ml230d.lib;opencv_legacy230d.lib;opencv_imgproc230d.lib;opencv_features2d230d.lib;opencv_flann230d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -135,14 +135,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>H:\SDK\OpenCV_build\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\SDK\OpenCVX64\OpenCV2.3ForVS2010\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>H:\SDK\OpenCV_build\install\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\SDK\OpenCVX64\OpenCV2.3ForVS2010\install\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_core230.lib;opencv_highgui230.lib;opencv_video230.lib;opencv_ml230.lib;opencv_legacy230.lib;opencv_imgproc230.lib;opencv_features2d230.lib;opencv_flann230.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
