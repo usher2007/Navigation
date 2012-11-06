@@ -88,10 +88,11 @@ int main(int argc, char **argv)
 	long start = 0;
 	long endTime = 0;
 	long sumTime = 0;
+	start = clock();
 	for(;;)
 	{
 		cap >> frame;
-		start = clock();
+		
 		if(frame.empty())
 		{
 			break;
@@ -148,10 +149,11 @@ int main(int argc, char **argv)
 		rectangle(image, pt1, pt2, Scalar(0,0,0));
 		imshow("Particle Demo", image);
 		//imshow("Debug", hue);
-		endTime = clock();
-		sumTime += (endTime - start);
+		
 		waitKey(2);
 	}
+	endTime = clock();
+	sumTime += (endTime - start);
 	std::cout<<"SumTime: "<<sumTime*1.0/CLOCKS_PER_SEC<<std::endl;
 }
 

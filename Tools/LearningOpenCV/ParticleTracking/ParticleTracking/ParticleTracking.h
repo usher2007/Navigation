@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace cv;
 const string videoFileName = "H:\\GitHubCode\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
-const int particleNum = 250;
+const int particleNum = 50;
 const int xNoise = 5;
 const int yNoise = 2;
 const double noiseWeight = 0.05;
@@ -15,7 +15,7 @@ int trackObject = 0;
 bool selectObject = false;
 Rect selection;
 Point origin;
-int hbins = 8, sbins = 8, vbins = 4;
+int hbins = 6, sbins = 6, vbins = 6;
 int histSize[] = {hbins, sbins, vbins};
 float hranges[] = {0, 256};
 float sranges[] = {0, 256};
