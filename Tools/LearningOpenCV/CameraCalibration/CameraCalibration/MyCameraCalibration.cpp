@@ -1,6 +1,4 @@
-#include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
+#include "CameraCalib.h"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -9,7 +7,73 @@ using namespace cv;
 const string picDir = "H:\\GitHubCode\\Navigation\\Tools\\LearningOpenCV\\Data\\";
 const Size brdSize(7, 7);
 const Size imgSize(930, 623);
+
+int CalcReconstructMat(const Mat& transMatLeft, const Mat& transMatRight, const Point2f& pInLeftCam, const Point2f& pInRightCam, Mat& A, Mat& B);
 int main(void)
+{
+	CameraCalib cameraLeft, cameraRight;
+	cameraLeft.init(imgSize, brdSize);
+	cameraRight.init(imgSize, brdSize);
+	vector<Mat> boardImagesLeft(4), boardImagesRight(4);
+	for(int i=0; i<4; i++)
+	{
+		std::stringstream ssLeft, ssRight;
+		ssLeft << "pic" << (2*i+1) << ".jpg";
+		ssRight << "pic" << (2*i+2) << ".jpg";
+		string picFileNameLeft = ssLeft.str();
+		string picFileNameRight = ssRight.str();
+		boardImagesLeft[i] = imread(picDir + picFileNameLeft, CV_LOAD_IMAGE_GRAYSCALE);
+		boardImagesRight[i] = imread(picDir + picFileNameRight, CV_LOAD_IMAGE_GRAYSCALE);
+	}
+	cameraLeft.Calibrate(boardImagesLeft);
+	cameraRight.Calibrate(boardImagesRight);
+	cameraLeft.PrintInfo(-1);
+	cameraRight.PrintInfo(-1);
+	for(int indexOfView=0; indexOfView<4; indexOfView++)
+	{
+		Mat transMatLeft = cameraLeft.GetTransMat(indexOfView);
+		Mat transMatRight = cameraRight.GetTransMat(indexOfView);
+		for(int indexOfPoint=0; indexOfPoint<49; indexOfPoint++)
+		{
+			Point2f pLeft = cameraLeft.GetImagePoint(indexOfView,indexOfPoint);
+			Point2f pRight = cameraRight.GetImagePoint(indexOfView,indexOfPoint);
+			Mat A = Mat(4, 3, CV_64F);
+			Mat B = Mat(4, 1, CV_64F);
+			CalcReconstructMat(transMatLeft, transMatRight, pLeft, pRight, A, B);
+
+			Mat result3D = A.inv(DECOMP_SVD)*B;
+			std::cout<<"Reconstruct 3D coordinate:\n"<<(Mat_<double>&)result3D<<std::endl;
+		}
+	}
+}
+
+int CalcReconstructMat(const Mat& transMatLeft, const Mat& transMatRight, const Point2f& pInLeftCam, const Point2f& pInRightCam, Mat& A, Mat& B)
+{
+	A.at<double>(0,0) = pInLeftCam.x*transMatLeft.at<double>(2,0) - transMatLeft.at<double>(0,0);
+	A.at<double>(0,1) = pInLeftCam.x*transMatLeft.at<double>(2,1) - transMatLeft.at<double>(0,1);
+	A.at<double>(0,2) = pInLeftCam.x*transMatLeft.at<double>(2,2) - transMatLeft.at<double>(0,2);
+
+	A.at<double>(1,0) = pInLeftCam.y*transMatLeft.at<double>(2,0) - transMatLeft.at<double>(1,0);
+	A.at<double>(1,1) = pInLeftCam.y*transMatLeft.at<double>(2,1) - transMatLeft.at<double>(1,1);
+	A.at<double>(1,2) = pInLeftCam.y*transMatLeft.at<double>(2,2) - transMatLeft.at<double>(1,2);
+
+	A.at<double>(2,0) = pInRightCam.x*transMatRight.at<double>(2,0) - transMatRight.at<double>(0,0);
+	A.at<double>(2,1) = pInRightCam.x*transMatRight.at<double>(2,1) - transMatRight.at<double>(0,1);
+	A.at<double>(2,2) = pInRightCam.x*transMatRight.at<double>(2,2) - transMatRight.at<double>(0,2);
+
+	A.at<double>(3,0) = pInRightCam.y*transMatRight.at<double>(2,0) - transMatRight.at<double>(1,0);
+	A.at<double>(3,1) = pInRightCam.y*transMatRight.at<double>(2,1) - transMatRight.at<double>(1,1);
+	A.at<double>(3,2) = pInRightCam.y*transMatRight.at<double>(2,2) - transMatRight.at<double>(1,2);
+
+	B.at<double>(0,0) = transMatLeft.at<double>(0,3) - pInLeftCam.x*transMatLeft.at<double>(2,3);
+	B.at<double>(1,0) = transMatLeft.at<double>(1,3) - pInLeftCam.y*transMatLeft.at<double>(2,3);
+	B.at<double>(2,0) = transMatRight.at<double>(0,3) - pInRightCam.x*transMatRight.at<double>(2,3);
+	B.at<double>(3,0) = transMatRight.at<double>(1,3) - pInRightCam.y*transMatRight.at<double>(2,3);
+
+	return 0;
+}
+
+int CalibTest(void)
 {
 	//double A[4][2] = {{2,4},{3,-5},{1,2},{2,1}};
 	//double B[4][1] = {{11},{3},{6},{7}};
