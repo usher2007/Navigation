@@ -2,8 +2,8 @@
 #include "dcmdata\dctk.h"
 #include "dcmimage\diregist.h"
 #include "dcmimgle\dcmimage.h"
-#include "cv.h"
-#include "highgui.h"
+#include "opencv\cv.h"
+#include "opencv\highgui.h"
 using namespace cv;
 int main(void)
 {
