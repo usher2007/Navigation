@@ -7,10 +7,6 @@
 using namespace cv;
 
 const string picDir = "H:\\GitHubCode\\Navigation\\Tools\\LearningOpenCV\\Data\\";
-const string picFileOne = "pic1.jpg";
-const string picFileTwo = "pic2.jpg";
-const string picFileThree = "pic3.jpg";
-const string picFileFour = "pic4.jpg";
 const Size brdSize(7, 7);
 const Size imgSize(930, 623);
 int main(void)
@@ -141,32 +137,34 @@ int main(void)
 	std::cout<<"2nd R:\n"<<(Mat_<double>&)R2<<std::endl;
 	std::cout<<"2nd T:\n"<<(Mat_<double>&)tvecs2[0]<<std::endl;
 	std::cout<<"2nd Ext:\n"<<(Mat_<double>&)Ext2<<std::endl;
+	for(int i=0; i<48; i++)
+	{
+		Point2f pInLeftCam = cornersInFirstCamera[i];
+		Point2f pInRightCam = cornersInSecondCamera[i];
+		Mat A = Mat(4,3,CV_64F);
+		Mat B = Mat(4,1,CV_64F);
+		A.at<double>(0,0) = pInLeftCam.x*Trans1.at<double>(2,0) - Trans1.at<double>(0,0);
+		A.at<double>(0,1) = pInLeftCam.x*Trans1.at<double>(2,1) - Trans1.at<double>(0,1);
+		A.at<double>(0,2) = pInLeftCam.x*Trans1.at<double>(2,2) - Trans1.at<double>(0,2);
 
-	Point2f pInLeftCam = cornersInFirstCamera[1];
-	Point2f pInRightCam = cornersInSecondCamera[1];
-	Mat A = Mat(4,3,CV_64F);
-	Mat B = Mat(4,1,CV_64F);
-	A.at<double>(0,0) = pInLeftCam.x*Trans1.at<double>(2,0) - Trans1.at<double>(0,0);
-	A.at<double>(0,1) = pInLeftCam.x*Trans1.at<double>(2,1) - Trans1.at<double>(0,1);
-	A.at<double>(0,2) = pInLeftCam.x*Trans1.at<double>(2,2) - Trans1.at<double>(0,2);
+		A.at<double>(1,0) = pInLeftCam.y*Trans1.at<double>(2,0) - Trans1.at<double>(1,0);
+		A.at<double>(1,1) = pInLeftCam.y*Trans1.at<double>(2,1) - Trans1.at<double>(1,1);
+		A.at<double>(1,2) = pInLeftCam.y*Trans1.at<double>(2,2) - Trans1.at<double>(1,2);
 
-	A.at<double>(1,0) = pInLeftCam.y*Trans1.at<double>(2,0) - Trans1.at<double>(1,0);
-	A.at<double>(1,1) = pInLeftCam.y*Trans1.at<double>(2,1) - Trans1.at<double>(1,1);
-	A.at<double>(1,2) = pInLeftCam.y*Trans1.at<double>(2,2) - Trans1.at<double>(1,2);
-
-	A.at<double>(2,0) = pInRightCam.x*Trans2.at<double>(2,0) - Trans2.at<double>(0,0);
-	A.at<double>(2,1) = pInRightCam.x*Trans2.at<double>(2,1) - Trans2.at<double>(0,1);
-	A.at<double>(2,2) = pInRightCam.x*Trans2.at<double>(2,2) - Trans2.at<double>(0,2);
+		A.at<double>(2,0) = pInRightCam.x*Trans2.at<double>(2,0) - Trans2.at<double>(0,0);
+		A.at<double>(2,1) = pInRightCam.x*Trans2.at<double>(2,1) - Trans2.at<double>(0,1);
+		A.at<double>(2,2) = pInRightCam.x*Trans2.at<double>(2,2) - Trans2.at<double>(0,2);
 	
-	A.at<double>(3,0) = pInRightCam.y*Trans2.at<double>(2,0) - Trans2.at<double>(1,0);
-	A.at<double>(3,1) = pInRightCam.y*Trans2.at<double>(2,1) - Trans2.at<double>(1,1);
-	A.at<double>(3,2) = pInRightCam.y*Trans2.at<double>(2,2) - Trans2.at<double>(1,2);
+		A.at<double>(3,0) = pInRightCam.y*Trans2.at<double>(2,0) - Trans2.at<double>(1,0);
+		A.at<double>(3,1) = pInRightCam.y*Trans2.at<double>(2,1) - Trans2.at<double>(1,1);
+		A.at<double>(3,2) = pInRightCam.y*Trans2.at<double>(2,2) - Trans2.at<double>(1,2);
 
-	B.at<double>(0,0) = Trans1.at<double>(0,3) - pInLeftCam.x*Trans1.at<double>(2,3);
-	B.at<double>(1,0) = Trans1.at<double>(1,3) - pInLeftCam.y*Trans1.at<double>(2,3);
-	B.at<double>(2,0) = Trans2.at<double>(0,3) - pInRightCam.x*Trans2.at<double>(2,3);
-	B.at<double>(3,0) = Trans2.at<double>(1,3) - pInRightCam.y*Trans2.at<double>(2,3);
-	Mat result3D = A.inv(DECOMP_SVD)*B;
-	std::cout<<"Reconstruct 3D coordinate:\n"<<(Mat_<double>&)result3D<<std::endl;
+		B.at<double>(0,0) = Trans1.at<double>(0,3) - pInLeftCam.x*Trans1.at<double>(2,3);
+		B.at<double>(1,0) = Trans1.at<double>(1,3) - pInLeftCam.y*Trans1.at<double>(2,3);
+		B.at<double>(2,0) = Trans2.at<double>(0,3) - pInRightCam.x*Trans2.at<double>(2,3);
+		B.at<double>(3,0) = Trans2.at<double>(1,3) - pInRightCam.y*Trans2.at<double>(2,3);
+		Mat result3D = A.inv(DECOMP_SVD)*B;
+		std::cout<<"Reconstruct 3D coordinate:\n"<<(Mat_<double>&)result3D<<std::endl;
+	}
 	return 0;
 }
