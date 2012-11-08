@@ -9,7 +9,10 @@ int main(void)
 	VideoCapture cap;
 	bool res = cap.open(videoFileName);
 	Mat frame, foreground;
-	BackgroundSubtractorMOG mog;
+	BackgroundSubtractorMOG2 mog;
+	mog.backgroundRatio = 0.7;
+	mog.history = 200;
+	//mog.varThreshold = 6.25;
 	namedWindow("Original");
 	namedWindow("Results1");
 	namedWindow("Results2");
