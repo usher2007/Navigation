@@ -1,4 +1,6 @@
 #include "Utility.h"
+#include <iostream>
+#include "opencv2/highgui/highgui.hpp"
 namespace Utility
 {
 	Mat allOneMat;
@@ -12,18 +14,14 @@ namespace Utility
 
 	int GenerateAuxMatForBaryCentre(int rows, int cols)
 	{
-		xMat = Mat(rows, cols, CV_8U);
-		yMat = Mat(rows, cols, CV_8U);
+		xMat = Mat(rows, cols, CV_64F);
+		yMat = Mat(rows, cols, CV_64F);
 		allOneMat = Mat::ones(rows, cols, CV_8U);
-		if(xMat.rows != yMat.rows || xMat.cols != yMat.cols)
-		{
-			return -1;
-		}
 		for(int i=0; i<rows; i++)
 			for(int j=0; j<cols; j++)
 			{
-				xMat.at<uchar>(i,j) = j;
-				yMat.at<uchar>(i,j) = i;
+				xMat.at<double>(i,j) = j;
+				yMat.at<double>(i,j) = i;
 			}
 
 		return 0;
@@ -31,8 +29,10 @@ namespace Utility
 
 	int CalcImageBaryCentre(const Mat& img, const int noneZeroPointsNum, Point2f& baryCentre)
 	{
-		baryCentre.x = xMat.dot(img)/noneZeroPointsNum;
-		baryCentre.y = yMat.dot(img)/noneZeroPointsNum;
+		Mat doubleImg = Mat(img.rows, img.cols, CV_64F);
+		img.convertTo(doubleImg, CV_64F);
+		baryCentre.x = xMat.dot(doubleImg)/noneZeroPointsNum;
+		baryCentre.y = yMat.dot(doubleImg)/noneZeroPointsNum;
 		return 0;
 	}
 }

@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	namedWindow("Bary Centre");
 	Utility::GenerateAuxMatForBaryCentre(rows, cols);
 	
-	for(;;)
+	for(int index=0; ;index++)
 	{
 		if(frame.empty())
 		{
@@ -36,14 +36,30 @@ int main(int argc, char **argv)
 		threshold(foreground, foreground, 128, 255, THRESH_BINARY);
 		foreground.copyTo(tmpForeground);
 		tmpForeground = tmpForeground/255;
+		
+		int kk=0;
+		for(int i=0; i<tmpForeground.rows; i++)
+			for(int j=0; j<tmpForeground.cols; j++)
+			{
+				if(tmpForeground.at<uchar>(i,j) != 0)
+				{
+					kk += tmpForeground.at<uchar>(i,j)*j;
+				}
+			}
+
+
+
 		int sum = Utility::GetNoneZeroPointsNum(tmpForeground);
 		Point2f centre;
 		Utility::CalcImageBaryCentre(tmpForeground, sum, centre);
 		std::cout<<"None Zero Points: "<<sum<<std::endl;
 		std::cout<<"Bary Centre: "<<centre<<std::endl;
-		circle(tmpForeground, centre, 5, Scalar(255,0,0), 2);
+		//circle(foreground, centre, 5, Scalar(255,0,0), 2);
 		imshow("Guassian Foreground", foreground);
-		imshow("Bary Centre", tmpForeground);
+		char *fileName = new char[1024];
+		sprintf(fileName, "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\GassianFore\\%d.bmp", index);
+		imwrite(fileName, foreground);
+		//imshow("Bary Centre", tmpForeground);
 		waitKey(10);
 		cap >> frame;
 	}
