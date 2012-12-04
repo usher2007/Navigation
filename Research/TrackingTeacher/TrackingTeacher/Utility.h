@@ -23,6 +23,6 @@ namespace Utility
 	extern Mat xMat;
 	extern Mat yMat;
 	int GetNoneZeroPointsNum(const Mat& img);
-	int CalcImageBaryCentre(const Mat& img, const int noneZeroPointsNum, Point2f& baryCentre);
+	int CalcImageBaryCentre(const Mat& img, vector<Point2f>& baryCentre);
 	int GenerateAuxMatForBaryCentre(int rows, int cols);
 }
