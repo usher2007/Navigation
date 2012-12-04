@@ -20,6 +20,7 @@ int main(int argc, char **argv)
 	BackgroundSubtractorMOG2 mog;
 	cap.open(videoFileName);
 	cap >> frame;
+	VideoWriter videoWriter("H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\BaryCenter\\BaryCenter.avi", CV_FOURCC('X','V','I','D'),25,frame.size());
 	int cols = frame.cols;
 	int rows = frame.rows;
 	//namedWindow("Gaussian Foreground");
@@ -58,9 +59,10 @@ int main(int argc, char **argv)
 		imshow("Result", frame);
 		waitKey(10);
 
-		char *fileName = new char[1024];
+		/*char *fileName = new char[1024];
 		sprintf(fileName, "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\BaryCenter\\%d.bmp", index);
-		imwrite(fileName, frame);
+		imwrite(fileName, frame);*/
+		videoWriter << frame;
 
 		cap >> frame;
 	}
