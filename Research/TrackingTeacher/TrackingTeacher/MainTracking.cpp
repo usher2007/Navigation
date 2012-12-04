@@ -22,8 +22,9 @@ int main(int argc, char **argv)
 	cap >> frame;
 	int cols = frame.cols;
 	int rows = frame.rows;
-	namedWindow("Gaussian Foreground");
-	namedWindow("Bary Centre");
+	//namedWindow("Gaussian Foreground");
+	//namedWindow("Bary Centre");
+	namedWindow("Result");
 	Utility::GenerateAuxMatForBaryCentre(rows, cols);
 	
 	for(int index=0; ;index++)
@@ -49,14 +50,18 @@ int main(int argc, char **argv)
 		//std::cout<<"Bary Centre: "<<centres<<std::endl;
 		for(vector<Point2f>::iterator itCenter = centres.begin(); itCenter!= centres.end(); itCenter++)
 		{
-			circle(tmpForeground, *itCenter, 5, Scalar(255,0,0), 2);
+			circle(frame, *itCenter, 5, Scalar(255,0,0), 2);
 		}
 		imshow("Guassian Foreground", foreground);
-		//char *fileName = new char[1024];
-		//sprintf(fileName, "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\GassianFore\\%d.bmp", index);
-		//imwrite(fileName, foreground);
-		imshow("Bary Centre", tmpForeground);
+		//imshow("Bary Centre", tmpForeground);
+		rectangle(frame, Rect(120,50, 480,476), Scalar(0,255,0),2);
+		imshow("Result", frame);
 		waitKey(10);
+
+		char *fileName = new char[1024];
+		sprintf(fileName, "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\BaryCenter\\%d.bmp", index);
+		imwrite(fileName, frame);
+
 		cap >> frame;
 	}
 }

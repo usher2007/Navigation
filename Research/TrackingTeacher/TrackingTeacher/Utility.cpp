@@ -81,6 +81,7 @@ namespace Utility
 				sumWeight = 0;
 				eachColSum = 0;
 			}
+			lastIndex = (*it);
 		}
 		return 0;
 	}
