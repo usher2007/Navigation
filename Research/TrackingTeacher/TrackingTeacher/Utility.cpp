@@ -75,7 +75,9 @@ namespace Utility
 							sumWeightY += xPos*person.at<double>(xPos,yPos);
 						}
 					center.y = sumWeightY/sumY;
-					baryCentres.push_back(center);
+					double centerWeight = eachColSum/continueNum*1000;
+					if(centerWeight > 10)
+						baryCentres.push_back(center);
 				}
 				continueNum = 0;
 				sumWeight = 0;
