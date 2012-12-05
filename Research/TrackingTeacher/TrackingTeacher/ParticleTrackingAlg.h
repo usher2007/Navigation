@@ -5,24 +5,18 @@
 #include "ParticleFeature.h"
 #include "Particle.h"
 #include "Utility.h"
+#include "TrackedPerson.h"
 using namespace cv;
 
 class ParticleTrackingAlg
 {
 public:
-	ParticleTrackingAlg(int particleNum);
-	int AddParticleFeature(ParticleFeature* feature);
-	int SetInitialObject(const Rect& trackObject, const Mat& image);
-	int Tracking(VideoCapture cap);
+	ParticleTrackingAlg();
+	int AddTrackedPerson(TrackedPerson person);
+	int Tracking(const Mat& image);
+	Rect GetPersonLocationById(const int id);
 private:
-	std::vector<ParticleFeature *> features;
-	std::vector<Particle> particleList;
-	Rect trackObject;
-	Rect resultObject;
-	int particleNum;
+	std::vector<TrackedPerson> personList;
 	Mat frame;
 	Mat image;
-private:
-	int generateParticleList();
-	int resampleParticleList();
 };
