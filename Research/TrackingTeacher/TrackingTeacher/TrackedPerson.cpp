@@ -8,7 +8,15 @@ TrackedPerson::TrackedPerson(const Mat& image, const Rect& location, const int P
 	currentLocation = location;
 	particleNum = ParticleNum;
 	id = Id;
+	AddInitialRoi(initialImage, initialLocation);
 	generateParticleList();
+}
+
+int TrackedPerson::AddInitialRoi(const Mat& image, const Rect& location)
+{
+	Mat roi(image, location);
+	rois.push_back(roi);
+	return 0;
 }
 
 Rect TrackedPerson::GetCurrentLocation()
@@ -19,7 +27,7 @@ Rect TrackedPerson::GetCurrentLocation()
 int TrackedPerson::AddParticleFeature(ParticleFeature* feature)
 {
 	Mat roi(initialImage, initialLocation);
-	(*feature).GenerateOriginFeature(roi);
+	(*feature).GenerateOriginFeature(rois);
 	features.push_back(feature);
 	return 0;
 }

@@ -6,6 +6,7 @@
 #include "RGBHistFeature.h"
 #include "Particle.h"
 #include "ParticleFeature.h"
+#include "TrackedPerson.h"
 #include "Utility.h"
 #include <time.h>
 #include <iostream>
@@ -44,11 +45,8 @@ int main(int argc, char **argv)
 		foreground.copyTo(tmpForeground);
 		tmpForeground = tmpForeground/255;
 
-		int sum = Utility::GetNoneZeroPointsNum(tmpForeground);
 		vector<Point2f> centres;
 		Utility::CalcImageBaryCentre(tmpForeground, centres);
-		std::cout<<"None Zero Points: "<<sum<<std::endl;
-		//std::cout<<"Bary Centre: "<<centres<<std::endl;
 		for(vector<Point2f>::iterator itCenter = centres.begin(); itCenter!= centres.end(); itCenter++)
 		{
 			circle(frame, *itCenter, 5, Scalar(255,0,0), 2);

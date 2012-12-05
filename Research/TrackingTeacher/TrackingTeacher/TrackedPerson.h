@@ -8,6 +8,7 @@ class TrackedPerson
 public:
 	TrackedPerson(const Mat& image, const Rect& location, const int ParticleNum, const int Id);
 	int AddParticleFeature(ParticleFeature* feature);
+	int AddInitialRoi(const Mat& image, const Rect& location);
 	Rect GetCurrentLocation();
 	int GetId();
 	int ResampleParticleList();
@@ -19,6 +20,7 @@ private:
 	std::vector<ParticleFeature *> features;
 	std::vector<Particle> particleList;
 	Mat initialImage;
+	vector<Mat> rois;
 	Rect initialLocation;
 	Rect currentLocation;
 	int particleNum;

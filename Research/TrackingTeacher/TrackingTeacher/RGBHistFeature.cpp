@@ -53,9 +53,22 @@ double RGBHistFeature::CalcSimilarityToOrigin(const Mat& particleRoi)
 	return pdf;
 }
 
-int RGBHistFeature::GenerateOriginFeature(const Mat& roi)
+int RGBHistFeature::GenerateOriginFeature(vector<Mat>& roi)
 {
-	originHist = generateHist(roi);
+	vector<Mat>::iterator roiIter;
+	Mat hist;
+	for(roiIter=roi.begin(); roiIter!=roi.end(); roiIter++)
+	{
+		if(roiIter == roi.begin())
+		{
+			hist = generateHist(*roiIter);
+		}
+		else
+		{
+			hist += generateHist(*roiIter);
+		}
+	}
+	originHist = hist/roi.size();
 	
 	return 0;
 }

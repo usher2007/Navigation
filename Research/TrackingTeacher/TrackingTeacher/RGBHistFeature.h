@@ -11,12 +11,12 @@ public:
 	int SetNoiseWeight(const double noiseWeight);
 	//From Interface ParticleFeature
 	double  CalcSimilarityToOrigin(const Mat& particleRoi);
-	int GenerateOriginFeature(const Mat& roi);
+	int GenerateOriginFeature(vector<Mat>& roi);
 private:
 	int histSize[3];
 	float pRanges[3][2];
 	double noiseWeight;
 	Mat originHist;
-
+private:
 	Mat generateHist(const Mat& roi);
 };
