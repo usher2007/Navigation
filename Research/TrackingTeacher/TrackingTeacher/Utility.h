@@ -19,8 +19,8 @@ namespace Utility
 	const int gMax = 256;
 	const int bMin = 0;
 	const int bMax = 256;
-	const Rect trackingArea(576/7, 720/9, 576 - 576*2/7, 720 - 720*2/9);
-	const Rect notDetectArea(576/6, 720/8, 576 - 576/3, 720 - 720/4);
+	const Rect trackingArea(576/7, 720/9, 720 - 720*2/9, 576 - 576*2/7);
+	const Rect notDetectArea(576/6, 720/8, 720 - 720/4, 576-576/3);
 	extern Mat allOneMat;
 	extern Mat xMat;
 	extern Mat yMat;
