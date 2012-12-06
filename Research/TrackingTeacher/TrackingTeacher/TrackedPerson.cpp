@@ -16,6 +16,7 @@ int TrackedPerson::AddInitialRoi(const Mat& image, const Rect& location)
 {
 	Mat roi(image, location);
 	rois.push_back(roi);
+	currentLocation = location;
 	return 0;
 }
 

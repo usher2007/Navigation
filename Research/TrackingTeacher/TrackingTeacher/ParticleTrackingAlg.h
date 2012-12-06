@@ -16,6 +16,7 @@ public:
 	int Tracking(const Mat& image);
 	Rect GetPersonLocationById(const int id);
 	bool PersonAlreadyTracked(const Point2f& center);
+	int DrawPersons(Mat& frame);
 private:
 	std::vector<TrackedPerson> personList;
 	Mat frame;

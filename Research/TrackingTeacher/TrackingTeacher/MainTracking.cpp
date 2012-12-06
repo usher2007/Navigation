@@ -26,8 +26,6 @@ int main(int argc, char **argv)
 	VideoWriter videoWriter("H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\BaryCenter\\BaryCenter.avi", CV_FOURCC('X','V','I','D'),25,frame.size());
 	int cols = frame.cols;
 	int rows = frame.rows;
-	Rect trackingArea(rows/7, cols/9, rows - rows*2/7, cols - cols*2/9);
-	Rect notDetectArea(rows/6, cols/8, rows - rows/3, cols - cols/4);
 	//namedWindow("Gaussian Foreground");
 	//namedWindow("Bary Centre");
 	namedWindow("Result");
@@ -54,12 +52,12 @@ int main(int argc, char **argv)
 		Utility::CalcImageBaryCentre(tmpForeground, centres);
 		for(vector<Point2f>::iterator itCenter = centres.begin(); itCenter!= centres.end(); itCenter++)
 		{
-			if(itCenter->inside(notDetectArea) || particleTrackingAlg.PersonAlreadyTracked(*itCenter))
+			if(itCenter->inside(Utility::notDetectArea) || particleTrackingAlg.PersonAlreadyTracked(*itCenter))
 			{
 				continue;
 			}
 			int curPersonId = AddBaryCenterToPerson(detectedPersons, *itCenter, frame);
-			if(itCenter->inside(trackingArea))
+			if(itCenter->inside(Utility::trackingArea))
 			{
 				for(vector<TrackedPerson>::iterator personIter=detectedPersons.begin(); personIter!=detectedPersons.end(); personIter++)
 				{
@@ -72,17 +70,25 @@ int main(int argc, char **argv)
 			}
 		}
 		particleTrackingAlg.Tracking(frame);
-		imshow("Guassian Foreground", foreground);
+		particleTrackingAlg.DrawPersons(frame);
+		vector<TrackedPerson>::iterator detectedPersonIter;
+		for(detectedPersonIter=detectedPersons.begin(); detectedPersonIter!=detectedPersons.end(); detectedPersonIter++)
+		{
+			Rect detectedPersonLoc = detectedPersonIter->GetCurrentLocation();
+			Point2f detectedPersonCenter(detectedPersonLoc.x+detectedPersonLoc.width/2, detectedPersonLoc.y+detectedPersonLoc.height/2);
+			circle(frame, detectedPersonCenter, 4, Scalar(0,100,100),2);
+		}
+		//imshow("Guassian Foreground", foreground);
 		//imshow("Bary Centre", tmpForeground);
-		rectangle(frame, trackingArea, Scalar(0,255,0),2);
-		rectangle(frame, notDetectArea, Scalar(0,0,255), 2);
+		rectangle(frame, Utility::trackingArea, Scalar(0,255,0),2);
+		rectangle(frame, Utility::notDetectArea, Scalar(0,0,255), 2);
 		imshow("Result", frame);
 		waitKey(10);
 
 		/*char *fileName = new char[1024];
 		sprintf(fileName, "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\BaryCenter\\%d.bmp", index);
 		imwrite(fileName, frame);*/
-		videoWriter << frame;
+		//videoWriter << frame;
 
 		cap >> frame;
 	}
