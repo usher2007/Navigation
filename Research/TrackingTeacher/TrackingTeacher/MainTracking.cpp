@@ -63,8 +63,10 @@ int main(int argc, char **argv)
 				{
 					if(personIter->GetId() == curPersonId)
 					{
+						personIter->AddParticleFeature(new RGBHistFeature());
 						particleTrackingAlg.AddTrackedPerson(*personIter);
 						detectedPersons.erase(personIter);
+						break;
 					}
 				}
 			}
