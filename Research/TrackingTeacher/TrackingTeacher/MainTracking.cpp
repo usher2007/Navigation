@@ -99,10 +99,12 @@ int main(int argc, char **argv)
 int AddBaryCenterToPerson(vector<TrackedPerson>& detectedPersons, const Point2f& center, const Mat& image)
 {
 	vector<TrackedPerson>::iterator personIter;
-	int left = (center.x-50 > 0) ? (center.x-50) : 0;
-	int right = (center.x+50 <image.cols) ? (center.x+50) : image.cols-1;
-	int top = (center.y-80 > 0) ? (center.y-80) : 0;
-	int bottom = (center.y+80 < image.rows) ? (center.y+80) : image.rows-1;
+	int halfWidth = 30;
+	int halfHeight = 50;
+	int left = (center.x-halfWidth > 0) ? (center.x-halfWidth) : 0;
+	int right = (center.x+halfWidth <image.cols) ? (center.x+halfWidth) : image.cols-1;
+	int top = (center.y-halfHeight > 0) ? (center.y-halfHeight) : 0;
+	int bottom = (center.y+halfHeight < image.rows) ? (center.y+halfHeight) : image.rows-1;
 	Rect currentPerson(left, top, right-left, bottom-top);
 	for(personIter=detectedPersons.begin(); personIter!=detectedPersons.end(); personIter++)
 	{
