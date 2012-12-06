@@ -9,7 +9,7 @@ public:
 	TrackedPerson(const Mat& image, const Rect& location, const int ParticleNum, const int Id);
 	int AddParticleFeature(ParticleFeature* feature);
 	int AddInitialRoi(const Mat& image, const Rect& location);
-	Rect GetCurrentLocation();
+	Rect GetCurrentLocation() const;
 	int GetId();
 	int ResampleParticleList();
 	int CalcParticleWeight(const Mat& image);

@@ -19,7 +19,7 @@ int TrackedPerson::AddInitialRoi(const Mat& image, const Rect& location)
 	return 0;
 }
 
-Rect TrackedPerson::GetCurrentLocation()
+Rect TrackedPerson::GetCurrentLocation() const
 {
 	return currentLocation;
 }
