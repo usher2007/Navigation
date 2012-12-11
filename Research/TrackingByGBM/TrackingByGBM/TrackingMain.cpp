@@ -31,16 +31,17 @@ int main(int argc, char **argv)
 		{
 			bgSubtractor(frame, gbmForeground, 0.01);
 			threshold(gbmForeground, gbmForeground, 128, 255, THRESH_BINARY);
+			cap>>frame;
 			continue;
 		}
-		if(index%3 != 0)
+		if(index%Utility::TrackInterval != 0)
 		{
 			cap >> frame;
 			continue;
 		}
 		startTime = clock();
-		bgSubtractor(frame, gbmForeground, 0.01);
-		threshold(gbmForeground, gbmForeground, 128, 255, THRESH_BINARY);
+		bgSubtractor(frame, gbmForeground, Utility::GBMLearningRate);
+		threshold(gbmForeground, gbmForeground, Utility::FgLowThresh, Utility::FgUpThresh, THRESH_BINARY);
 
 		gbmForeground = gbmForeground/255;
 		vector<Point2f> baryCenters;
@@ -80,7 +81,7 @@ int CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCentres)
 	vector<int> foreCandidates;
 	for(int j=0; j<maxCol; j++)
 	{
-		if(foreHistByCol.at<double>(0,j) > 2*avgForeHist)
+		if(foreHistByCol.at<double>(0,j) > 3*avgForeHist)
 		{
 			foreCandidates.push_back(j);
 		}
@@ -92,7 +93,7 @@ int CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCentres)
 	double eachColSum = 0;
 	for(; it != foreCandidates.end(); it ++)
 	{
-		if((*it) - lastIndex < 50 && it != foreCandidates.end()-1)
+		if((*it) - lastIndex < Utility::LeastHumanGap && it != foreCandidates.end()-1)
 		{
 			continueNum++;
 			sumWeight += (*it)*foreHistByCol.at<double>(0,(*it))/1000;
@@ -100,7 +101,7 @@ int CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCentres)
 		}
 		else
 		{
-			if(continueNum > 30)
+			if(continueNum > Utility::HumanWidth)
 			{
 				int personWidth = (*(it-1))-(*(it-continueNum));
 				Mat person = Mat(doubleImg,Rect(*(it-continueNum),0,personWidth,doubleImg.rows));
@@ -116,7 +117,7 @@ int CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCentres)
 					}
 					center.y = sumWeightY/sumY;
 					double centerWeight = eachColSum/continueNum*1000;
-					if(centerWeight > 10)
+					if(centerWeight > Utility::CenterWeightThresh)
 						baryCentres.push_back(center);
 			}
 			continueNum = 0;

@@ -14,6 +14,7 @@ public:
 	int GetCenterDistance(const Point2f& newCenter);
 	int UpdateBaryCenter(const Point2f& newCenter);
 	bool Disappeared();
+	bool IsNoise();
 	int SetCurrentStatus(bool detectedOrTracked);
 	bool IsDetectedOrTracked();
 	int UpdateDetectAndDisappearTimes();

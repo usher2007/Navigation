@@ -32,6 +32,18 @@ bool Person::Disappeared()
 	return disappearTimes > Utility::DisapperFrameThresh;
 }
 
+bool Person::IsNoise()
+{
+	if(disappearTimes == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return detectedTimes*1.0/disappearTimes < 5;
+	}
+}
+
 int Person::SetCurrentStatus(bool detectedOrTracked)
 {
 	this->detectedOrTracked = detectedOrTracked;
@@ -195,7 +207,7 @@ int PersonManager::updateTrackedPersons()
 	while(personIter!=trackedPersons.end())
 	{
 		personIter->UpdateDetectAndDisappearTimes();
-		if(personIter->Disappeared() && !(personIter->GetBaryCenter().inside(Utility::StopTrackingArea)))
+		if(personIter->IsNoise() || (personIter->Disappeared() && !(personIter->GetBaryCenter().inside(Utility::StopTrackingArea))))
 		{
 			personIter = trackedPersons.erase(personIter);
 		}
