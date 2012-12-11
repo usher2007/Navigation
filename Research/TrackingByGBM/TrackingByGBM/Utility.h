@@ -7,16 +7,18 @@ using namespace cv;
 
 namespace Utility
 {
-	const string videoFileName = "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\T_WALK4.mp4";
+	const string VIDEO_FILE_NAME = "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\T_WALK4.mp4";
+	const string RESULT_FILE_NAME = "H:\\GitHubCode\\Navigation\\Research\\TrackingByGBM\\Data\\12.11\\T_WALK4.avi";
 	const double PI = 3.1415926;
-	const Rect BeginTrackingArea(120, 115, 480, 346);
-	const Rect StopTrackingArea(90, 72, 540, 432);
-	const int DisapperFrameThresh = 10;
-	const int LeastHumanGap = 50;
-	const int HumanWidth = 30;
-	const int CenterWeightThresh = 15;
-	const int TrackInterval = 3;
-	const int FgLowThresh = 128;
-	const int FgUpThresh = 255;
-	const double GBMLearningRate = 0.01;
+	const Rect BEGIN_TRACKING_AREA(120, 115, 480, 346);
+	const Rect STOP_TRACKING_AREA(90, 72, 540, 432);
+	const int DISAPPEAR_FRAME_THRESH = 10;
+	const int LEAST_HUMAN_GAP = 50;
+	const int HUMAN_WIDTH = 30;
+	const int CENTER_WEIGHT_THRESH = 10;
+	const int TRACK_INTERVAL = 3;
+	const int FG_LOW_THRESH = 128;
+	const int FG_UP_THRESH = 255;
+	const double GBM_LEARNING_RATE = 0.01;
+	const double FG_HIST_THRESH = 2;
 }

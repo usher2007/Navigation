@@ -29,7 +29,7 @@ int Person::UpdateBaryCenter(const Point2f& newCenter)
 
 bool Person::Disappeared()
 {
-	return disappearTimes > Utility::DisapperFrameThresh;
+	return disappearTimes > Utility::DISAPPEAR_FRAME_THRESH;
 }
 
 bool Person::IsNoise()
@@ -183,7 +183,7 @@ int PersonManager::updateDetectedPersons()
 	while(personIter!=detectedPersons.end())
 	{
 		personIter->UpdateDetectAndDisappearTimes();
-		if(personIter->GetBaryCenter().inside(Utility::BeginTrackingArea))
+		if(personIter->GetBaryCenter().inside(Utility::BEGIN_TRACKING_AREA))
 		{
 			Person p(*personIter);
 			trackedPersons.push_back(p);
@@ -207,7 +207,7 @@ int PersonManager::updateTrackedPersons()
 	while(personIter!=trackedPersons.end())
 	{
 		personIter->UpdateDetectAndDisappearTimes();
-		if(personIter->IsNoise() || (personIter->Disappeared() && !(personIter->GetBaryCenter().inside(Utility::StopTrackingArea))))
+		if(personIter->IsNoise() || (personIter->Disappeared() && !(personIter->GetBaryCenter().inside(Utility::STOP_TRACKING_AREA))))
 		{
 			personIter = trackedPersons.erase(personIter);
 		}
