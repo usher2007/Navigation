@@ -162,13 +162,13 @@ int PersonManager::Update()
 int PersonManager::DrawPersons(Mat& image)
 {
 	vector<Person>::iterator personIter;
-	for(personIter=detectedPersons.begin(); personIter!=detectedPersons.end(); ++personIter)
+	/*for(personIter=detectedPersons.begin(); personIter!=detectedPersons.end(); ++personIter)
 	{
 		circle(image, personIter->GetBaryCenter(), 4, Scalar(0, 255, 0), 2);
-	}
+	}*/
 	for(personIter=trackedPersons.begin(); personIter!=trackedPersons.end(); ++personIter)
 	{
-		circle(image, personIter->GetBaryCenter(), 4, Scalar(100,100, 0), 2);
+		circle(image, personIter->GetBaryCenter(), 4, Scalar(0,255, 255), 2);
 	}
 	return 0;
 }
