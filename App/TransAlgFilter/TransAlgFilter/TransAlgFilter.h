@@ -50,6 +50,10 @@ public:
 
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
+	HRESULT SetResolution(LONG biWidht, LONG biHeight);
+	LONG GetWidth();
+	LONG GetHeight();
+
 private:
 
 	CTransAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);
@@ -61,6 +65,9 @@ private:
 
 	CMediaType m_mtPreferred;
 	CCritSec m_TransAlgLock;
+
+	LONG m_biWidth;
+	LONG m_biHeight;
 };
 
 
