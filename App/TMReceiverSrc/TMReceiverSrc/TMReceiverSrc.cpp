@@ -3,6 +3,7 @@
 #include "TMReceiverSrc.h"
 
 static const LONGLONG ONESEC = 10000000;
+static const int FPS = 25;
 DWORD ReaderProc(LPVOID pParam);
 const AMOVIESETUP_MEDIATYPE sudOpVideoPinTypes =
 {
@@ -65,6 +66,8 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 	m_pFileName = NULL;
 	H264Dec_Init();
 	m_pVideoPin->hDecoder = NULL;
+	m_bRecordStatus = FALSE;
+	memset(m_recordFileName, 0x00, sizeof(m_recordFileName));
 }
 
 CTMReceiverSrc::~CTMReceiverSrc()
@@ -189,9 +192,71 @@ STDMETHODIMP CTMReceiverSrc::Stop(){
 void CTMReceiverSrc::ReadAndCachePreviewPackets()
 {
 	//TODO: READ AND CACHE PACKETS.
+	AVPacket packet;
+	AVPacket packetToAbolish;
+	while(TRUE)
+	{
+		if(m_queueBuffer.nb_packets > 256)
+		{
+			for(int i=0; i<10; i++)
+			{
+				av_init_packet(&packetToAbolish);
+				m_queueBuffer.Get(&packetToAbolish, 1);
+				//m_channelPts[channel] = packetToAbolish.pts;
+				av_free_packet(&packetToAbolish);
+			}
+		}
+		int ret = av_read_frame(m_pFormatContext, &packet);
+		if(ret < 0)
+		{
+			av_init_packet(&packet);
+			packet.data = NULL;
+			packet.size = 0;
+			packet.stream_index = m_videoStreamIndex;
+			m_queueBuffer.Put(&packet);
+			//For debug
+			/*char tmp[1024];
+			sprintf(tmp,"!!!!!!!!!!!!!!!Channel: %d __Put %d bad Packet!\n",channel, ret);
+			OutputDebugStringA(tmp);*/
+			Sleep(10);
+			continue;
+		}
+		if(packet.stream_index == m_videoStreamIndex)
+		{
+			//For debug
+			/*char tmp[1024];
+			sprintf(tmp,"Channel: %d __Put %d good Packet!DTS:%lld\n",channel, m_previewQueueBuffer[channel].nb_packets,packet.dts);
+			OutputDebugStringA(tmp);*/
+			//m_channelPts[channel] = packet.pts;
+			m_queueBuffer.Put(&packet);
+			//char tmp[1024];
+			//sprintf(tmp, "Channel %d__PTS %lld\n", channel, packet.pts);
+			//OutputDebugStringA(tmp);
+			continue;
+		}
+		Sleep(10);
+	}
+	return;
 }
 
+STDMETHODIMP CTMReceiverSrc::StartRecord(const char *fileName)
+{
+	memcpy(m_recordFileName, fileName, strlen(fileName));
+	m_pVideoPin->InitRecord(m_recordFileName);
+	m_bRecordStatus = TRUE;
+	return S_OK;
+}
 
+STDMETHODIMP CTMReceiverSrc::StopRecord()
+{
+	if(m_bRecordStatus == TRUE)
+	{
+		m_bRecordStatus = FALSE;
+		m_pVideoPin->StopRecord();
+		memset(m_recordFileName, 0x00, sizeof(m_recordFileName));
+	}
+	return S_OK;
+}
 //////////////////////////////////////////////////////////////////
 // Video Output Pin
 //////////////////////////////////////////////////////////////////
@@ -217,6 +282,165 @@ CTMReceiverOutputPin::~CTMReceiverOutputPin()
 HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 {
 	//TODO: Fill buffer with the decoded frames.
+	CTMReceiverSrc* pFilter = (CTMReceiverSrc*)m_pFilter;
+	/*char tmp[1024];
+	sprintf(tmp,"Channel:%d, Fill Buffer In!\n", pFilter->m_relatedChannel);
+	OutputDebugStringA(tmp);*/
+	AVPacket pkt, pktForRecord;
+	BYTE *pData;
+	long lDataLen;
+	lDataLen = pms->GetSize();
+	if (m_pData==NULL)
+	{
+		m_pData = new BYTE[lDataLen];
+	}
+	if(pFilter->m_queueBuffer.nb_packets<=0)
+	{
+		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
+		// The sample times are modified by the current rate.
+		rtStart = static_cast<REFERENCE_TIME>(m_rtSampleTime);
+		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
+		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
+		rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
+		pms->SetTime(&rtStart, &rtStop);
+		pms->SetMediaTime(&rtMediaStart, &rtMediaStop);
+		m_rtSampleTime = m_rtSampleTime + static_cast<int>(m_rtAvgTimePerFrame );
+		m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame;
+		pms->SetSyncPoint(TRUE);
+		//Sleep(100);
+		//char tmp[1024];
+		//sprintf(tmp,"====================No Data!====================\n");
+		//OutputDebugStringA(tmp);
+		return S_OK;
+	}
+	av_init_packet(&pkt);
+	int maxPktNum = m_bGetAvgFrameTime ? 10 : 5;
+	while (pFilter->m_queueBuffer.nb_packets > maxPktNum)
+	{
+		CAutoLock lock(&m_csBuffer);
+		pFilter->m_queueBuffer.Get(&pkt,1);
+		av_free_packet(&pkt);
+	}
+
+	{
+		CAutoLock lock(&m_csBuffer);
+		pFilter->m_queueBuffer.Get(&pkt, 1);
+		if(pkt.flags & AV_PKT_FLAG_KEY)
+		{
+	/*char tmp[1024];
+	sprintf(tmp,"Key Frame!\n");
+	OutputDebugStringA(tmp);*/
+		}
+	}
+	int ret = -1;
+	//Record Video
+	if(m_bRecordStatus == TRUE)
+	{
+		av_init_packet(&pktForRecord);
+		pktForRecord.size = pkt.size;
+		pktForRecord.flags = pkt.flags;
+		pktForRecord.pts = pts;
+		pktForRecord.dts = pts;
+		pktForRecord.data = new uint8_t[pktForRecord.size];
+		memcpy(pktForRecord.data, pkt.data, pktForRecord.size);
+		ret = av_interleaved_write_frame(m_fileSaverCtx, &pktForRecord);
+		delete [] pktForRecord.data;
+		pktForRecord.data = NULL;
+		pktForRecord.size = 0;
+		av_init_packet(&pktForRecord);
+		av_free_packet(&pktForRecord);
+		pts++;
+	}
+	ret = -1;
+	{
+		CAutoLock lock(&m_csDecoder);
+		if (hDecoder!=NULL)
+		{
+			ret = H264Dec_DecodeFrame(hDecoder,m_pData,pkt.data,pkt.size);			
+		}		
+	}
+
+	if(ret <=0)
+	{
+		/*char tmp[1024];
+		sprintf(tmp," ===================================BAD£¬rtSampleTime:%lld\n",m_rtSampleTime);
+		OutputDebugStringA(tmp);*/
+		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
+		// The sample times are modified by the current rate.
+		rtStart = static_cast<REFERENCE_TIME>(m_rtSampleTime);
+		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
+		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
+		rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
+		pms->SetTime(&rtStart, &rtStop);
+		pms->SetMediaTime(&rtMediaStart, &rtMediaStop);
+		m_rtSampleTime = rtStop;
+		m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame;
+		pms->SetSyncPoint(TRUE);
+		return S_OK;
+	}
+
+	pms->GetPointer(&pData);
+
+	USES_CONVERSION;
+	ZeroMemory(pData, lDataLen);	
+	{
+		CAutoLock cAutoLockShared(&m_cSharedState);	
+		memcpy(pData,m_pData,lDataLen);
+		//hack the 1920*1088, the last 8 line should be set to 0.
+		if(pFilter->GetImageHeight() == 1088)
+		{
+			memset(pData, 0, pFilter->GetImageWidth()*8*sizeof(RGBQUAD));
+		}
+		//hack the 720*576, the first and last 2 lines should be set to 0.
+		if(pFilter->GetImageHeight() == 576)
+		{
+			memset(pData, 0, pFilter->GetImageWidth()*2*sizeof(RGBQUAD));
+			memset(pData + pFilter->GetImageWidth()*(pFilter->GetImageHeight()-2)*sizeof(RGBQUAD), 0, pFilter->GetImageWidth()*2*sizeof(RGBQUAD));
+		}
+		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
+		// The sample times are modified by the current rate.
+		//rtStart = static_cast<REFERENCE_TIME>(m_rtSampleTime);
+		if(m_rtFirstFrameTime == 0)
+		{
+			m_rtFirstFrameTime = pkt.pts ;
+		}
+		rtStart = (pkt.pts  - m_rtFirstFrameTime)*100/9*10 - 1000;
+		if(rtStart > 0 && !m_bGetAvgFrameTime)
+		{
+			m_rtAvgTimePerFrame = rtStart - 0;
+			m_bGetAvgFrameTime = TRUE;
+		}
+		rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
+		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
+		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
+		rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
+		pms->SetTime(&rtStart, &rtStop);
+		pms->SetMediaTime(&rtMediaStart, &rtMediaStop);
+		m_rtSampleTime = rtStop;
+		m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame; 
+		//char tmp[1024];
+		//sprintf(tmp," Src Filter:Channel:%d__PTS:%lld__rtStart:%lld\n", pFilter->m_relatedChannel, pkt.pts, rtStart);
+		//OutputDebugStringA(tmp);
+	}
+	pms->SetSyncPoint(TRUE);
+
+//For debug
+frame_count ++;
+//char tmp2[1024];
+//sprintf(tmp2,"Channel %d__Fill Buffer Finallly %d!\n", pFilter->m_relatedChannel, frame_count);
+//OutputDebugStringA(tmp2);
+
+	av_free_packet(&pkt);
+
+	//CallBack
+	//DecodeCallback decodeCB = NULL;
+	//void *pCBParam = NULL;
+	//HRESULT hr = pFilter->m_pConfigManager->GetDecodeCB(pFilter->m_relatedChannel, &decodeCB, &pCBParam);
+	//if(SUCCEEDED(hr) && decodeCB != NULL)
+	//{
+	//	decodeCB(m_pData, lDataLen, pCBParam);
+	//}
+	return S_OK;
 	return S_OK;
 }
 
@@ -236,7 +460,13 @@ HRESULT CTMReceiverOutputPin::DecideBufferSize(IMemAllocator *pAlloc,ALLOCATOR_P
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
 	HRESULT hr = S_OK;
 	pProperties->cBuffers = 1;
-	pProperties->cbBuffer = resolution.width*resolution.height*sizeof(RGBQUAD);
+	int imageWidth = ((CTMReceiverSrc *)m_pFilter)->GetImageWidth();
+	int imageHeight = ((CTMReceiverSrc *)m_pFilter)->GetImageHeight();
+	if(imageWidth < 0 || imageHeight < 0)
+	{
+		return E_FAIL;
+	}
+	pProperties->cbBuffer = imageWidth*imageHeight*sizeof(RGBQUAD);
 	ASSERT(pProperties->cbBuffer);
 	ALLOCATOR_PROPERTIES Actual;
 	hr = pAlloc->SetProperties(pProperties,&Actual);
@@ -380,6 +610,86 @@ STDMETHODIMP CTMReceiverOutputPin::Stop()
 {
 	m_rtFirstFrameTime = 0;
 	return CSourceStream::Stop();
+}
+
+HRESULT CTMReceiverOutputPin::InitRecord(const char* fileName)
+{
+	avcodec_register_all();
+	av_register_all();
+
+	avformat_alloc_output_context2(&m_fileSaverCtx, NULL, NULL, fileName);
+	if(!m_fileSaverCtx)
+	{
+		return E_FAIL;
+	}
+	m_fileSaverFmt = m_fileSaverCtx->oformat;
+	m_fileSaverFmt->video_codec = CODEC_ID_H264;
+	m_fileSaverStream = avformat_new_stream(m_fileSaverCtx, NULL);
+	if(!m_fileSaverStream)
+	{
+		return E_FAIL;
+	}
+	AVCodecContext *c;
+	AVCodec *codec;
+	c = m_fileSaverStream->codec;
+	codec = avcodec_find_encoder(m_fileSaverFmt->video_codec);
+	if(!codec)
+	{
+		return E_FAIL;
+	}
+	avcodec_get_context_defaults3(c, codec);
+	c->codec_id = m_fileSaverFmt->video_codec;
+	c->bit_rate = 400000;
+	c->time_base.den = FPS;
+	c->time_base.num = 1;
+	c->gop_size = 12;
+	c->pix_fmt = PIX_FMT_YUV420P;
+
+	if(m_fileSaverCtx->oformat->flags & AVFMT_GLOBALHEADER)
+	{
+		c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+	}
+
+	av_dump_format(m_fileSaverCtx, 0, fileName, 1);
+	//Open Video
+	int ret = avcodec_open2(c, codec, NULL);
+	if(ret < 0)
+	{
+		return E_FAIL;
+	}
+
+	if(!(m_fileSaverFmt->flags & AVFMT_NOFILE))
+	{
+		if(avio_open(&m_fileSaverCtx->pb, fileName, AVIO_FLAG_WRITE)<0)
+		{
+			return E_FAIL;
+		}
+	}
+
+	ret = avformat_write_header(m_fileSaverCtx, NULL);
+	pts = 1;
+	m_bRecordStatus = TRUE;
+}
+
+HRESULT CTMReceiverOutputPin::StopRecord()
+{
+	m_bRecordStatus = FALSE;
+	int ret = -1;
+	Sleep(100);
+	ret = av_write_trailer(m_fileSaverCtx);
+	ret = avcodec_close(m_fileSaverStream->codec);
+	for(int i=0; i<m_fileSaverCtx->nb_streams; i++)
+	{
+		av_freep(&(m_fileSaverCtx->streams[i]->codec));
+		av_freep(&(m_fileSaverCtx->streams[i]));
+	}
+	if(!(m_fileSaverFmt->flags & AVFMT_NOFILE))
+	{
+		ret = avio_close(m_fileSaverCtx->pb);
+	}
+	av_free(m_fileSaverCtx);
+	pts = 1;
+	return S_OK;
 }
 
 DWORD ReaderProc(LPVOID pParam)

@@ -24,6 +24,15 @@ extern "C" {
 // {7C85656E-D45D-4C6B-A825-4DF103639DD2}
 DEFINE_GUID(CLSID_TMReceiverSrc, 
 	0x7c85656e, 0xd45d, 0x4c6b, 0xa8, 0x25, 0x4d, 0xf1, 0x3, 0x63, 0x9d, 0xd2);
+// {1E3C41C2-3872-44CB-83E4-3D14EE823688}
+DEFINE_GUID(IID_IRecordStream, 
+	0x1e3c41c2, 0x3872, 0x44cb, 0x83, 0xe4, 0x3d, 0x14, 0xee, 0x82, 0x36, 0x88);
+
+DECLARE_INTERFACE_(IRecordStream, IUnknown)
+{
+	STDMETHOD(StartRecord)(THIS_ const char* fileName)PURE;
+	STDMETHOD(StopRecord)(THIS_)PURE;
+};
 
 
 extern const AMOVIESETUP_FILTER sudTMReceiverSrcax;
@@ -34,8 +43,9 @@ struct Resolution_t
 	int width;
 	int height;
 };
-class CTMReceiverSrc : public CSource, public IFileSourceFilter
+class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordStream
 {
+	friend class CTMReceiverOutputPin;
 public:
 	~CTMReceiverSrc();
 	static CUnknown * WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT *phr);
@@ -46,6 +56,10 @@ public:
 		if (riid == IID_IFileSourceFilter) 
 		{
 			return GetInterface((IFileSourceFilter *)this, ppv);
+		}
+		else if(riid == IID_IRecordStream)
+		{
+			return GetInterface((IRecordStream *)this, ppv);
 		}
 		else
 		{
@@ -59,6 +73,10 @@ public:
 	STDMETHODIMP Stop();
 	STDMETHODIMP Run(REFERENCE_TIME tStart);
 
+	// IRecordStream functions
+	STDMETHODIMP StartRecord(const char *fileName);
+	STDMETHODIMP StopRecord();
+
 	CTMReceiverOutputPin *m_pVideoPin;
 
 private:
@@ -67,11 +85,15 @@ private:
 	PacketQueue m_queueBuffer;
 	AVFormatContext *m_pFormatContext;
 	int m_videoStreamIndex;
-	Resolution_t m_resolution;
+	struct Resolution_t m_resolution;
 	HANDLE m_readerThread;
+	BOOL m_bRecordStatus;
+	char m_recordFileName[1024];
 
-private:
+public:
 	void ReadAndCachePreviewPackets();
+	int GetImageWidth() { return m_resolution.width > 0 ? m_resolution.width : -1;}
+	int GetImageHeight() { return m_resolution.height > 0 ? m_resolution.height : -1;}
 };
 
 class CTMReceiverOutputPin : public CSourceStream
@@ -91,6 +113,10 @@ public:
 	STDMETHODIMP Stop();
 	STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
 
+	HRESULT InitRecord(const char* fileName);
+	HRESULT StopRecord();
+
+
 	CRefTime					m_rtPosition;
 	CRefTime					m_rtSampleTime;
 	CRefTime					m_rtAvgTimePerFrame;
@@ -102,8 +128,13 @@ public:
 	CCritSec m_csBuffer;
 	H264Dec_Handle hDecoder;
 	BYTE *m_pData;
-	struct Resolution_t resolution;
 	BOOL m_pinIntialized;
+
+	AVFormatContext *m_fileSaverCtx;
+	AVOutputFormat *m_fileSaverFmt;
+	AVStream *m_fileSaverStream;
+	BOOL m_bRecordStatus;
+	LONGLONG pts;
 
 private:
 	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
