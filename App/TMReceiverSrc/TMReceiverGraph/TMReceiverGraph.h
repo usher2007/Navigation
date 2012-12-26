@@ -46,8 +46,8 @@ DEFINE_GUID(IID_ISetCallBack,
 MIDL_INTERFACE("E74BC5A9-44AE-4AC4-8B26-6FE694940EA5")
 ISetCallBack : public IUnknown
 {
-	virtual HRESULT SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg)PURE;
-	virtual HRESULT SetCallBackAfterDecode(TMReceiverCB* cb, void* arg)PURE;
+	virtual HRESULT SetCallBackBeforeDecode(TMReceiverCB cb, void* arg)PURE;
+	virtual HRESULT SetCallBackAfterDecode(TMReceiverCB cb, void* arg)PURE;
 };
 
 // This class is exported from the TMReceiverGraph.dll
@@ -60,8 +60,8 @@ public:
 	HRESULT BuildFilterGraph(const char* fileName, BOOL bDisplay);
 	HRESULT SetDisplayWindow(HWND windowHandle);
 	HRESULT SetNotifyWindow(HWND windowHandle);
-	HRESULT SetBeforeDecodeCB(TMReceiverCB* cb, void* arg);
-	HRESULT SetAfterDecodeCB(TMReceiverCB* cb, void* arg);
+	HRESULT SetBeforeDecodeCB(TMReceiverCB cb, void* arg);
+	HRESULT SetAfterDecodeCB(TMReceiverCB cb, void* arg);
 	void OnSize();
 
 	HRESULT Stop();

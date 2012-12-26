@@ -158,7 +158,7 @@ HRESULT CTMReceiverGraph::SetNotifyWindow(HWND windowHandle)
 	return E_FAIL;
 }
 
-HRESULT CTMReceiverGraph::SetBeforeDecodeCB(TMReceiverCB* cb, void* arg)
+HRESULT CTMReceiverGraph::SetBeforeDecodeCB(TMReceiverCB cb, void* arg)
 {
 	HRESULT hr = E_FAIL;
 	if(m_pSetCallBack != NULL)
@@ -169,7 +169,7 @@ HRESULT CTMReceiverGraph::SetBeforeDecodeCB(TMReceiverCB* cb, void* arg)
 	return E_FAIL;
 }
 
-HRESULT CTMReceiverGraph::SetAfterDecodeCB(TMReceiverCB* cb, void* arg)
+HRESULT CTMReceiverGraph::SetAfterDecodeCB(TMReceiverCB cb, void* arg)
 {
 	HRESULT hr = E_FAIL;
 	if(m_pSetCallBack != NULL)
