@@ -21,17 +21,49 @@ extern "C" {
 #include "libavcodec/avfft.h"
 #include "libavcodec/avcodec.h"
 };
+typedef struct TMPicture_t{
+
+	unsigned char *data[8];
+
+	int linesize[8];
+
+} TMPicture;
+
+typedef struct TMFrame_t{
+
+	TMPicture pic;//解码后的数据
+
+	char* data; //指向视频编码数据段的指针
+
+	int len; //视频编码数据长度
+
+	int decoded; //是否已经解码
+
+	int error;
+
+}TMFrame;
+typedef int (*TMReceiverCB)(TMFrame* pFrame, void* arg);
+
 // {7C85656E-D45D-4C6B-A825-4DF103639DD2}
 DEFINE_GUID(CLSID_TMReceiverSrc, 
 	0x7c85656e, 0xd45d, 0x4c6b, 0xa8, 0x25, 0x4d, 0xf1, 0x3, 0x63, 0x9d, 0xd2);
+
 // {1E3C41C2-3872-44CB-83E4-3D14EE823688}
 DEFINE_GUID(IID_IRecordStream, 
 	0x1e3c41c2, 0x3872, 0x44cb, 0x83, 0xe4, 0x3d, 0x14, 0xee, 0x82, 0x36, 0x88);
-
 DECLARE_INTERFACE_(IRecordStream, IUnknown)
 {
 	STDMETHOD(StartRecord)(THIS_ const char* fileName)PURE;
 	STDMETHOD(StopRecord)(THIS_)PURE;
+};
+
+// {E74BC5A9-44AE-4AC4-8B26-6FE694940EA5}
+DEFINE_GUID(IID_ISetCallBack, 
+	0xe74bc5a9, 0x44ae, 0x4ac4, 0x8b, 0x26, 0x6f, 0xe6, 0x94, 0x94, 0xe, 0xa5);
+DECLARE_INTERFACE_(ISetCallBack, IUnknown)
+{
+	STDMETHOD(SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg))PURE;
+	STDMETHOD(SetCallBackAfterDecode(TMReceiverCB* cb, void* arg))PURE;
 };
 
 
@@ -43,7 +75,7 @@ struct Resolution_t
 	int width;
 	int height;
 };
-class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordStream
+class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordStream, public ISetCallBack
 {
 	friend class CTMReceiverOutputPin;
 public:
@@ -77,6 +109,13 @@ public:
 	STDMETHODIMP StartRecord(const char *fileName);
 	STDMETHODIMP StopRecord();
 
+	// ISetCallBack functions
+	STDMETHODIMP SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg);
+	STDMETHODIMP SetCallBackAfterDecode(TMReceiverCB* cb, void* arg);
+
+	int CallBeforeDecodeCB(TMFrame *pFrame);
+	int CallAfterDecodeCB(TMFrame *pFrame);
+
 	CTMReceiverOutputPin *m_pVideoPin;
 
 private:
@@ -89,6 +128,11 @@ private:
 	HANDLE m_readerThread;
 	BOOL m_bRecordStatus;
 	char m_recordFileName[1024];
+
+	TMReceiverCB *beforeDecodeCB;
+	TMReceiverCB *afterDecodeCB;
+	void *beforeCBParam;
+	void *afterCBParam;
 
 public:
 	void ReadAndCachePreviewPackets();

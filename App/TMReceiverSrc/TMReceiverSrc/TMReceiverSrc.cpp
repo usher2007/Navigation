@@ -257,6 +257,39 @@ STDMETHODIMP CTMReceiverSrc::StopRecord()
 	}
 	return S_OK;
 }
+
+STDMETHODIMP CTMReceiverSrc::SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg)
+{
+	beforeDecodeCB = cb;
+	beforeCBParam = arg;
+	return S_OK;
+}
+
+STDMETHODIMP CTMReceiverSrc::SetCallBackAfterDecode(TMReceiverCB* cb, void* arg)
+{
+	afterDecodeCB = cb;
+	afterCBParam = arg;
+	return S_OK;
+}
+
+int CTMReceiverSrc::CallBeforeDecodeCB(TMFrame *pFrame)
+{
+	if(beforeDecodeCB != NULL)
+	{
+		return (*beforeDecodeCB)(pFrame, beforeCBParam);
+	}
+	return -1;
+}
+
+int CTMReceiverSrc::CallAfterDecodeCB(TMFrame *pFrame)
+{
+	if(afterDecodeCB != NULL)
+	{
+		return (*afterDecodeCB)(pFrame, afterCBParam);
+	}
+	return -1;
+}
+
 //////////////////////////////////////////////////////////////////
 // Video Output Pin
 //////////////////////////////////////////////////////////////////
@@ -351,6 +384,15 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		av_free_packet(&pktForRecord);
 		pts++;
 	}
+
+	// BEFORE DECODE CB
+	TMFrame beforeDecodeFrame;
+	beforeDecodeFrame.data = (char *)pkt.data;
+	beforeDecodeFrame.len = pkt.size;
+	beforeDecodeFrame.decoded = FALSE;
+	beforeDecodeFrame.error = FALSE;
+	pFilter->CallBeforeDecodeCB(&beforeDecodeFrame);
+
 	ret = -1;
 	{
 		CAutoLock lock(&m_csDecoder);
@@ -359,6 +401,17 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 			ret = H264Dec_DecodeFrame(hDecoder,m_pData,pkt.data,pkt.size);			
 		}		
 	}
+
+	// AFTER DECODE CB
+	TMFrame afterDecodeFrame;
+	afterDecodeFrame.data = (char *)pkt.data;
+	afterDecodeFrame.len = pkt.size;
+	afterDecodeFrame.decoded = TRUE;
+	afterDecodeFrame.error = ret <= 0 ? TRUE : FALSE;
+	TMPicture afterDecodePic;
+	// TODO: construct the pic
+	afterDecodeFrame.pic = afterDecodePic;
+	pFilter->CallAfterDecodeCB(&afterDecodeFrame);
 
 	if(ret <=0)
 	{
@@ -425,7 +478,6 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	pms->SetSyncPoint(TRUE);
 
 //For debug
-frame_count ++;
 //char tmp2[1024];
 //sprintf(tmp2,"Channel %d__Fill Buffer Finallly %d!\n", pFilter->m_relatedChannel, frame_count);
 //OutputDebugStringA(tmp2);
@@ -513,8 +565,8 @@ HRESULT CTMReceiverOutputPin::CheckMediaType(const CMediaType *pMediaType){
 	// but it avoids balls that are bigger than the picture...
 
 	// Check if the image width & height have changed
-	if(pvi->bmiHeader.biWidth != resolution.width|| 
-		pvi->bmiHeader.biHeight != resolution.height)
+	if(pvi->bmiHeader.biWidth != ((CTMReceiverSrc *)m_pFilter)->GetImageWidth()|| 
+		pvi->bmiHeader.biHeight != ((CTMReceiverSrc *)m_pFilter)->GetImageHeight())
 	{
 		// If the image width/height is changed, fail CheckMediaType() to force
 		// the renderer to resize the image.
@@ -542,11 +594,11 @@ HRESULT CTMReceiverOutputPin::GetMediaType(int iPosition, CMediaType *pmt){
 	LPBITMAPINFOHEADER lpBitmapInfoHeader = &(pvih->bmiHeader);
 	lpBitmapInfoHeader->biSize = sizeof(BITMAPINFOHEADER);
 	lpBitmapInfoHeader->biBitCount = 32;
-	lpBitmapInfoHeader->biWidth = resolution.width/4*4;
-	lpBitmapInfoHeader->biHeight = resolution.height;
+	lpBitmapInfoHeader->biWidth = ((CTMReceiverSrc *)m_pFilter)->GetImageWidth()/4*4;
+	lpBitmapInfoHeader->biHeight = ((CTMReceiverSrc *)m_pFilter)->GetImageHeight();
 	lpBitmapInfoHeader->biPlanes = 1;
 	lpBitmapInfoHeader->biCompression = BI_RGB;
-	lpBitmapInfoHeader->biSizeImage = resolution.width / 4 * 4 * resolution.height * 4;
+	lpBitmapInfoHeader->biSizeImage = ((CTMReceiverSrc *)m_pFilter)->GetImageWidth() / 4 * 4 * ((CTMReceiverSrc *)m_pFilter)->GetImageHeight() * 4;
 	lpBitmapInfoHeader->biXPelsPerMeter = 0;
 	lpBitmapInfoHeader->biYPelsPerMeter =0;
 	lpBitmapInfoHeader->biClrUsed = 0;
@@ -574,11 +626,11 @@ HRESULT CTMReceiverOutputPin::GetMediaType(CMediaType *pmt){
 	LPBITMAPINFOHEADER lpBitmapInfoHeader = &(pvih->bmiHeader);
 	lpBitmapInfoHeader->biSize = sizeof(BITMAPINFOHEADER);
 	lpBitmapInfoHeader->biBitCount = 32;
-	lpBitmapInfoHeader->biWidth = resolution.width/4*4;
-	lpBitmapInfoHeader->biHeight = resolution.height;
+	lpBitmapInfoHeader->biWidth = ((CTMReceiverSrc *)m_pFilter)->GetImageWidth()/4*4;
+	lpBitmapInfoHeader->biHeight = ((CTMReceiverSrc *)m_pFilter)->GetImageHeight();
 	lpBitmapInfoHeader->biPlanes = 1;
 	lpBitmapInfoHeader->biCompression = BI_RGB;
-	lpBitmapInfoHeader->biSizeImage = resolution.width / 4 * 4 * resolution.height * 4;
+	lpBitmapInfoHeader->biSizeImage = ((CTMReceiverSrc *)m_pFilter)->GetImageWidth() / 4 * 4 * ((CTMReceiverSrc *)m_pFilter)->GetImageHeight() * 4;
 	lpBitmapInfoHeader->biXPelsPerMeter = 0;
 	lpBitmapInfoHeader->biYPelsPerMeter =0;
 	lpBitmapInfoHeader->biClrUsed = 0;
@@ -691,6 +743,7 @@ HRESULT CTMReceiverOutputPin::StopRecord()
 	pts = 1;
 	return S_OK;
 }
+
 
 DWORD ReaderProc(LPVOID pParam)
 {
