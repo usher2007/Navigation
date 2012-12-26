@@ -25,13 +25,14 @@ CTMReceiverGraph::CTMReceiverGraph()
 HRESULT CTMReceiverGraph::Init()
 {
 	CoInitialize(NULL);
-	m_owner = NULL;
 	m_pGraphBuilder = NULL;
 	m_pMediaControl = NULL;
 	m_pMediaEvent = NULL;
 	m_pMeidaSeeking = NULL;
 	m_pVideoWindow = NULL;
 	m_pBasicVideo = NULL;
+	m_pRecordStream = NULL;
+	m_pSetCallBack = NULL;
 	m_bDisplay = FALSE;
 	return S_OK;
 }
@@ -41,11 +42,10 @@ CTMReceiverGraph::~CTMReceiverGraph()
 	return;
 }
 
-HRESULT CTMReceiverGraph::Create(HWND owner)
+HRESULT CTMReceiverGraph::Create()
 {
 	HRESULT hr = S_FALSE;
 
-	m_owner = owner;
 	m_pGraphBuilder = NULL;
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void **)&m_pGraphBuilder);
 	if(FAILED(hr)) return hr;
@@ -73,7 +73,7 @@ HRESULT CTMReceiverGraph::Create(HWND owner)
 	return S_OK;
 }
 
-HRESULT CTMReceiverGraph::BuildFilterGraph(BOOL bDisplay)
+HRESULT CTMReceiverGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 {
 	HRESULT hr = S_FALSE;
 	if(m_pGraphBuilder != NULL)
@@ -84,6 +84,14 @@ HRESULT CTMReceiverGraph::BuildFilterGraph(BOOL bDisplay)
 		hr = CoCreateInstance(CLSID_TMReceiverSrc, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
 		if(FAILED(hr)) return hr;
 		hr = pSrc->QueryInterface(IID_IRecordStream, (void **)&m_pRecordStream);
+		if(FAILED(hr)) return hr;
+		hr = pSrc->QueryInterface(IID_ISetCallBack, (void **)&m_pSetCallBack);
+		if(FAILED(hr)) return hr;
+		CComPtr<IFileSourceFilter> pFileSrc;
+		hr = pSrc->QueryInterface(IID_IFileSourceFilter, (void **)&pFileSrc);
+		if(FAILED(hr)) return hr;
+		CString fileNameCStr(fileName);
+		hr = pFileSrc->Load(fileNameCStr, NULL);
 		if(FAILED(hr)) return hr;
 		hr = m_pGraphBuilder->AddFilter(pSrc, L"Src Filter");
 		if(FAILED(hr)) return hr;
@@ -150,6 +158,28 @@ HRESULT CTMReceiverGraph::SetNotifyWindow(HWND windowHandle)
 	return E_FAIL;
 }
 
+HRESULT CTMReceiverGraph::SetBeforeDecodeCB(TMReceiverCB* cb, void* arg)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pSetCallBack != NULL)
+	{
+		hr = m_pSetCallBack->SetCallBackBeforeDecode(cb, arg);
+		return hr;
+	}
+	return E_FAIL;
+}
+
+HRESULT CTMReceiverGraph::SetAfterDecodeCB(TMReceiverCB* cb, void* arg)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pSetCallBack != NULL)
+	{
+		hr = m_pSetCallBack->SetCallBackAfterDecode(cb, arg);
+		return hr;
+	}
+	return E_FAIL;
+}
+
 void CTMReceiverGraph::OnSize()
 {
 	HWND hwnd;
@@ -190,6 +220,28 @@ HRESULT CTMReceiverGraph::Run()
 	if(m_pMediaControl != NULL)
 	{
 		hr = m_pMediaControl->Run();
+		return hr;
+	}
+	return E_FAIL;
+}
+
+HRESULT CTMReceiverGraph::StartRecord(const char* storageFileName)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pRecordStream != NULL)
+	{
+		hr = m_pRecordStream->StartRecord(storageFileName);
+		return hr;
+	}
+	return E_FAIL;
+}
+
+HRESULT CTMReceiverGraph::StopRecord()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pRecordStream != NULL)
+	{
+		hr = m_pRecordStream->StopRecord();
 		return hr;
 	}
 	return E_FAIL;

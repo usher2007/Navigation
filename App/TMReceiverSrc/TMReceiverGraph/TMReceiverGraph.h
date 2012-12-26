@@ -15,10 +15,12 @@
 #include "DShow.h"
 #include <initguid.h>
 #include <atlcomcli.h>
+#include "..\TMReceiver\TMReceiver.h"
 
 #ifndef WM_GRAPHNOTIFY
 #define WM_GRAPHNOTIFY (WM_APP + 100)
 #endif
+
 
 // {7C85656E-D45D-4C6B-A825-4DF103639DD2}
 DEFINE_GUID(CLSID_TMReceiverSrc, 
@@ -38,21 +40,36 @@ IRecordStream : public IUnknown
 	virtual HRESULT StopRecord()PURE;
 };
 
+// {E74BC5A9-44AE-4AC4-8B26-6FE694940EA5}
+DEFINE_GUID(IID_ISetCallBack, 
+	0xe74bc5a9, 0x44ae, 0x4ac4, 0x8b, 0x26, 0x6f, 0xe6, 0x94, 0x94, 0xe, 0xa5);
+MIDL_INTERFACE("E74BC5A9-44AE-4AC4-8B26-6FE694940EA5")
+ISetCallBack : public IUnknown
+{
+	virtual HRESULT SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg)PURE;
+	virtual HRESULT SetCallBackAfterDecode(TMReceiverCB* cb, void* arg)PURE;
+};
+
 // This class is exported from the TMReceiverGraph.dll
 class TMRECEIVERGRAPH_API CTMReceiverGraph {
 public:
 	CTMReceiverGraph(void);
 	~CTMReceiverGraph();
 
-	HRESULT Create(HWND owner);
-	HRESULT BuildFilterGraph(BOOL bDisplay);
+	HRESULT Create();
+	HRESULT BuildFilterGraph(const char* fileName, BOOL bDisplay);
 	HRESULT SetDisplayWindow(HWND windowHandle);
 	HRESULT SetNotifyWindow(HWND windowHandle);
+	HRESULT SetBeforeDecodeCB(TMReceiverCB* cb, void* arg);
+	HRESULT SetAfterDecodeCB(TMReceiverCB* cb, void* arg);
 	void OnSize();
 
 	HRESULT Stop();
 	HRESULT Pause();
 	HRESULT Run();
+
+	HRESULT StartRecord(const char* storageFileName);
+	HRESULT StopRecord();
 
 	IMediaEventEx* GetEventHandle();
 
@@ -63,7 +80,6 @@ private:
 	HRESULT GetUnconnectedPin(CComPtr<IBaseFilter> pFilter, PIN_DIRECTION PinDir, IPin **ppPin, GUID MediaType);
 	HRESULT Init();
 
-	HWND m_owner;
 	CComPtr<IGraphBuilder> m_pGraphBuilder;
 	CComPtr<IMediaControl> m_pMediaControl;
 	CComPtr<IMediaEventEx> m_pMediaEvent;
@@ -71,6 +87,7 @@ private:
 	CComPtr<IVideoWindow> m_pVideoWindow;
 	CComPtr<IBasicVideo> m_pBasicVideo;
 	CComPtr<IRecordStream> m_pRecordStream;
+	CComPtr<ISetCallBack> m_pSetCallBack;
 
 	BOOL m_bDisplay;
 };
