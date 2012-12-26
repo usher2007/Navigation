@@ -17,8 +17,8 @@ public:
 	HRESULT DisableStorage();
 	HRESULT StartStorage();
 	HRESULT StopStorage();
-	HRESULT SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg);
-	HRESULT SetCallBackAfterDecode(TMReceiverCB* cb, void* arg);
+	HRESULT SetCallBackBeforeDecode(TMReceiverCB cb, void* arg);
+	HRESULT SetCallBackAfterDecode(TMReceiverCB cb, void* arg);
 	HRESULT Close();
 private:
 	CTMReceiverGraph *m_pGraph;

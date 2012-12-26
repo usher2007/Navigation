@@ -47,7 +47,7 @@ HRESULT TMReceiverImp::DisableStorage()
 	return S_OK;
 }
 
-HRESULT TMReceiverImp::SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg)
+HRESULT TMReceiverImp::SetCallBackBeforeDecode(TMReceiverCB cb, void* arg)
 {
 	if(m_pGraph != NULL)
 	{
@@ -56,7 +56,7 @@ HRESULT TMReceiverImp::SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg)
 	return S_OK;
 }
 
-HRESULT TMReceiverImp::SetCallBackAfterDecode(TMReceiverCB* cb, void* arg)
+HRESULT TMReceiverImp::SetCallBackAfterDecode(TMReceiverCB cb, void* arg)
 {
 	if(m_pGraph != NULL)
 	{

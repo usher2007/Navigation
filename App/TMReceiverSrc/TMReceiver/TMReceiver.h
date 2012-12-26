@@ -74,6 +74,6 @@ TMRECEIVER_API int TM_RecieverEnableStorage(TMRecieverHandle hReciever, const ch
 TMRECEIVER_API int TM_RecieverDisableStorage(TMRecieverHandle hReciever);
 TMRECEIVER_API int TM_RecieverStartStorage(TMRecieverHandle hReciever);
 TMRECEIVER_API int TM_RecieverStopStorage(TMRecieverHandle hReciever);
-TMRECEIVER_API int TM_RecieverSetCallBackBeforeDecode(TMRecieverHandle hReciever, TMReceiverCB* cb, void* arg);
-TMRECEIVER_API int TM_RecieverSetCallBackAfterDecode(TMRecieverHandle hReciever, TMReceiverCB* cb, void* arg);
+TMRECEIVER_API int TM_RecieverSetCallBackBeforeDecode(TMRecieverHandle hReciever, TMReceiverCB cb, void* arg);
+TMRECEIVER_API int TM_RecieverSetCallBackAfterDecode(TMRecieverHandle hReciever, TMReceiverCB cb, void* arg);
 TMRECEIVER_API int TM_RecieverClose(TMRecieverHandle hReciever);

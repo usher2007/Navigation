@@ -80,13 +80,13 @@ TMRECEIVER_API int TM_RecieverStopStorage(TMRecieverHandle hReciever)
 	return pReceiverImp->StopStorage();
 }
 
-TMRECEIVER_API int TM_RecieverSetCallBackBeforeDecode(TMRecieverHandle hReciever, TMReceiverCB* cb, void* arg)
+TMRECEIVER_API int TM_RecieverSetCallBackBeforeDecode(TMRecieverHandle hReciever, TMReceiverCB cb, void* arg)
 {
 	TMReceiverImp* pReceiverImp = (TMReceiverImp *)hReciever;
 	return pReceiverImp->SetCallBackBeforeDecode(cb, arg);
 }
 
-TMRECEIVER_API int TM_RecieverSetCallBackAfterDecode(TMRecieverHandle hReciever, TMReceiverCB* cb, void* arg)
+TMRECEIVER_API int TM_RecieverSetCallBackAfterDecode(TMRecieverHandle hReciever, TMReceiverCB cb, void* arg)
 {
 	TMReceiverImp* pReceiverImp = (TMReceiverImp *)hReciever;
 	return pReceiverImp->SetCallBackAfterDecode(cb, arg);
