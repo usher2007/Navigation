@@ -57,7 +57,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>TMReceiverSrc.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>..\Lib\;H:\SDK\ffmpeg\lib;H:\SDK\dx9sdkcp\SDK (C++)\Samples\C++\DirectShow\BaseClasses\Debug_Unicode;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>h264dec.lib;strmbasd.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>strmbasd.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

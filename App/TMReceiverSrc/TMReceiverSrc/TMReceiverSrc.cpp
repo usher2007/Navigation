@@ -64,8 +64,6 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 
 	m_paStreams[0] = m_pVideoPin;
 	m_pFileName = NULL;
-	H264Dec_Init();
-	m_pVideoPin->hDecoder = NULL;
 	m_bRecordStatus = FALSE;
 	memset(m_recordFileName, 0x00, sizeof(m_recordFileName));
 }
@@ -157,7 +155,8 @@ STDMETHODIMP CTMReceiverSrc::Run(REFERENCE_TIME tStart){
 
 	{
 		CAutoLock lock(&(m_pVideoPin->m_csDecoder));	
-		m_pVideoPin->hDecoder = H264Dec_Create();
+		m_pVideoPin->m_pDecoder = new H264Decoder;
+		m_pVideoPin->m_pDecoder->Init();
 	}
 	m_pVideoPin->m_bWorking = TRUE;
 	m_pVideoPin->m_rtFirstFrameTime = 0;
@@ -178,9 +177,10 @@ STDMETHODIMP CTMReceiverSrc::Stop(){
 	int ret = 0;
 	{
 		CAutoLock lock(&(m_pVideoPin->m_csDecoder));
-		if(m_pVideoPin->hDecoder != NULL){
-			H264Dec_Delete(m_pVideoPin->hDecoder);
-			m_pVideoPin->hDecoder = NULL;
+		if(m_pVideoPin->m_pDecoder != NULL){
+			m_pVideoPin->m_pDecoder->Release();
+			delete m_pVideoPin->m_pDecoder;
+			m_pVideoPin->m_pDecoder = NULL;
 		}
 	}
 	m_pVideoPin->m_rtFirstFrameTime = 0;
@@ -258,14 +258,14 @@ STDMETHODIMP CTMReceiverSrc::StopRecord()
 	return S_OK;
 }
 
-STDMETHODIMP CTMReceiverSrc::SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg)
+STDMETHODIMP CTMReceiverSrc::SetCallBackBeforeDecode(TMReceiverCB cb, void* arg)
 {
 	beforeDecodeCB = cb;
 	beforeCBParam = arg;
 	return S_OK;
 }
 
-STDMETHODIMP CTMReceiverSrc::SetCallBackAfterDecode(TMReceiverCB* cb, void* arg)
+STDMETHODIMP CTMReceiverSrc::SetCallBackAfterDecode(TMReceiverCB cb, void* arg)
 {
 	afterDecodeCB = cb;
 	afterCBParam = arg;
@@ -276,7 +276,7 @@ int CTMReceiverSrc::CallBeforeDecodeCB(TMFrame *pFrame)
 {
 	if(beforeDecodeCB != NULL)
 	{
-		return (*beforeDecodeCB)(pFrame, beforeCBParam);
+		return beforeDecodeCB(pFrame, beforeCBParam);
 	}
 	return -1;
 }
@@ -285,7 +285,7 @@ int CTMReceiverSrc::CallAfterDecodeCB(TMFrame *pFrame)
 {
 	if(afterDecodeCB != NULL)
 	{
-		return (*afterDecodeCB)(pFrame, afterCBParam);
+		return afterDecodeCB(pFrame, afterCBParam);
 	}
 	return -1;
 }
@@ -305,11 +305,14 @@ CTMReceiverOutputPin::CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent
 	m_rtAvgTimePerFrame = ONESEC/FPS;
 	m_rtFirstFrameTime = 0;
 	m_pinIntialized = FALSE;
+	m_pDecoder = NULL;
 }
 
 CTMReceiverOutputPin::~CTMReceiverOutputPin()
 {
-
+	m_pDecoder->Release();
+	delete m_pDecoder;
+	m_pDecoder = NULL;
 }
 
 HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
@@ -320,6 +323,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	sprintf(tmp,"Channel:%d, Fill Buffer In!\n", pFilter->m_relatedChannel);
 	OutputDebugStringA(tmp);*/
 	AVPacket pkt, pktForRecord;
+	AVPicture pic;
 	BYTE *pData;
 	long lDataLen;
 	lDataLen = pms->GetSize();
@@ -396,9 +400,10 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	ret = -1;
 	{
 		CAutoLock lock(&m_csDecoder);
-		if (hDecoder!=NULL)
+		if (m_pDecoder!=NULL)
 		{
-			ret = H264Dec_DecodeFrame(hDecoder,m_pData,pkt.data,pkt.size);			
+			//ret = H264Dec_DecodeFrame(hDecoder,m_pData,pkt.data,pkt.size);			
+			ret = m_pDecoder->DecodeFrame(&pic, m_pData, pkt.data, pkt.size);
 		}		
 	}
 
@@ -408,9 +413,12 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	afterDecodeFrame.len = pkt.size;
 	afterDecodeFrame.decoded = TRUE;
 	afterDecodeFrame.error = ret <= 0 ? TRUE : FALSE;
-	TMPicture afterDecodePic;
 	// TODO: construct the pic
-	afterDecodeFrame.pic = afterDecodePic;
+	for(int ptr_i=0; ptr_i<AV_NUM_DATA_POINTERS; ptr_i++)
+	{
+		afterDecodeFrame.pic.data[ptr_i] = pic.data[ptr_i];
+		afterDecodeFrame.pic.linesize[ptr_i] = pic.linesize[ptr_i];
+	}
 	pFilter->CallAfterDecodeCB(&afterDecodeFrame);
 
 	if(ret <=0)
@@ -742,6 +750,76 @@ HRESULT CTMReceiverOutputPin::StopRecord()
 	av_free(m_fileSaverCtx);
 	pts = 1;
 	return S_OK;
+}
+
+H264Decoder::H264Decoder(void)
+{
+
+
+}
+
+
+H264Decoder::~H264Decoder(void)
+{
+}
+
+int H264Decoder::Init(){
+	av_register_all();
+	avcodec_register_all();
+	m_pCodec = avcodec_find_decoder(CODEC_ID_H264); 
+	m_pCodecCtx = avcodec_alloc_context3(m_pCodec);
+	if (avcodec_open2(m_pCodecCtx, m_pCodec,NULL) < 0) { 
+		return 0; 
+	}
+	m_pFrame = avcodec_alloc_frame();
+	m_pImgConvertCtx = NULL;
+
+}
+void H264Decoder::Release(){
+	if(m_pCodecCtx) { 
+		avcodec_close(m_pCodecCtx); 
+		av_free(m_pCodecCtx); 
+		m_pCodecCtx = NULL; 
+	} 
+	if(m_pFrame) { 
+		av_free(m_pFrame); 
+		m_pFrame = NULL; 
+	}
+	if (m_pImgConvertCtx)
+	{
+		sws_freeContext(m_pImgConvertCtx);
+		m_pImgConvertCtx=NULL;
+	}
+}
+int H264Decoder::DecodeFrame(AVPicture *pic, unsigned char* img, unsigned char* data, unsigned long size){
+	AVPacket pkt;
+	int got_picture;
+	pkt.data = data;
+	pkt.size = size;
+	int consumed=-1;
+	consumed = avcodec_decode_video2(m_pCodecCtx,m_pFrame,&got_picture,&pkt);
+	if(!got_picture){
+		//Release();
+		//Init();
+		return 0;
+	}
+	//if(m_pCodecCtx->width!=720||m_pCodecCtx->height!=576){
+	//	return 0;
+	//}
+	if(m_pImgConvertCtx==NULL){
+		m_pImgConvertCtx = sws_getContext(m_pCodecCtx->width, m_pCodecCtx->height, m_pCodecCtx->pix_fmt, m_pCodecCtx->width, m_pCodecCtx->height, PIX_FMT_RGB32, SWS_BICUBIC, NULL, NULL, NULL);
+	}
+	avpicture_fill(pic, img, PIX_FMT_RGB32, m_pCodecCtx->width, m_pCodecCtx->height);
+
+	m_pFrame->data[0] += m_pFrame->linesize[0] * (m_pCodecCtx->height - 1); 
+	m_pFrame->linesize[0] *= -1; 
+	m_pFrame->data[1] += m_pFrame->linesize[1] * (m_pCodecCtx->height / 2 - 1); 
+	m_pFrame->linesize[1] *= -1; 
+	m_pFrame->data[2] += m_pFrame->linesize[2] * (m_pCodecCtx->height / 2 - 1); 
+	m_pFrame->linesize[2] *= -1; 
+	sws_scale(m_pImgConvertCtx, m_pFrame->data, m_pFrame->linesize, 0, m_pCodecCtx->height, pic->data, pic->linesize); 
+
+	return consumed;
 }
 
 

@@ -3,8 +3,8 @@
 #include <streams.h>
 #include <list>
 #include <rpcndr.h>
-#include "H264Dec.h"
 #include "PacketQueue.h"
+#include "..\TMReceiver\TMReceiver.h"
 extern "C" {
 #include "libavutil/avstring.h"
 #include "libavutil/mathematics.h"
@@ -21,28 +21,6 @@ extern "C" {
 #include "libavcodec/avfft.h"
 #include "libavcodec/avcodec.h"
 };
-typedef struct TMPicture_t{
-
-	unsigned char *data[8];
-
-	int linesize[8];
-
-} TMPicture;
-
-typedef struct TMFrame_t{
-
-	TMPicture pic;//解码后的数据
-
-	char* data; //指向视频编码数据段的指针
-
-	int len; //视频编码数据长度
-
-	int decoded; //是否已经解码
-
-	int error;
-
-}TMFrame;
-typedef int (*TMReceiverCB)(TMFrame* pFrame, void* arg);
 
 // {7C85656E-D45D-4C6B-A825-4DF103639DD2}
 DEFINE_GUID(CLSID_TMReceiverSrc, 
@@ -62,8 +40,8 @@ DEFINE_GUID(IID_ISetCallBack,
 	0xe74bc5a9, 0x44ae, 0x4ac4, 0x8b, 0x26, 0x6f, 0xe6, 0x94, 0x94, 0xe, 0xa5);
 DECLARE_INTERFACE_(ISetCallBack, IUnknown)
 {
-	STDMETHOD(SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg))PURE;
-	STDMETHOD(SetCallBackAfterDecode(TMReceiverCB* cb, void* arg))PURE;
+	STDMETHOD(SetCallBackBeforeDecode(TMReceiverCB cb, void* arg))PURE;
+	STDMETHOD(SetCallBackAfterDecode(TMReceiverCB cb, void* arg))PURE;
 };
 
 
@@ -110,8 +88,8 @@ public:
 	STDMETHODIMP StopRecord();
 
 	// ISetCallBack functions
-	STDMETHODIMP SetCallBackBeforeDecode(TMReceiverCB* cb, void* arg);
-	STDMETHODIMP SetCallBackAfterDecode(TMReceiverCB* cb, void* arg);
+	STDMETHODIMP SetCallBackBeforeDecode(TMReceiverCB cb, void* arg);
+	STDMETHODIMP SetCallBackAfterDecode(TMReceiverCB cb, void* arg);
 
 	int CallBeforeDecodeCB(TMFrame *pFrame);
 	int CallAfterDecodeCB(TMFrame *pFrame);
@@ -129,8 +107,8 @@ private:
 	BOOL m_bRecordStatus;
 	char m_recordFileName[1024];
 
-	TMReceiverCB *beforeDecodeCB;
-	TMReceiverCB *afterDecodeCB;
+	TMReceiverCB beforeDecodeCB;
+	TMReceiverCB afterDecodeCB;
 	void *beforeCBParam;
 	void *afterCBParam;
 
@@ -139,7 +117,7 @@ public:
 	int GetImageWidth() { return m_resolution.width > 0 ? m_resolution.width : -1;}
 	int GetImageHeight() { return m_resolution.height > 0 ? m_resolution.height : -1;}
 };
-
+class H264Decoder;
 class CTMReceiverOutputPin : public CSourceStream
 {
 public:
@@ -170,7 +148,7 @@ public:
 
 	CCritSec m_csDecoder;
 	CCritSec m_csBuffer;
-	H264Dec_Handle hDecoder;
+	H264Decoder *m_pDecoder;
 	BYTE *m_pData;
 	BOOL m_pinIntialized;
 
@@ -183,4 +161,22 @@ public:
 private:
 	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
 	void UpdateFromSeek();
+};
+
+class H264Decoder
+{
+public:
+	H264Decoder(void);
+	~H264Decoder(void);
+
+
+	AVCodec* m_pCodec;
+	AVCodecContext* m_pCodecCtx; 
+	AVFrame* m_pFrame;
+	struct SwsContext *m_pImgConvertCtx;
+
+	int Init();
+	void Release();
+	int DecodeFrame(AVPicture *pic, unsigned char* img, unsigned char* data, unsigned long size);
+
 };
