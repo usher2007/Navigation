@@ -489,7 +489,10 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		{
 			CTMReceiverSrc *pFilter = (CTMReceiverSrc *)m_pFilter;
 			AVCodecContext *pCodecCtx = pFilter->m_pFormatContext->streams[pFilter->m_videoStreamIndex]->codec;
-			FPS = pCodecCtx->time_base.den / (pCodecCtx->time_base.num * pCodecCtx->ticks_per_frame * m_bGetAvgFrameTime);
+			if(pCodecCtx->time_base.den > 0 && pCodecCtx->time_base.num > 0 && pCodecCtx->ticks_per_frame > 0 && m_bGetAvgFrameTime > 0)
+			{
+				FPS = pCodecCtx->time_base.den / (pCodecCtx->time_base.num * pCodecCtx->ticks_per_frame * m_bGetAvgFrameTime);
+			}
 			m_bFPSGuessed = TRUE;
 		}
 		rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
