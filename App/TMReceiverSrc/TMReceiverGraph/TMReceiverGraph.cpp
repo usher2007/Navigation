@@ -228,6 +228,9 @@ HRESULT CTMReceiverGraph::Run()
 HRESULT CTMReceiverGraph::StartRecord(const char* storageFileName)
 {
 	HRESULT hr = E_FAIL;
+	/*char tmpFileName[1024];
+	memset(tmpFileName, 0x00, 1024);
+	memcpy(tmpFileName, storageFileName, strlen(storageFileName));*/
 	if(m_pRecordStream != NULL)
 	{
 		hr = m_pRecordStream->StartRecord(storageFileName);

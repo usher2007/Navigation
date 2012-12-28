@@ -36,8 +36,8 @@ DEFINE_GUID(IID_IRecordStream,
 MIDL_INTERFACE("1E3C41C2-3872-44CB-83E4-3D14EE823688")
 IRecordStream : public IUnknown
 {
-	virtual HRESULT StartRecord(const char* fileName)PURE;
-	virtual HRESULT StopRecord()PURE;
+	virtual HRESULT STDMETHODCALLTYPE StartRecord(const char* fileName)PURE;
+	virtual HRESULT STDMETHODCALLTYPE StopRecord()PURE;
 };
 
 // {E74BC5A9-44AE-4AC4-8B26-6FE694940EA5}
@@ -46,8 +46,8 @@ DEFINE_GUID(IID_ISetCallBack,
 MIDL_INTERFACE("E74BC5A9-44AE-4AC4-8B26-6FE694940EA5")
 ISetCallBack : public IUnknown
 {
-	virtual HRESULT SetCallBackBeforeDecode(TMReceiverCB cb, void* arg)PURE;
-	virtual HRESULT SetCallBackAfterDecode(TMReceiverCB cb, void* arg)PURE;
+	virtual HRESULT STDMETHODCALLTYPE SetCallBackBeforeDecode(TMReceiverCB cb, void* arg)PURE;
+	virtual HRESULT STDMETHODCALLTYPE SetCallBackAfterDecode(TMReceiverCB cb, void* arg)PURE;
 };
 
 // This class is exported from the TMReceiverGraph.dll
