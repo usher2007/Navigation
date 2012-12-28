@@ -3,7 +3,7 @@
 #include "TMReceiverSrc.h"
 
 static const LONGLONG ONESEC = 10000000;
-static const int FPS = 25;
+static int FPS = 25;
 DWORD ReaderProc(LPVOID pParam);
 const AMOVIESETUP_MEDIATYPE sudOpVideoPinTypes =
 {
@@ -66,6 +66,10 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 	m_pFileName = NULL;
 	m_bRecordStatus = FALSE;
 	memset(m_recordFileName, 0x00, sizeof(m_recordFileName));
+	beforeDecodeCB = NULL;
+	beforeCBParam = NULL;
+	afterDecodeCB = NULL;
+	afterCBParam = NULL;
 }
 
 CTMReceiverSrc::~CTMReceiverSrc()
@@ -156,7 +160,7 @@ STDMETHODIMP CTMReceiverSrc::Run(REFERENCE_TIME tStart){
 	{
 		CAutoLock lock(&(m_pVideoPin->m_csDecoder));	
 		m_pVideoPin->m_pDecoder = new H264Decoder;
-		m_pVideoPin->m_pDecoder->Init();
+		m_pVideoPin->m_pDecoder->Init(m_pFormatContext->streams[m_videoStreamIndex]->codec);
 	}
 	m_pVideoPin->m_bWorking = TRUE;
 	m_pVideoPin->m_rtFirstFrameTime = 0;
@@ -215,18 +219,18 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 			packet.stream_index = m_videoStreamIndex;
 			m_queueBuffer.Put(&packet);
 			//For debug
-			/*char tmp[1024];
-			sprintf(tmp,"!!!!!!!!!!!!!!!Channel: %d __Put %d bad Packet!\n",channel, ret);
-			OutputDebugStringA(tmp);*/
+			char tmp[1024];
+			sprintf(tmp," ===================================BAD Put %d bad Packet!\n", ret);
+			OutputDebugStringA(tmp);
 			Sleep(10);
 			continue;
 		}
 		if(packet.stream_index == m_videoStreamIndex)
 		{
 			//For debug
-			/*char tmp[1024];
-			sprintf(tmp,"Channel: %d __Put %d good Packet!DTS:%lld\n",channel, m_previewQueueBuffer[channel].nb_packets,packet.dts);
-			OutputDebugStringA(tmp);*/
+			char tmp[1024];
+			sprintf(tmp," ===================================GOOD Put %d good Packet!DTS:%lld\n",m_queueBuffer.nb_packets,packet.dts);
+			OutputDebugStringA(tmp);
 			//m_channelPts[channel] = packet.pts;
 			m_queueBuffer.Put(&packet);
 			//char tmp[1024];
@@ -294,7 +298,7 @@ int CTMReceiverSrc::CallAfterDecodeCB(TMFrame *pFrame)
 // Video Output Pin
 //////////////////////////////////////////////////////////////////
 
-CTMReceiverOutputPin::CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCTSTR pPinName)
+CTMReceiverOutputPin::CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName)
 	: CSourceStream(NAME("TMReceiver Source Filter Output Pin"), phr, pParent, pPinName)
 {
 	m_rtPosition = 0;
@@ -306,6 +310,7 @@ CTMReceiverOutputPin::CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent
 	m_rtFirstFrameTime = 0;
 	m_pinIntialized = FALSE;
 	m_pDecoder = NULL;
+	m_bFPSGuessed = FALSE;
 }
 
 CTMReceiverOutputPin::~CTMReceiverOutputPin()
@@ -319,9 +324,9 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 {
 	//TODO: Fill buffer with the decoded frames.
 	CTMReceiverSrc* pFilter = (CTMReceiverSrc*)m_pFilter;
-	/*char tmp[1024];
-	sprintf(tmp,"Channel:%d, Fill Buffer In!\n", pFilter->m_relatedChannel);
-	OutputDebugStringA(tmp);*/
+	char tmp[1024];
+	sprintf(tmp," ===================================Fill Buffer In!\n");
+	OutputDebugStringA(tmp);
 	AVPacket pkt, pktForRecord;
 	AVPicture pic;
 	BYTE *pData;
@@ -344,7 +349,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		m_rtSampleTime = m_rtSampleTime + static_cast<int>(m_rtAvgTimePerFrame );
 		m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame;
 		pms->SetSyncPoint(TRUE);
-		//Sleep(100);
+		Sleep(10);
 		//char tmp[1024];
 		//sprintf(tmp,"====================No Data!====================\n");
 		//OutputDebugStringA(tmp);
@@ -373,20 +378,28 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	//Record Video
 	if(m_bRecordStatus == TRUE)
 	{
-		av_init_packet(&pktForRecord);
-		pktForRecord.size = pkt.size;
-		pktForRecord.flags = pkt.flags;
-		pktForRecord.pts = pts;
-		pktForRecord.dts = pts;
-		pktForRecord.data = new uint8_t[pktForRecord.size];
-		memcpy(pktForRecord.data, pkt.data, pktForRecord.size);
-		ret = av_interleaved_write_frame(m_fileSaverCtx, &pktForRecord);
-		delete [] pktForRecord.data;
-		pktForRecord.data = NULL;
-		pktForRecord.size = 0;
-		av_init_packet(&pktForRecord);
-		av_free_packet(&pktForRecord);
-		pts++;
+		if(pkt.flags & AV_PKT_FLAG_KEY)
+		{
+			m_bFindKeyFrame = TRUE;
+		}
+		if(m_bFindKeyFrame)
+		{
+			av_init_packet(&pktForRecord);
+			pktForRecord.size = pkt.size;
+			pktForRecord.flags = pkt.flags;
+			pktForRecord.pts = pts;
+			pktForRecord.dts = pts;
+			pktForRecord.data = new uint8_t[pktForRecord.size];
+			memcpy(pktForRecord.data, pkt.data, pktForRecord.size);
+			ret = av_interleaved_write_frame(m_fileSaverCtx, &pktForRecord);
+			delete [] pktForRecord.data;
+			pktForRecord.data = NULL;
+			pktForRecord.size = 0;
+			av_init_packet(&pktForRecord);
+			av_free_packet(&pktForRecord);
+			//pts += m_rtAvgTimePerFrame/1000*9;
+			pts++;
+		}
 	}
 
 	// BEFORE DECODE CB
@@ -401,8 +414,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	{
 		CAutoLock lock(&m_csDecoder);
 		if (m_pDecoder!=NULL)
-		{
-			//ret = H264Dec_DecodeFrame(hDecoder,m_pData,pkt.data,pkt.size);			
+		{			
 			ret = m_pDecoder->DecodeFrame(&pic, m_pData, pkt.data, pkt.size);
 		}		
 	}
@@ -423,9 +435,9 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 
 	if(ret <=0)
 	{
-		/*char tmp[1024];
+		char tmp[1024];
 		sprintf(tmp," ===================================BAD£¬rtSampleTime:%lld\n",m_rtSampleTime);
-		OutputDebugStringA(tmp);*/
+		OutputDebugStringA(tmp);
 		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
 		// The sample times are modified by the current rate.
 		rtStart = static_cast<REFERENCE_TIME>(m_rtSampleTime);
@@ -439,6 +451,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		pms->SetSyncPoint(TRUE);
 		return S_OK;
 	}
+
 
 	pms->GetPointer(&pData);
 
@@ -470,6 +483,14 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		{
 			m_rtAvgTimePerFrame = rtStart - 0;
 			m_bGetAvgFrameTime = TRUE;
+		}
+		//Guess FPS
+		if(m_bGetAvgFrameTime && !m_bFPSGuessed)
+		{
+			CTMReceiverSrc *pFilter = (CTMReceiverSrc *)m_pFilter;
+			AVCodecContext *pCodecCtx = pFilter->m_pFormatContext->streams[pFilter->m_videoStreamIndex]->codec;
+			FPS = pCodecCtx->time_base.den / (pCodecCtx->time_base.num * pCodecCtx->ticks_per_frame * m_bGetAvgFrameTime);
+			m_bFPSGuessed = TRUE;
 		}
 		rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
 		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
@@ -689,34 +710,47 @@ HRESULT CTMReceiverOutputPin::InitRecord(const char* fileName)
 	{
 		return E_FAIL;
 	}
-	AVCodecContext *c;
-	AVCodec *codec;
-	c = m_fileSaverStream->codec;
-	codec = avcodec_find_encoder(m_fileSaverFmt->video_codec);
-	if(!codec)
-	{
-		return E_FAIL;
-	}
-	avcodec_get_context_defaults3(c, codec);
-	c->codec_id = m_fileSaverFmt->video_codec;
-	c->bit_rate = 400000;
-	c->time_base.den = FPS;
-	c->time_base.num = 1;
-	c->gop_size = 12;
-	c->pix_fmt = PIX_FMT_YUV420P;
+	AVCodecContext *outputCodecContext;
+	outputCodecContext = m_fileSaverStream->codec;
+	CTMReceiverSrc *pFilter = (CTMReceiverSrc *)m_pFilter;
+	AVStream *pInputStream = pFilter->m_pFormatContext->streams[pFilter->m_videoStreamIndex];
+	AVCodecContext *inputCodecContext = pFilter->m_pFormatContext->streams[pFilter->m_videoStreamIndex]->codec;
 
+	outputCodecContext->codec_id = m_fileSaverFmt->video_codec;
+	outputCodecContext->codec_type = inputCodecContext->codec_type;
+	outputCodecContext->codec_tag = inputCodecContext->codec_tag;
+	outputCodecContext->bit_rate = 400000;
+	outputCodecContext->extradata = inputCodecContext->extradata;
+	outputCodecContext->extradata_size = inputCodecContext->extradata_size;
+	outputCodecContext->width = ((CTMReceiverSrc *)m_pFilter)->GetImageWidth();
+	outputCodecContext->height = ((CTMReceiverSrc *)m_pFilter)->GetImageHeight();
+	outputCodecContext->time_base.den = FPS;
+	outputCodecContext->time_base.num = 1;
+	outputCodecContext->gop_size = inputCodecContext->gop_size;
+	outputCodecContext->pix_fmt = inputCodecContext->pix_fmt;
+	outputCodecContext->has_b_frames = inputCodecContext->has_b_frames;
+
+
+	//DIFF
+	outputCodecContext->bit_rate = inputCodecContext->bit_rate;
+	/*outputCodecContext->time_base = inputCodecContext->time_base;
+	m_fileSaverStream->time_base = pInputStream->time_base;
+	if(av_q2d(inputCodecContext->time_base) * inputCodecContext->ticks_per_frame > av_q2d(pInputStream->time_base) && av_q2d(pInputStream->time_base) < 1.0/1000) 
+	{
+		outputCodecContext->time_base = inputCodecContext->time_base;
+		outputCodecContext->time_base.num *= inputCodecContext->ticks_per_frame;
+	}
+	av_reduce(&outputCodecContext->time_base.num, &outputCodecContext->time_base.den,outputCodecContext->time_base.num, outputCodecContext->time_base.den, INT_MAX);
+*/
 	if(m_fileSaverCtx->oformat->flags & AVFMT_GLOBALHEADER)
 	{
-		c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+		outputCodecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
 	}
+	m_fileSaverStream->codec = outputCodecContext;
 
 	av_dump_format(m_fileSaverCtx, 0, fileName, 1);
 	//Open Video
-	int ret = avcodec_open2(c, codec, NULL);
-	if(ret < 0)
-	{
-		return E_FAIL;
-	}
+	int ret = -1;
 
 	if(!(m_fileSaverFmt->flags & AVFMT_NOFILE))
 	{
@@ -729,6 +763,8 @@ HRESULT CTMReceiverOutputPin::InitRecord(const char* fileName)
 	ret = avformat_write_header(m_fileSaverCtx, NULL);
 	pts = 1;
 	m_bRecordStatus = TRUE;
+	m_bFindKeyFrame = FALSE;
+	return S_OK;
 }
 
 HRESULT CTMReceiverOutputPin::StopRecord()
@@ -754,7 +790,7 @@ HRESULT CTMReceiverOutputPin::StopRecord()
 
 H264Decoder::H264Decoder(void)
 {
-
+	m_bInitialized = FALSE;
 
 }
 
@@ -763,17 +799,19 @@ H264Decoder::~H264Decoder(void)
 {
 }
 
-int H264Decoder::Init(){
+int H264Decoder::Init(AVCodecContext *pCtx){
 	av_register_all();
 	avcodec_register_all();
 	m_pCodec = avcodec_find_decoder(CODEC_ID_H264); 
 	m_pCodecCtx = avcodec_alloc_context3(m_pCodec);
+	(*m_pCodecCtx) = (*pCtx);
 	if (avcodec_open2(m_pCodecCtx, m_pCodec,NULL) < 0) { 
 		return 0; 
 	}
 	m_pFrame = avcodec_alloc_frame();
 	m_pImgConvertCtx = NULL;
-
+	m_bInitialized = TRUE;
+	return 0;
 }
 void H264Decoder::Release(){
 	if(m_pCodecCtx) { 
@@ -792,6 +830,10 @@ void H264Decoder::Release(){
 	}
 }
 int H264Decoder::DecodeFrame(AVPicture *pic, unsigned char* img, unsigned char* data, unsigned long size){
+	if(!m_bInitialized)
+	{
+		return 0;
+	}
 	AVPacket pkt;
 	int got_picture;
 	pkt.data = data;

@@ -71,6 +71,10 @@ public:
 		{
 			return GetInterface((IRecordStream *)this, ppv);
 		}
+		else if(riid == IID_ISetCallBack)
+		{
+			return GetInterface((ISetCallBack *)this, ppv);
+		}
 		else
 		{
 			return CSource::NonDelegatingQueryInterface(riid, ppv);
@@ -121,7 +125,7 @@ class H264Decoder;
 class CTMReceiverOutputPin : public CSourceStream
 {
 public:
-	CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCTSTR pPinName);
+	CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName);
 	~CTMReceiverOutputPin();
 
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
@@ -145,6 +149,7 @@ public:
 	CRefTime                    m_rtFirstFrameTime;
 	BOOL						m_bWorking;
 	BOOL                        m_bGetAvgFrameTime;
+	BOOL                        m_bFPSGuessed;
 
 	CCritSec m_csDecoder;
 	CCritSec m_csBuffer;
@@ -157,6 +162,7 @@ public:
 	AVStream *m_fileSaverStream;
 	BOOL m_bRecordStatus;
 	LONGLONG pts;
+	BOOL m_bFindKeyFrame;
 
 private:
 	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
@@ -175,8 +181,11 @@ public:
 	AVFrame* m_pFrame;
 	struct SwsContext *m_pImgConvertCtx;
 
-	int Init();
+	int Init(AVCodecContext *pCtx);
 	void Release();
 	int DecodeFrame(AVPicture *pic, unsigned char* img, unsigned char* data, unsigned long size);
+
+private:
+	BOOL m_bInitialized;
 
 };
