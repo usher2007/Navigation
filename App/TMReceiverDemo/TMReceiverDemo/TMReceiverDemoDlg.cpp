@@ -99,6 +99,7 @@ HCURSOR CTMReceiverDemoDlg::OnQueryDragIcon()
 void CTMReceiverDemoDlg::OnBnClickedButtonopenhttp()
 {
 	// TODO: Add your control notification handler code here
+	doSomeSettings();
 	USES_CONVERSION;
 	CString httpUrl = getCStringFromCEdit(&m_ctrlEditHttp);
 	TM_RecieverOpenHttpStream(m_rcvrHandle, NULL, T2A(httpUrl));
@@ -108,9 +109,11 @@ void CTMReceiverDemoDlg::OnBnClickedButtonopenhttp()
 void CTMReceiverDemoDlg::OnBnClickedButtonopenrtsp()
 {
 	// TODO: Add your control notification handler code here
+	doSomeSettings();
 	USES_CONVERSION;
 	CString rstpUrl = getCStringFromCEdit(&m_ctrlEditRtsp);
-	TM_RecieverOpenRtspStream(m_rcvrHandle, NULL, T2A(rstpUrl));
+	int ret = TM_RecieverOpenRtspStream(m_rcvrHandle, NULL, T2A(rstpUrl));
+	TM_RecieverEnableDisplay(m_rcvrHandle, GetDlgItem(IDC_STATICPlayWindow)->GetSafeHwnd());
 }
 
 
@@ -159,7 +162,7 @@ CString CTMReceiverDemoDlg::getCStringFromCEdit( CEdit *ctrlEdit )
 int CTMReceiverDemoDlg::doSomeSettings()
 {
 	TM_RecieverEnableDisplay(m_rcvrHandle, GetDlgItem(IDC_STATICPlayWindow)->GetSafeHwnd());
-	TM_RecieverEnableStorage(m_rcvrHandle, "D:\\Example.mp4");
+	TM_RecieverEnableStorage(m_rcvrHandle, "E:\\Example.mp4");
 	TM_RecieverSetCallBackBeforeDecode(m_rcvrHandle, CBBeforeDeocode, (void *)this);
 	TM_RecieverSetCallBackAfterDecode(m_rcvrHandle, CBAfterDecode, (void *)this);
 	return 0;
