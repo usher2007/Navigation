@@ -230,10 +230,16 @@ HRESULT CTransAlgFilter::Transform(IMediaSample *pSample)
 {
 	PBYTE p;
 	pSample->GetPointer(&p);
-	
-	/*cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p);
+
+	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
+	IplImage ds_frame;
+	cvInitImageHeader(&ds_frame, cvSize(m_biWidth, m_biHeight), 8, 3, IPL_ORIGIN_BL, 4);
+	ds_frame.widthStep = stride;
+	cvSetData(&ds_frame, p, stride);
+	cv::Mat img(&ds_frame,false);
+	//cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
 	imshow("OpenCV", img);
-	cv::waitKey(1);*/
+	cv::waitKey(1);
 	return NOERROR;
 }
 
