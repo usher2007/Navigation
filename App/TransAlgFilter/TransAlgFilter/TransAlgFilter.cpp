@@ -154,6 +154,7 @@ CTransAlgFilter::CTransAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr)
 {
 	m_nInstanceCount = ++ m_nInstanceCount;
 	m_mtPreferred.InitMediaType();
+	m_pTrackingAlg = new TrackingAlg;
 }
 
 CUnknown * WINAPI CTransAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -238,7 +239,8 @@ HRESULT CTransAlgFilter::Transform(IMediaSample *pSample)
 	//cvSetData(&ds_frame, p, stride);
 	//cv::Mat img(&ds_frame,false);
 	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
-	imshow("OpenCV", img);
+	m_pTrackingAlg->Update(img);
+	//imshow("OpenCV", img);
 	cv::waitKey(1);
 	return NOERROR;
 }

@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include <streams.h>
 #include "TransAlgUIDs.h"
-
+#include "TrackingAlg.h"
 
 class CTransAlgInputPin : public CTransInPlaceInputPin
 {
@@ -68,6 +68,8 @@ private:
 
 	LONG m_biWidth;
 	LONG m_biHeight;
+
+	TrackingAlg *m_pTrackingAlg;
 };
 
 
