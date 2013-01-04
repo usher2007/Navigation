@@ -114,7 +114,7 @@ HRESULT CTransAlgOutputPin::CheckMediaType(const CMediaType *pmt)
 		return E_INVALIDARG;
 	}
 
-	if(*(pmt->Subtype()) != MEDIASUBTYPE_RGB24)
+ 	if(*(pmt->Subtype()) != MEDIASUBTYPE_RGB24)
 	{
 		return E_INVALIDARG;
 	}
@@ -232,12 +232,12 @@ HRESULT CTransAlgFilter::Transform(IMediaSample *pSample)
 	pSample->GetPointer(&p);
 
 	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
-	IplImage ds_frame;
-	cvInitImageHeader(&ds_frame, cvSize(m_biWidth, m_biHeight), 8, 3, IPL_ORIGIN_BL, 4);
-	ds_frame.widthStep = stride;
-	cvSetData(&ds_frame, p, stride);
-	cv::Mat img(&ds_frame,false);
-	//cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
+	//IplImage ds_frame;
+	//cvInitImageHeader(&ds_frame, cvSize(m_biWidth, m_biHeight), 8, 3, IPL_ORIGIN_TL, 4);
+	//ds_frame.widthStep = stride;
+	//cvSetData(&ds_frame, p, stride);
+	//cv::Mat img(&ds_frame,false);
+	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
 	imshow("OpenCV", img);
 	cv::waitKey(1);
 	return NOERROR;
@@ -245,7 +245,7 @@ HRESULT CTransAlgFilter::Transform(IMediaSample *pSample)
 
 HRESULT CTransAlgFilter::SetResolution(LONG biWidth, LONG biHeight)
 {
-	if(m_biWidth > 0 && m_biHeight > 0)
+	if(biWidth > 0 && biHeight > 0)
 	{
 		m_biWidth = biWidth;
 		m_biHeight = biHeight;
