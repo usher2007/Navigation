@@ -195,3 +195,7 @@ Tools/LearningOpenCV/GaussianBGM/ipch/
 *.zip
 *.psess
 *.aps
+*.out
+*.sym
+*.hole
+*.nohole
