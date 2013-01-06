@@ -9,6 +9,10 @@
 const LONG DEFAULT_WIDTH = 720;
 const LONG DEFUALT_HEIGHT = 576;
 
+static LONGLONG T1 = 0, T2 = 0;
+static LONGLONG FREQ;
+static double dfTime = 0.0;
+
 const AMOVIESETUP_MEDIATYPE
 	sudPinTypes =   { &MEDIATYPE_NULL                // clsMajorType
 	, &MEDIASUBTYPE_NULL }  ;       // clsMinorType
@@ -155,6 +159,7 @@ CTransAlgFilter::CTransAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr)
 	m_nInstanceCount = ++ m_nInstanceCount;
 	m_mtPreferred.InitMediaType();
 	m_pTrackingAlg = new TrackingAlg;
+	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
 }
 
 CUnknown * WINAPI CTransAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -168,7 +173,6 @@ CUnknown * WINAPI CTransAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 			*phr = E_OUTOFMEMORY;
 	}
 
-	cv::namedWindow("OpenCV");
 	return pNewObject;
 }
 
@@ -227,20 +231,25 @@ STDMETHODIMP CTransAlgFilter::NonDelegatingQueryInterface(REFIID riid, void **pp
 	return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
 }
 
+
 HRESULT CTransAlgFilter::Transform(IMediaSample *pSample)
 {
+	QueryPerformanceCounter((LARGE_INTEGER *)&T1);
+
 	PBYTE p;
 	pSample->GetPointer(&p);
 
 	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
-	//IplImage ds_frame;
-	//cvInitImageHeader(&ds_frame, cvSize(m_biWidth, m_biHeight), 8, 3, IPL_ORIGIN_TL, 4);
-	//ds_frame.widthStep = stride;
-	//cvSetData(&ds_frame, p, stride);
-	//cv::Mat img(&ds_frame,false);
 	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
 	m_pTrackingAlg->Update(img);
-	//imshow("OpenCV", img);
+
+	QueryPerformanceCounter((LARGE_INTEGER *)&T2);
+
+	dfTime = (T2-T1)*1000/FREQ;
+	char tmp[1024];
+	sprintf(tmp, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Time Performance: %f!\n", dfTime);
+	OutputDebugStringA(tmp);
+
 	cv::waitKey(1);
 	return NOERROR;
 }
