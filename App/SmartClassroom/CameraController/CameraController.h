@@ -10,13 +10,46 @@
 #define CAMERACONTROLLER_API __declspec(dllimport)
 #endif
 
+#include <iostream>
+#include <vector>
+
+
+class Location;
+class Camera;
 // This class is exported from the CameraController.dll
 class CAMERACONTROLLER_API CCameraController {
 public:
 	CCameraController(void);
-	// TODO: add your methods here.
+	CCameraController(int cameraNum);
+	int addCamera(const Camera& camera);
+	int deleteCamera(int cameraId, Camera& camera);
+
+	int TurnLeft(int cameraId, int milliseconds);
+	int TurnRight(int cameraId, int milliseconds);
+	int TurnUp(int cameraId, int milliseconds);
+	int TurnDown(int cameraId, int milliseconds);
+
+	int TurnToSpecificLocation(int cameraId, const Location& loc);
+	int GetSpecificCameraLocation(int cameraId, Location& loc);
+private:
+	std::vector<Camera> cameraList;
+	int cameraNum;
 };
 
-extern CAMERACONTROLLER_API int nCameraController;
 
-CAMERACONTROLLER_API int fnCameraController(void);
+//Need to be detailing
+class Location
+{
+public:
+	Location();
+private:
+	
+};
+//Need to be detailing
+class Camera
+{
+public:
+	Camera();
+private:
+	Location currentLocation;
+};
