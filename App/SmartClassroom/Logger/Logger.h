@@ -10,13 +10,19 @@
 #define LOGGER_API __declspec(dllimport)
 #endif
 
+#include <iostream>
+
+
 // This class is exported from the Logger.dll
 class LOGGER_API CLogger {
 public:
 	CLogger(void);
-	// TODO: add your methods here.
+	CLogger(const char* infoLogFile, const char* errorLogFile);
+
+	int logInfo(const char* logStr);
+	int logError(const char* logStr);
+private:
+	ofstream m_infoLogFile;
+	ofstream m_errorLogFile;
 };
 
-extern LOGGER_API int nLogger;
-
-LOGGER_API int fnLogger(void);
