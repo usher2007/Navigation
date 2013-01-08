@@ -50,13 +50,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AFXDLL;TMRECEIVERSRC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Include\;H:\SDK\ffmpeg\include;H:\SDK\DShow\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include\;F:\yubo\SDK\ffmpeg\include;F:\yubo\SDK\DShow\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>TMReceiverSrc.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>H:\SDK\dx9sdkcp\SDK %28C++%29\Samples\C++\DirectShow\BaseClasses\Debug_Unicode;H:\SDK\ffmpeg\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\yubo\SDK\dx9sdkcp\SDK %28C++%29\Samples\C++\DirectShow\BaseClasses\Debug_Unicode;F:\yubo\SDK\ffmpeg\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>strmbasd.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -82,6 +82,7 @@
     <ClInclude Include="PacketQueue.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TMReceiver.h" />
     <ClInclude Include="TMReceiverSrc.h" />
   </ItemGroup>
   <ItemGroup>
