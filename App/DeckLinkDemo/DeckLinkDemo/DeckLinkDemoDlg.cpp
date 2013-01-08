@@ -57,12 +57,17 @@ CDeckLinkDemoDlg::CDeckLinkDemoDlg(CWnd* pParent /*=NULL*/)
 void CDeckLinkDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDITUrl, m_ctrlEditUrl);
+	DDX_Control(pDX, IDC_COMBOInputFormat, m_ctrlSelInputFormat);
+	DDX_Control(pDX, IDC_CHECKPreview, m_ctrlCheckPreview);
 }
 
 BEGIN_MESSAGE_MAP(CDeckLinkDemoDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTONStart, &CDeckLinkDemoDlg::OnBnClickedButtonstart)
+	ON_BN_CLICKED(IDC_BUTTONStop, &CDeckLinkDemoDlg::OnBnClickedButtonstop)
 END_MESSAGE_MAP()
 
 
@@ -151,3 +156,15 @@ HCURSOR CDeckLinkDemoDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CDeckLinkDemoDlg::OnBnClickedButtonstart()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CDeckLinkDemoDlg::OnBnClickedButtonstop()
+{
+	// TODO: Add your control notification handler code here
+}
