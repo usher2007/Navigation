@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CDeckLinkDemoDlg dialog
@@ -29,4 +30,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CEdit m_ctrlEditUrl;
+	CComboBox m_ctrlSelInputFormat;
+	CButton m_ctrlCheckPreview;
+	afx_msg void OnBnClickedButtonstart();
+	afx_msg void OnBnClickedButtonstop();
 };
