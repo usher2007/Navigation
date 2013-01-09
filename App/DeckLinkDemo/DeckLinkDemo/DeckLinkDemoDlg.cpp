@@ -60,6 +60,7 @@ void CDeckLinkDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDITUrl, m_ctrlEditUrl);
 	DDX_Control(pDX, IDC_COMBOInputFormat, m_ctrlSelInputFormat);
 	DDX_Control(pDX, IDC_CHECKPreview, m_ctrlCheckPreview);
+	DDX_Control(pDX, IDC_STATICVideoWindow, m_ctrlVideoWindow);
 }
 
 BEGIN_MESSAGE_MAP(CDeckLinkDemoDlg, CDialogEx)
@@ -103,7 +104,10 @@ BOOL CDeckLinkDemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-
+	pGraph = new CTMGraph;
+	populateInputFormat();
+	setDefaultParam();
+	createGraph(this->GetSafeHwnd());
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -161,10 +165,108 @@ HCURSOR CDeckLinkDemoDlg::OnQueryDragIcon()
 void CDeckLinkDemoDlg::OnBnClickedButtonstart()
 {
 	// TODO: Add your control notification handler code here
+	if(pGraph != NULL)
+	{
+		pGraph->Run();
+	}
 }
 
 
 void CDeckLinkDemoDlg::OnBnClickedButtonstop()
 {
 	// TODO: Add your control notification handler code here
+	if(pGraph != NULL)
+	{
+		pGraph->Stop();
+	}
+}
+
+CString CDeckLinkDemoDlg::getCStringFromCEdit(CEdit *pCEdit)
+{
+	int paramLen;
+	CString param;
+	paramLen = pCEdit->LineLength(0);
+	pCEdit->GetLine(0, param.GetBuffer(paramLen), paramLen);
+	param.ReleaseBuffer(paramLen);
+	return param;
+}
+
+void CDeckLinkDemoDlg::setDefaultParam()
+{
+	m_ctrlEditUrl.SetWindowTextW(L"rtsp://192.168.0.236:8554/test-0-1");
+	m_ctrlSelInputFormat.SetCurSel(0);
+	m_ctrlCheckPreview.SetCheck(1);
+}
+
+void CDeckLinkDemoDlg::populateInputFormat()
+{
+	InputMediaType *pInputMT = new InputMediaType;
+	pInputMT->width = 720;
+	pInputMT->height = 576;
+	pInputMT->fps = 25;
+	int n = m_ctrlSelInputFormat.AddString(L"720x576 25FPS");
+	m_ctrlSelInputFormat.SetItemData(n, (DWORD_PTR)pInputMT);
+}
+
+HRESULT CDeckLinkDemoDlg::createGraph(HWND graphOwner)
+{
+	CString url = getCStringFromCEdit(&m_ctrlEditUrl);
+	BOOL bDisplay = (BST_CHECKED == m_ctrlCheckPreview.GetCheck());
+	HRESULT hr = S_FALSE;
+	if(pGraph != NULL)
+	{
+		TCHAR* tmpUrl = url.GetBuffer();
+		char ctrTmpUrl[256];
+		WideCharToMultiByte(0, 0, tmpUrl, -1, ctrTmpUrl, 100, NULL, NULL);
+		hr = pGraph->Create();
+		if(FAILED(hr)) return hr;
+		hr = pGraph->BuildFilterGraph(ctrTmpUrl, bDisplay);
+		if(FAILED(hr)) return hr;
+		hr = pGraph->SetNotifyWindow(graphOwner);
+		if(FAILED(hr)) return hr;
+		resizePlayWindow();
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+void CDeckLinkDemoDlg::resizePlayWindow()
+{
+	BOOL bFixWidth = TRUE;
+
+	int index = m_ctrlSelInputFormat.GetCurSel();
+	InputMediaType *pInputMT = (InputMediaType *)m_ctrlSelInputFormat.GetItemData(index);
+	int width = pInputMT->width;
+	int height = pInputMT->height;
+
+	LPRECT pVideoWindowRect = new tagRECT();
+	m_ctrlVideoWindow.GetWindowRect(pVideoWindowRect);
+	ScreenToClient(pVideoWindowRect);
+	int fixedWidth = pVideoWindowRect->right - pVideoWindowRect->left;
+	int fixedHeight = pVideoWindowRect->bottom - pVideoWindowRect->top;
+
+	if((width * 1.0 / height) > (fixedWidth * 1.0 / fixedHeight))
+	{
+		bFixWidth = TRUE;
+	}
+	else
+	{
+		bFixWidth = FALSE;
+	}
+
+	int adjustedLen = bFixWidth ? fixedWidth * height / width : fixedHeight * width / height;
+	int topX = bFixWidth ? pVideoWindowRect->left : (pVideoWindowRect->left + (fixedWidth - adjustedLen)/2);
+	int topY = bFixWidth ? (pVideoWindowRect->top + (fixedHeight - adjustedLen)/2) : pVideoWindowRect->top;
+	if(bFixWidth)
+	{
+		m_ctrlVideoWindow.MoveWindow(topX, topY, fixedWidth, adjustedLen, TRUE);
+	}
+	else
+	{
+		m_ctrlVideoWindow.MoveWindow(topX, topY, adjustedLen, fixedHeight, TRUE);
+	}
+	if(pGraph != NULL)
+	{
+		pGraph->SetDisplayWindow(m_ctrlVideoWindow.GetSafeHwnd());
+	}
 }

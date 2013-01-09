@@ -4,7 +4,7 @@
 
 #pragma once
 #include "afxwin.h"
-
+#include "..\TMGraph\TMGraph.h"
 
 // CDeckLinkDemoDlg dialog
 class CDeckLinkDemoDlg : public CDialogEx
@@ -21,6 +21,21 @@ public:
 
 
 // Implementation
+
+//User Defined
+private:
+	CTMGraph *pGraph;
+	int currentWidth;
+	int currentHeight;
+private:
+	CString getCStringFromCEdit(CEdit *pCEdit);
+	void setDefaultParam();
+	void resizePlayWindow();
+	void populateInputFormat();
+	HRESULT createGraph(HWND graphOwner);
+	HRESULT destroyGraph();
+
+
 protected:
 	HICON m_hIcon;
 
@@ -36,4 +51,13 @@ public:
 	CButton m_ctrlCheckPreview;
 	afx_msg void OnBnClickedButtonstart();
 	afx_msg void OnBnClickedButtonstop();
+	CStatic m_ctrlVideoWindow;
+};
+
+class InputMediaType
+{
+public:
+	int width;
+	int height;
+	double fps;
 };
