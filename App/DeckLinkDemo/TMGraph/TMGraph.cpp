@@ -18,6 +18,7 @@ TMGRAPH_API int fnTMGraph(void)
 // see TMGraph.h for the class definition
 CTMGraph::CTMGraph()
 {
+	Init();
 	return;
 }
 
@@ -342,6 +343,7 @@ HRESULT CTMGraph::GetUnconnectedPin(CComPtr<IBaseFilter> pFilter, PIN_DIRECTION 
 				} 
 			}
 		}
+		pPin = 0;
 	}
 	return E_FAIL;
 }
