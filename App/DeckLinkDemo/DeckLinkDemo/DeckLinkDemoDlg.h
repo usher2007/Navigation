@@ -52,6 +52,7 @@ public:
 	afx_msg void OnBnClickedButtonstart();
 	afx_msg void OnBnClickedButtonstop();
 	CStatic m_ctrlVideoWindow;
+	afx_msg void OnBnClickedButtonopenurl();
 };
 
 class InputMediaType

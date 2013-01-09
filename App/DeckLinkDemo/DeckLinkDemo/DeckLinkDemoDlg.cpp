@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CDeckLinkDemoDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTONStart, &CDeckLinkDemoDlg::OnBnClickedButtonstart)
 	ON_BN_CLICKED(IDC_BUTTONStop, &CDeckLinkDemoDlg::OnBnClickedButtonstop)
+	ON_BN_CLICKED(IDC_BUTTONOpenUrl, &CDeckLinkDemoDlg::OnBnClickedButtonopenurl)
 END_MESSAGE_MAP()
 
 
@@ -107,7 +108,6 @@ BOOL CDeckLinkDemoDlg::OnInitDialog()
 	pGraph = new CTMGraph;
 	populateInputFormat();
 	setDefaultParam();
-	createGraph(this->GetSafeHwnd());
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -269,4 +269,10 @@ void CDeckLinkDemoDlg::resizePlayWindow()
 	{
 		pGraph->SetDisplayWindow(m_ctrlVideoWindow.GetSafeHwnd());
 	}
+}
+
+
+void CDeckLinkDemoDlg::OnBnClickedButtonopenurl()
+{
+	createGraph(this->GetSafeHwnd());
 }
