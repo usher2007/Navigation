@@ -13,7 +13,7 @@
 // COM global table of objects in this dll
 
 CFactoryTemplate g_Templates[] = {
-	{ L"TMReceiver Source Filter", &CLSID_TMReceiverSrc, CTMReceiverSrc::CreateInstance, NULL, &sudTMReceiverSrcax }
+	{ L"TMReceiver Source Filter", &CLSID_TMStreamReceiver, CTMReceiverSrc::CreateInstance, NULL, &sudTMReceiverSrcax }
 };
 int g_cTemplates = sizeof(g_Templates) / sizeof(g_Templates[0]);
 

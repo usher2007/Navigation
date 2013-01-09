@@ -54,7 +54,7 @@ struct Resolution_t
 	int width;
 	int height;
 };
-class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordStream, public ISetCallBack
+class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordTMStream, public ISetTMCallBack
 {
 	friend class CTMReceiverOutputPin;
 public:
@@ -68,13 +68,13 @@ public:
 		{
 			return GetInterface((IFileSourceFilter *)this, ppv);
 		}
-		else if(riid == IID_IRecordStream)
+		else if(riid == IID_IRecordTMStream)
 		{
-			return GetInterface((IRecordStream *)this, ppv);
+			return GetInterface((IRecordTMStream *)this, ppv);
 		}
-		else if(riid == IID_ISetCallBack)
+		else if(riid == IID_ISetTMCallBack)
 		{
-			return GetInterface((ISetCallBack *)this, ppv);
+			return GetInterface((ISetTMCallBack *)this, ppv);
 		}
 		else
 		{

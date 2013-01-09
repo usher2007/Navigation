@@ -30,7 +30,7 @@ const AMOVIESETUP_PIN sudOpPins[] =
 
 const AMOVIESETUP_FILTER sudTMReceiverSrcax =
 {
-	&CLSID_TMReceiverSrc,    // Filter CLSID
+	&CLSID_TMStreamReceiver,    // Filter CLSID
 	L"TMReceiver Source Filter",       // String name
 	MERIT_DO_NOT_USE,       // Filter merit
 	1,                      // Number pins
@@ -50,7 +50,7 @@ CUnknown * WINAPI CTMReceiverSrc::CreateInstance(LPUNKNOWN lpunk, HRESULT *phr)
 }
 
 CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
-	: CSource(NAME("TMReceiver Source Filter"), lpunk, CLSID_TMReceiverSrc)
+	: CSource(NAME("TMReceiver Source Filter"), lpunk, CLSID_TMStreamReceiver)
 {
 	ASSERT(phr);
 	CAutoLock cAutoLock(&m_cStateLock);
@@ -485,23 +485,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		{
 			m_rtFirstFrameTime = pkt.pts ;
 		}
-		rtStart = (pkt.pts  - m_rtFirstFrameTime)*100/9*10 - 1000;
-		if(rtStart > 0 && !m_bGetAvgFrameTime)
-		{
-			m_rtAvgTimePerFrame = rtStart - 0;
-			m_bGetAvgFrameTime = TRUE;
-		}
-		//Guess FPS
-		if(m_bGetAvgFrameTime && !m_bFPSGuessed)
-		{
-			CTMReceiverSrc *pFilter = (CTMReceiverSrc *)m_pFilter;
-			AVCodecContext *pCodecCtx = pFilter->m_pFormatContext->streams[pFilter->m_videoStreamIndex]->codec;
-			if(pCodecCtx->time_base.den > 0 && pCodecCtx->time_base.num > 0 && pCodecCtx->ticks_per_frame > 0 && m_bGetAvgFrameTime > 0)
-			{
-				FPS = pCodecCtx->time_base.den / (pCodecCtx->time_base.num * pCodecCtx->ticks_per_frame * m_bGetAvgFrameTime);
-			}
-			m_bFPSGuessed = TRUE;
-		}
+		rtStart = (pkt.pts  - m_rtFirstFrameTime)*100/9*10;
 		rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
 		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
 		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
