@@ -10,6 +10,7 @@
 #define TMGRAPH_API __declspec(dllimport)
 #endif
 
+#define SAFE_RELEASE(p)			{ if(p) { (p)->Release(); (p)=NULL; } }
 
 #include "stdafx.h"
 #include "DShow.h"
@@ -75,6 +76,8 @@ public:
 	HRESULT StopRecord();
 
 	IMediaEventEx* GetEventHandle();
+
+	HRESULT Destroy();
 
 private:
 	HRESULT CheckMediaType(CComPtr<IEnumMediaTypes> pEnumMedia, GUID MediaType);

@@ -109,6 +109,7 @@ private:
 	int m_videoStreamIndex;
 	struct Resolution_t m_resolution;
 	HANDLE m_readerThread;
+	BOOL m_bQuitReaderThread;
 	BOOL m_bRecordStatus;
 	char m_recordFileName[1024];
 

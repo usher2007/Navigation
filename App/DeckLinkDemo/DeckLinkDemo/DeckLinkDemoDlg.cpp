@@ -215,6 +215,8 @@ HRESULT CDeckLinkDemoDlg::createGraph(HWND graphOwner)
 	HRESULT hr = S_FALSE;
 	if(pGraph != NULL)
 	{
+		hr = pGraph->Destroy();
+		if(FAILED(hr)) return hr;
 		TCHAR* tmpUrl = url.GetBuffer();
 		char ctrTmpUrl[256];
 		WideCharToMultiByte(0, 0, tmpUrl, -1, ctrTmpUrl, 100, NULL, NULL);

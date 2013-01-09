@@ -72,10 +72,16 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 	beforeCBParam = NULL;
 	afterDecodeCB = NULL;
 	afterCBParam = NULL;
+	m_bQuitReaderThread = FALSE;
 }
 
 CTMReceiverSrc::~CTMReceiverSrc()
 {
+	m_bQuitReaderThread = TRUE;
+	while(m_bQuitReaderThread)
+	{
+		Sleep(100);
+	}
 	if(m_pFileName != NULL)
 	{
 		delete[] m_pFileName;
@@ -142,6 +148,7 @@ HRESULT CTMReceiverSrc::Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 	}
 
 	//TODO: Start a thread to read the packet.
+	m_bQuitReaderThread = FALSE;
 	DWORD dwThreadId = 0;
 	m_readerThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ReaderProc, (LPVOID*)this, 0, &dwThreadId);
 	return S_OK;
@@ -205,7 +212,7 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 	//TODO: READ AND CACHE PACKETS.
 	AVPacket packet;
 	AVPacket packetToAbolish;
-	while(TRUE)
+	while(!m_bQuitReaderThread)
 	{
 		if(m_queueBuffer.nb_packets > 256)
 		{
@@ -247,6 +254,7 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		}
 		Sleep(10);
 	}
+	m_bQuitReaderThread = FALSE;
 	return;
 }
 

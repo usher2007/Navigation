@@ -142,6 +142,70 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 	return E_FAIL;
 }
 
+HRESULT CTMGraph::Destroy()
+{
+	HRESULT hr = S_OK;
+
+	// release the outstanding interface reference
+	m_pMediaEvent = NULL;
+	m_pMeidaSeeking = NULL;
+	m_pRecordStream = NULL;
+	m_pSetCallBack = NULL;
+	m_pVideoWindow = NULL;
+
+	if (m_pGraphBuilder && m_pMediaControl)
+	{
+		m_pMediaControl->Stop();
+
+		// enumerate all the filters in the graph
+		CComPtr<IEnumFilters> pEnum = NULL;
+		hr = m_pGraphBuilder->EnumFilters(&pEnum);
+		if (SUCCEEDED(hr))
+		{
+			IBaseFilter* pFilter = NULL;
+			while (S_OK == pEnum->Next(1, &pFilter, NULL))
+			{
+				FILTER_INFO filterInfo;
+				if (SUCCEEDED(pFilter->QueryFilterInfo(&filterInfo)))
+				{
+					SAFE_RELEASE(filterInfo.pGraph);
+					if ((NULL == wcsstr(filterInfo.achName, L"Src Filter")) && (NULL == wcsstr(filterInfo.achName, L"Decklink Renderer")) && (NULL == wcsstr(filterInfo.achName, L"Inf Tee")) && (NULL == wcsstr(filterInfo.achName, L"Renderer")))
+					{
+						// not the push source, infinite tee or renderer filter so remove from graph
+						hr = m_pGraphBuilder->RemoveFilter(pFilter);
+						if (SUCCEEDED(hr))
+						{
+							hr = pEnum->Reset();
+						}
+					}
+					else
+					{
+						// enumerate all the pins on the filter
+						CComPtr<IEnumPins> pIEnumPins = NULL;
+						hr = pFilter->EnumPins(&pIEnumPins);
+						if (SUCCEEDED(hr))
+						{
+							IPin* pIPin = NULL;
+							while (S_OK == pIEnumPins->Next(1, &pIPin, NULL))
+							{
+								m_pGraphBuilder->Disconnect(pIPin);
+								SAFE_RELEASE(pIPin);
+							}
+						}
+					}
+				}
+				SAFE_RELEASE(pFilter);
+			}
+		}
+	}
+	else
+	{
+		hr = S_FALSE;
+	}
+
+	return hr;
+}
+
 HRESULT CTMGraph::SetDisplayWindow(HWND windowHandle)
 {
 	if(m_pVideoWindow && m_bDisplay)
@@ -314,7 +378,7 @@ HRESULT CTMGraph::GetUnconnectedPin(CComPtr<IBaseFilter> pFilter, PIN_DIRECTION 
 {
 	*ppPin = 0;
 	CComPtr<IEnumPins> pEnum = 0;
-	CComPtr<IPin> pPin = 0;
+	IPin *pPin = 0;
 	HRESULT hr = pFilter->EnumPins(&pEnum);
 	if(FAILED(hr))
 		return hr;
@@ -343,7 +407,7 @@ HRESULT CTMGraph::GetUnconnectedPin(CComPtr<IBaseFilter> pFilter, PIN_DIRECTION 
 				} 
 			}
 		}
-		pPin = 0;
+		SAFE_RELEASE(pPin);
 	}
 	return E_FAIL;
 }
