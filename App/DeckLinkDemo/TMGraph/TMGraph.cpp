@@ -128,12 +128,25 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		hr = m_pGraphBuilder->AddFilter(pDecklinkRenderer, L"Decklink Renderer");
 		if(FAILED(hr)) return hr;
 
+		//Decklink Audio Capture
+		CComPtr<IBaseFilter> pDecklinkAudioCapture;
+		hr = AddFilter2(m_pGraphBuilder, CLSID_AudioInputDeviceCategory, L"Decklink Audio Capture", &pDecklinkAudioCapture);
+		if(FAILED(hr)) return hr;
+
+		//Decklink Audio Renderer
+		CComPtr<IBaseFilter> pDecklinkAudioRenderer = NULL;
+		hr = AddFilter2(m_pGraphBuilder, CLSID_AudioRendererCategory, L"Decklink Audio Render", &pDecklinkAudioRenderer);
+		if(FAILED(hr)) return hr;
+
 		//Connect Filters
 		hr = ConnectFilters(m_pGraphBuilder, pSrc, pInfTee, MEDIATYPE_NULL);
 		if(FAILED(hr)) return hr;
 		hr = ConnectFilters(m_pGraphBuilder, pInfTee, pNormalRenderer, MEDIATYPE_NULL);
 		if(FAILED(hr)) return hr;
 		hr = ConnectFilters(m_pGraphBuilder, pInfTee, pDecklinkRenderer, MEDIATYPE_NULL);
+		if(FAILED(hr)) return hr;
+
+		hr = ConnectFilters(m_pGraphBuilder, pDecklinkAudioCapture, pDecklinkAudioRenderer, MEDIATYPE_NULL);
 		if(FAILED(hr)) return hr;
 
 		hr = SaveGraphFile(m_pGraphBuilder, L"F:\\yubo\\DecklinkDemo.grf");
@@ -451,3 +464,68 @@ HRESULT CTMGraph::SaveGraphFile(CComPtr<IGraphBuilder> pGraph, WCHAR *wszPath)
 	return hr;
 }
 
+HRESULT CTMGraph::AddFilter2(IGraphBuilder* pGraph, const GUID &clsid, LPCWSTR pName, IBaseFilter** ppFilter)
+{
+	HRESULT hr = S_OK;
+
+	if (pGraph && pName && ppFilter)
+	{
+		// first enumerate the system devices for the specifed class and filter name
+		CComPtr<ICreateDevEnum> pSysDevEnum = NULL;
+		hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, IID_ICreateDevEnum, reinterpret_cast<void**>(&pSysDevEnum));
+
+		if (SUCCEEDED(hr))
+		{
+			CComPtr<IEnumMoniker> pEnumCat = NULL;
+			hr = pSysDevEnum->CreateClassEnumerator(clsid, &pEnumCat, 0);
+
+			if (S_OK == hr)
+			{
+				IMoniker* pMoniker = NULL;
+				bool Loop = true;
+				while ((S_OK == pEnumCat->Next(1, &pMoniker, NULL)) && Loop)
+				{
+					IPropertyBag* pPropBag = NULL;
+					hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, reinterpret_cast<void**>(&pPropBag));
+
+					if (SUCCEEDED(hr))
+					{
+						VARIANT varName;
+						VariantInit(&varName);
+						hr = pPropBag->Read(L"FriendlyName", &varName, 0);
+						if (SUCCEEDED(hr))
+						{
+							if (0 == wcscmp(varName.bstrVal, pName))
+							{
+								hr = pMoniker->BindToObject(NULL, NULL, IID_IBaseFilter, reinterpret_cast<void**>(ppFilter));
+								Loop = false;
+							}
+						}
+
+						VariantClear(&varName);
+
+						// contained within a loop, decrement the reference count
+						SAFE_RELEASE(pPropBag);
+					}
+					SAFE_RELEASE(pMoniker);
+				}
+			}
+		}
+
+		// if a filter has been located add it to the graph
+		if (*ppFilter)
+		{
+			hr = pGraph->AddFilter(reinterpret_cast<IBaseFilter*>(*ppFilter), pName);
+		}
+		else
+		{
+			hr = E_FAIL;
+		}
+	}
+	else
+	{
+		hr = E_INVALIDARG;
+	}
+
+	return hr;
+}

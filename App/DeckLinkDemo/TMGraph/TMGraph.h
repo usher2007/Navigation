@@ -85,6 +85,7 @@ private:
 	HRESULT ConnectFilters(CComPtr<IGraphBuilder> pGraph, CComPtr<IBaseFilter> pSrc, CComPtr<IBaseFilter> pDest, GUID MediaType);
 	HRESULT GetUnconnectedPin(CComPtr<IBaseFilter> pFilter, PIN_DIRECTION PinDir, IPin **ppPin, GUID MediaType);
 	HRESULT Init();
+	HRESULT AddFilter2(IGraphBuilder* pGraph, const GUID &clsid, LPCWSTR pName, IBaseFilter** ppFilter);
 
 	CComPtr<IGraphBuilder> m_pGraphBuilder;
 	CComPtr<IMediaControl> m_pMediaControl;
