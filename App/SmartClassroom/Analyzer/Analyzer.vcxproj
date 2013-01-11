@@ -14,6 +14,7 @@
     <ProjectGuid>{434EBB60-A4EB-446C-9611-AA698BB8B10F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Analyzer</RootNamespace>
+    <ProjectName>PositionAnalyzer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
