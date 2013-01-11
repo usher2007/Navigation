@@ -13,6 +13,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Camera.h"
 
 class Location;
 class Camera;
@@ -24,10 +25,10 @@ public:
 	int addCamera(const Camera& camera);
 	int deleteCamera(int cameraId, Camera& camera);
 
-	int TurnLeft(int cameraId, int milliseconds);
-	int TurnRight(int cameraId, int milliseconds);
-	int TurnUp(int cameraId, int milliseconds);
-	int TurnDown(int cameraId, int milliseconds);
+	int TurnLeft(int cameraId);
+	int TurnRight(int cameraId);
+	int TurnUp(int cameraId);
+	int TurnDown(int cameraId);
 
 	int TurnToSpecificLocation(int cameraId, const Location& loc);
 	int GetSpecificCameraLocation(int cameraId, Location& loc);
@@ -36,20 +37,3 @@ private:
 	int cameraNum;
 };
 
-
-//Need to be detailing
-class Location
-{
-public:
-	Location();
-private:
-	
-};
-//Need to be detailing
-class Camera
-{
-public:
-	Camera();
-private:
-	Location currentLocation;
-};
