@@ -193,7 +193,8 @@ CString CDeckLinkDemoDlg::getCStringFromCEdit(CEdit *pCEdit)
 
 void CDeckLinkDemoDlg::setDefaultParam()
 {
-	m_ctrlEditUrl.SetWindowTextW(L"rtsp://192.168.0.236:8554/test-0-1");
+	//m_ctrlEditUrl.SetWindowTextW(L"rtsp://192.168.0.236:8554/test-0-1");
+	m_ctrlEditUrl.SetWindowTextW(L"RGB Source 32bit");
 	m_ctrlSelInputFormat.SetCurSel(0);
 	m_ctrlCheckPreview.SetCheck(1);
 }

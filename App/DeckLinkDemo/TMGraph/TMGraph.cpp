@@ -81,9 +81,9 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		m_bDisplay = bDisplay;
 		//Src Filter
 		CComPtr<IBaseFilter> pSrc;
-		hr = CoCreateInstance(CLSID_StreamReceiver, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
+		hr = CoCreateInstance(CLSID_RGBSource32, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
 		if(FAILED(hr)) return hr;
-		hr = pSrc->QueryInterface(IID_IRecordTMStream, (void **)&m_pRecordStream);
+		/*hr = pSrc->QueryInterface(IID_IRecordTMStream, (void **)&m_pRecordStream);
 		if(FAILED(hr)) return hr;
 		hr = pSrc->QueryInterface(IID_ISetTMCallBack, (void **)&m_pSetCallBack);
 		if(FAILED(hr)) return hr;
@@ -92,7 +92,7 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		if(FAILED(hr)) return hr;
 		CString fileNameCStr(fileName);
 		hr = pFileSrc->Load(fileNameCStr, NULL);
-		if(FAILED(hr)) return hr;
+		if(FAILED(hr)) return hr;*/
 		hr = m_pGraphBuilder->AddFilter(pSrc, L"Src Filter");
 		if(FAILED(hr)) return hr;
 
