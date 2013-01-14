@@ -49,12 +49,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AFXDLL;TMRECEIVERGRAPH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>H:\SDK\DShow\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\yubo\SDK\DShow\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>H:\SDK\dx9sdkcp\SDK (C++)\Samples\C++\DirectShow\BaseClasses\Debug_Unicode;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\yubo\SDK\dx9sdkcp\SDK (C++)\Samples\C++\DirectShow\BaseClasses\Debug_Unicode;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>strmbasd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

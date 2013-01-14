@@ -255,6 +255,55 @@ IMediaEventEx* CTMReceiverGraph::GetEventHandle()
 	return m_pMediaEvent;
 }
 
+HRESULT CTMReceiverGraph::Destroy()
+{
+	HRESULT hr = S_OK;
+
+	m_pMediaEvent = NULL;
+	m_pMeidaSeeking = NULL;
+	m_pRecordStream = NULL;
+	m_pSetCallBack = NULL;
+	m_pVideoWindow = NULL;
+	m_pBasicVideo = NULL;
+
+	if(m_pGraphBuilder && m_pMediaControl)
+	{
+		m_pMediaControl->Stop();
+
+		CComPtr<IEnumFilters> pEnum = NULL;
+		hr = m_pGraphBuilder->EnumFilters(&pEnum);
+		if(SUCCEEDED(hr))
+		{
+			IBaseFilter *pFilter = NULL;
+			while(S_OK == pEnum->Next(1, &pFilter, NULL))
+			{
+				FILTER_INFO filterInfo;
+				if(SUCCEEDED(pFilter->QueryFilterInfo(&filterInfo)))
+				{
+					SAFE_RELEASE(filterInfo.pGraph);
+					CComPtr<IEnumPins> pIEnumPins = NULL;
+					hr = pFilter->EnumPins(&pIEnumPins);
+					if(SUCCEEDED(hr))
+					{
+						IPin *pIPin = NULL;
+						while(S_OK == pIEnumPins->Next(1, &pIPin, NULL))
+						{
+							m_pGraphBuilder->Disconnect(pIPin);
+							SAFE_RELEASE(pIPin);
+						}
+					}
+				}
+				SAFE_RELEASE(pFilter);
+			}
+		}
+	}
+	else
+	{
+		hr = S_FALSE;
+	}
+	return hr;
+}
+
 HRESULT CTMReceiverGraph::CheckMediaType(CComPtr<IEnumMediaTypes> pEnumMedia, GUID MediaType)
 {
 	AM_MEDIA_TYPE *MType = NULL;
@@ -291,7 +340,7 @@ HRESULT CTMReceiverGraph::GetUnconnectedPin(CComPtr<IBaseFilter> pFilter, PIN_DI
 {
 	*ppPin = 0;
 	CComPtr<IEnumPins> pEnum = 0;
-	CComPtr<IPin> pPin = 0;
+	IPin* pPin = 0;
 	HRESULT hr = pFilter->EnumPins(&pEnum);
 	if(FAILED(hr))
 		return hr;

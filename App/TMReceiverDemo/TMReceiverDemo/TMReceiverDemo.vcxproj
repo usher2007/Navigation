@@ -51,12 +51,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Include\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\yubo\code\Navigation\App\TMReceiverSrc\TMReceiver\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>H:\GitHubCode\Navigation\App\TMReceiverSrc\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\yubo\code\Navigation\App\TMReceiverSrc\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>TMReceiver.lib</AdditionalDependencies>
     </Link>
     <Midl>

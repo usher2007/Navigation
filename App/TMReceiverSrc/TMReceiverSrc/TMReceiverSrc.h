@@ -110,6 +110,7 @@ private:
 	HANDLE m_readerThread;
 	BOOL m_bRecordStatus;
 	char m_recordFileName[1024];
+	BOOL m_bReadStream;
 
 	TMReceiverCB beforeDecodeCB;
 	TMReceiverCB afterDecodeCB;

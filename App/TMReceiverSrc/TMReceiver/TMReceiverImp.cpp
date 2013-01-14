@@ -159,7 +159,8 @@ HRESULT TMReceiverImp::Close()
 			m_bRunning = FALSE;
 		}
 		//Destroy the graph?
-		return S_OK;
+		hr = m_pGraph->Destroy();
+		return hr;
 	}
 	return E_FAIL;
 }

@@ -21,7 +21,7 @@
 #define WM_GRAPHNOTIFY (WM_APP + 100)
 #endif
 
-
+#define SAFE_RELEASE(p)			{ if(p) { (p)->Release(); (p)=NULL; } }
 // {7C85656E-D45D-4C6B-A825-4DF103639DD2}
 DEFINE_GUID(CLSID_TMReceiverSrc, 
 	0x7c85656e, 0xd45d, 0x4c6b, 0xa8, 0x25, 0x4d, 0xf1, 0x3, 0x63, 0x9d, 0xd2);
@@ -72,6 +72,8 @@ public:
 	HRESULT StopRecord();
 
 	IMediaEventEx* GetEventHandle();
+
+	HRESULT Destroy();
 
 private:
 	HRESULT CheckMediaType(CComPtr<IEnumMediaTypes> pEnumMedia, GUID MediaType);

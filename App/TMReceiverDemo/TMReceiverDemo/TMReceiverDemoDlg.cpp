@@ -109,6 +109,7 @@ void CTMReceiverDemoDlg::OnBnClickedButtonopenhttp()
 void CTMReceiverDemoDlg::OnBnClickedButtonopenrtsp()
 {
 	// TODO: Add your control notification handler code here
+	TM_RecieverClose(m_rcvrHandle);
 	doSomeSettings();
 	USES_CONVERSION;
 	CString rstpUrl = getCStringFromCEdit(&m_ctrlEditRtsp);
