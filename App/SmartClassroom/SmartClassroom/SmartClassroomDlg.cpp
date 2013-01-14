@@ -26,11 +26,13 @@ CSmartClassroomDlg::CSmartClassroomDlg(CWnd* pParent /*=NULL*/)
 void CSmartClassroomDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_TAB3, m_tabSheet);
 }
 
 BEGIN_MESSAGE_MAP(CSmartClassroomDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+//	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -46,6 +48,10 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	m_tabSheet.AddPage(L"教师", &m_TSettingPage, IDD_DIALOGTSetting);
+	m_tabSheet.AddPage(L"学生", &m_SSettingPage, IDD_DIALOGSSetting);
+	m_tabSheet.AddPage(L"激光笔", &m_LSettingPage, IDD_DIALOGLSetting);
+	m_tabSheet.Show();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -85,4 +91,5 @@ HCURSOR CSmartClassroomDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+
 

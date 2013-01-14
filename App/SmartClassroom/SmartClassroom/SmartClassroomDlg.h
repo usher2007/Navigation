@@ -3,6 +3,9 @@
 //
 
 #pragma once
+#include "afxcmn.h"
+#include "TabSheet.h"
+#include "TSettingTab.h"
 
 
 // CSmartClassroomDlg dialog
@@ -28,4 +31,9 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CTabSheet m_tabSheet;
+	CTSettingTab m_TSettingPage;
+	CTSettingTab m_SSettingPage;
+	CTSettingTab m_LSettingPage;
 };

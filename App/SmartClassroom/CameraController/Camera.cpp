@@ -51,6 +51,14 @@ int Location::GetCommand(unsigned char* cmd, int& cmdLen)
 	return 0;
 }
 
+int Location::SetCommand(unsigned char* cmd, const int cmdLen)
+{
+	memset(command, 0x00, 1024);
+	memcpy(command, cmd, cmdLen);
+	commandLength = cmdLen;
+	return 0;
+}
+
 // Camera
 Camera::Camera()
 	: m_nComNum(1), m_nBaudRate(9600), m_nPreLocNum(0)
@@ -112,8 +120,22 @@ int Camera::Open()
 	return 0;
 }
 
-int Camera::AddPreSetLocation(const Location& loc)
+int Camera::AddPreSetLocation(Location& loc)
 {
+	// TODO: 
+	// 1.SET PRE SET POSITION 
+	// 2.STORE THE RECALL CODE
+	unsigned char SetPrePosCmd[1024], RecallPrePosCmd[1024];
+
+	memcpy(SetPrePosCmd, PrefixOfSetPrePos, 1024);
+	SetPrePosCmd[5] = (unsigned char)(m_nPreLocNum);
+	SetPrePosCmd[6] = (unsigned char)(SetPrePosCmd[1]+SetPrePosCmd[2]+SetPrePosCmd[3]+SetPrePosCmd[4]+SetPrePosCmd[5]);
+	sendCommand(SetPrePosCmd, RegularCmdLength);
+
+	memcpy(RecallPrePosCmd, PrefixOfRecallPrePos, 1024);
+	RecallPrePosCmd[5] = (unsigned char)(m_nPreLocNum);
+	RecallPrePosCmd[6] = (unsigned char)(RecallPrePosCmd[1] + RecallPrePosCmd[2] + RecallPrePosCmd[3] + RecallPrePosCmd[4] + RecallPrePosCmd[5]);
+	loc.SetCommand(RecallPrePosCmd, RegularCmdLength);
 	presetLocations.push_back(loc);
 	m_nPreLocNum++;
 	return 0;

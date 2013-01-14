@@ -28,6 +28,7 @@ public:
 	int SetPosition(double hPos, double vPos, double zm);
 	int GetPosition(double& hPos, double& vPos, double& zm);
 	int GetCommand(unsigned char* cmd, int& cmdLen);
+	int SetCommand(unsigned char* cmd, const int cmdLen);
 private:
 	int m_nLocId;
 	unsigned char command[1024];
@@ -44,7 +45,7 @@ public:
 	Camera(int commNum, int baudRate);
 
 	int Open();
-	int AddPreSetLocation(const Location& loc);
+	int AddPreSetLocation(Location& loc);
 	// Control
 	int TurnToSpecificLocation(int locId);
 	int TurnLeft();
