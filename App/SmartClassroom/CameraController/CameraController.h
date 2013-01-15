@@ -11,7 +11,7 @@
 #endif
 
 #include <iostream>
-#include <vector>
+#include <hash_map>
 
 #include "Camera.h"
 
@@ -21,19 +21,21 @@ class Camera;
 class CAMERACONTROLLER_API CCameraController {
 public:
 	CCameraController(void);
-	CCameraController(int cameraNum);
-	int addCamera(const Camera& camera);
+	int addCamera(int cameraId, Camera& camera);
 	int deleteCamera(int cameraId, Camera& camera);
 
 	int TurnLeft(int cameraId);
 	int TurnRight(int cameraId);
 	int TurnUp(int cameraId);
 	int TurnDown(int cameraId);
+	int ZoomIn(int cameraId);
+	int ZoomOut(int cameraId);
 
+	int SetPreSetPos(int cameraId, int locId);
+	int RecallPreSetPos(int cameraId, int locId);
 	int TurnToSpecificLocation(int cameraId, const Location& loc);
 	int GetSpecificCameraLocation(int cameraId, Location& loc);
 private:
-	std::vector<Camera> cameraList;
-	int cameraNum;
+	std::hash_map<int, Camera> cameraList;
 };
 

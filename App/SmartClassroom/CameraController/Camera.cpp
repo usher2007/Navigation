@@ -126,9 +126,13 @@ int Camera::AddPreSetLocation(Location& loc)
 	// 1.SET PRE SET POSITION 
 	// 2.STORE THE RECALL CODE
 	unsigned char SetPrePosCmd[1024], RecallPrePosCmd[1024];
-
+	int locId = loc.GetId();
+	if(locId < 0)
+	{
+		return -1;
+	}
 	memcpy(SetPrePosCmd, PrefixOfSetPrePos, 1024);
-	SetPrePosCmd[5] = (unsigned char)(m_nPreLocNum);
+	SetPrePosCmd[5] = (unsigned char)(locId);
 	SetPrePosCmd[6] = (unsigned char)(SetPrePosCmd[1]+SetPrePosCmd[2]+SetPrePosCmd[3]+SetPrePosCmd[4]+SetPrePosCmd[5]);
 	sendCommand(SetPrePosCmd, RegularCmdLength);
 
@@ -136,18 +140,19 @@ int Camera::AddPreSetLocation(Location& loc)
 	RecallPrePosCmd[5] = (unsigned char)(m_nPreLocNum);
 	RecallPrePosCmd[6] = (unsigned char)(RecallPrePosCmd[1] + RecallPrePosCmd[2] + RecallPrePosCmd[3] + RecallPrePosCmd[4] + RecallPrePosCmd[5]);
 	loc.SetCommand(RecallPrePosCmd, RegularCmdLength);
-	presetLocations.push_back(loc);
-	m_nPreLocNum++;
+	presetLocations[locId] = loc;
+	m_nPreLocNum = presetLocations.size();
 	return 0;
 }
 
 int Camera::TurnToSpecificLocation(int locId)
 {
 	Location specificLoc;
-	if(findLocById(locId, specificLoc) < 0)
+	if(presetLocations.find(locId) != presetLocations.end())
 	{
 		return -1;
 	}
+	specificLoc = presetLocations[locId];
 	unsigned char currentCommand[1024];
 	int cmdLength = 0;
 	if(specificLoc.GetCommand(currentCommand, cmdLength) < 0)
@@ -178,24 +183,34 @@ int Camera::TurnDown()
 	return sendCommand(TurnDownCmd, RegularCmdLength);
 }
 
-// Private Methods
-int Camera::findLocById(int locId, Location& loc)
+int Camera::ZoomIn()
 {
-	if(presetLocations.empty())
-	{
-		return -1;
-	}
-	std::vector<Location>::iterator locIter;
-	for(locIter = presetLocations.begin(); locIter!=presetLocations.end(); ++locIter)
-	{
-		if(locIter->GetId() == locId)
-		{
-			loc = *locIter;
-			return 0;
-		}
-	}
-	return -1;
+	return sendCommand(ZommInCmd, RegularCmdLength);
 }
+
+int Camera::ZoomOut()
+{
+	return sendCommand(ZoomOutCmd, RegularCmdLength);
+}
+
+// Private Methods
+//int Camera::findLocById(int locId, Location& loc)
+//{
+//	if(presetLocations.empty())
+//	{
+//		return -1;
+//	}
+//	std::vector<Location>::iterator locIter;
+//	for(locIter = presetLocations.begin(); locIter!=presetLocations.end(); ++locIter)
+//	{
+//		if(locIter->GetId() == locId)
+//		{
+//			loc = *locIter;
+//			return 0;
+//		}
+//	}
+//	return -1;
+//}
 
 int Camera::sendCommand(const unsigned char* cmd, int cmdLen)
 {
