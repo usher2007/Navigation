@@ -4,7 +4,6 @@
 TMReceiverImp::TMReceiverImp()
 {
 	m_pGraph = new CTMReceiverGraph();
-	m_pGraph->Create();
 	m_bDisplay = FALSE;
 	m_bStorage = FALSE;
 	m_bRunning = FALSE;
@@ -79,6 +78,7 @@ HRESULT TMReceiverImp::openStream(const char* streamName)
 {
 	if(m_pGraph != NULL)
 	{
+		m_pGraph->Create();
 		HRESULT hr = m_pGraph->BuildFilterGraph(streamName, m_bDisplay);
 		if(FAILED(hr)) return hr;
 		if(!m_bDisplay)
