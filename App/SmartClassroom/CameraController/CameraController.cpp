@@ -13,9 +13,10 @@ CCameraController::CCameraController()
 }
 
 
-int CCameraController::addCamera(int cameraId, Camera& camera)
+int CCameraController::addCamera(int cameraId, int comNum, int baudRate)
 {
-	cameraList[cameraId] = camera;
+	Camera *pCamera = new Camera(comNum, baudRate);
+	cameraList[cameraId] = *pCamera;
 	return S_OK;
 }
 

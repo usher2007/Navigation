@@ -16,6 +16,8 @@
 class APICONTROLLER_API CAPIController {
 public:
 	static CAPIController* GetInstance();
+
+	int AddCamera(int cameraId, int comNum, int baudRate);
 	int TeacherPTZUp();
 	int TeacherPTZDown();
 	int TeacherPTZLeft();

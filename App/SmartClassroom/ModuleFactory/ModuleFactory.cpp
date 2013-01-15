@@ -12,7 +12,7 @@ CModuleFactory* CModuleFactory::m_pInstance = NULL;
 
 CModuleFactory::CModuleFactory()
 {
-	m_pCameraController = new CCameraController(1);
+	m_pCameraController = new CCameraController();
 	return;
 }
 

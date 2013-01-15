@@ -21,7 +21,7 @@ class Camera;
 class CAMERACONTROLLER_API CCameraController {
 public:
 	CCameraController(void);
-	int addCamera(int cameraId, Camera& camera);
+	int addCamera(int cameraId, int comNum, int baudRate);
 	int deleteCamera(int cameraId, Camera& camera);
 
 	int TurnLeft(int cameraId);

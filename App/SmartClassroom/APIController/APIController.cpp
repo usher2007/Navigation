@@ -32,6 +32,16 @@ CAPIController* CAPIController::GetInstance()
 	}
 }
 
+int CAPIController::AddCamera(int cameraId, int comNum, int baudRate)
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetCameraController()->addCamera(cameraId, comNum, baudRate);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 int CAPIController::TeacherPTZUp()
 {
 	if(m_pModuleFactory)
