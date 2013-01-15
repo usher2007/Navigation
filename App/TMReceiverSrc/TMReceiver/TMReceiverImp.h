@@ -27,6 +27,7 @@ private:
 	char m_storageFileName[1024];
 	BOOL m_bRunning;
 	BOOL m_bStoring;
+	HWND m_hDisplayWnd;
 private:
 	HRESULT openStream(const char* streamName);
 };

@@ -8,17 +8,14 @@ TMReceiverImp::TMReceiverImp()
 	m_bStorage = FALSE;
 	m_bRunning = FALSE;
 	m_bStoring = FALSE;
+	m_hDisplayWnd = NULL;
 }
 
 HRESULT TMReceiverImp::EnableDisplay(HWND hwnd)
 {
 	m_bDisplay = TRUE;
-	if(m_pGraph != NULL)
-	{
-		HRESULT hr = m_pGraph->SetDisplayWindow(hwnd);
-		return hr;
-	}
-	return E_FAIL;
+	m_hDisplayWnd = hwnd;
+	return S_OK;
 }
 
 HRESULT TMReceiverImp::DisableDisplay()
@@ -86,6 +83,12 @@ HRESULT TMReceiverImp::openStream(const char* streamName)
 			hr = m_pGraph->Run();
 			if(FAILED(hr)) return hr;
 			m_bRunning = TRUE;
+		}
+		else
+		{
+			hr = m_pGraph->SetDisplayWindow(m_hDisplayWnd);
+			if(FAILED(hr))
+				return hr;
 		}
 		return S_OK;
 	}

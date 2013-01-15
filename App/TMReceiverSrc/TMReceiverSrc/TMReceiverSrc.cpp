@@ -235,9 +235,9 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		if(packet.stream_index == m_videoStreamIndex)
 		{
 			//For debug
-			char tmp[1024];
+			/*char tmp[1024];
 			sprintf(tmp," ===================================GOOD Put %d good Packet!DTS:%lld\n",m_queueBuffer.nb_packets,packet.dts);
-			OutputDebugStringA(tmp);
+			OutputDebugStringA(tmp);*/
 			//m_channelPts[channel] = packet.pts;
 			m_queueBuffer.Put(&packet);
 			//char tmp[1024];
@@ -332,9 +332,6 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 {
 	//TODO: Fill buffer with the decoded frames.
 	CTMReceiverSrc* pFilter = (CTMReceiverSrc*)m_pFilter;
-	char tmp[1024];
-	sprintf(tmp," ===================================Fill Buffer In!\n");
-	OutputDebugStringA(tmp);
 	AVPacket pkt, pktForRecord;
 	AVPicture pic;
 	BYTE *pData;
@@ -364,12 +361,18 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 		return S_OK;
 	}
 	av_init_packet(&pkt);
-	int maxPktNum = m_bGetAvgFrameTime ? 10 : 5;
+	int maxPktNum = m_bGetAvgFrameTime ? 12 : 7;
 	while (pFilter->m_queueBuffer.nb_packets > maxPktNum)
 	{
-		CAutoLock lock(&m_csBuffer);
-		pFilter->m_queueBuffer.Get(&pkt,1);
-		av_free_packet(&pkt);
+		for(int itmp=1; itmp<=5; itmp++)
+		{
+			CAutoLock lock(&m_csBuffer);
+			pFilter->m_queueBuffer.Get(&pkt,1);
+			av_free_packet(&pkt);
+		}
+		char tmp[1024];
+		sprintf(tmp," ===================================Too Many Packets! Pop %d good Packet!\n",pFilter->m_queueBuffer.nb_packets);
+		OutputDebugStringA(tmp);
 	}
 
 	{
@@ -444,7 +447,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	if(ret <=0)
 	{
 		char tmp[1024];
-		sprintf(tmp," ===================================BAD£¬rtSampleTime:%lld\n",m_rtSampleTime);
+		sprintf(tmp," ===================================Decode BAD£¬rtSampleTime:%lld\n",m_rtSampleTime);
 		OutputDebugStringA(tmp);
 		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
 		// The sample times are modified by the current rate.
@@ -532,7 +535,6 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	//{
 	//	decodeCB(m_pData, lDataLen, pCBParam);
 	//}
-	return S_OK;
 	return S_OK;
 }
 

@@ -55,6 +55,7 @@ BOOL CTMReceiverDemoDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	m_rcvrHandle = TM_RecieverCreate();
 	m_bRecording = FALSE;
+	m_ctrlEditRtsp.SetWindowTextW(L"rtsp://192.168.0.223:8554/test-0-1");
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -99,7 +100,7 @@ HCURSOR CTMReceiverDemoDlg::OnQueryDragIcon()
 void CTMReceiverDemoDlg::OnBnClickedButtonopenhttp()
 {
 	// TODO: Add your control notification handler code here
-	doSomeSettings();
+	doSomeSettingsAfterPlay();
 	USES_CONVERSION;
 	CString httpUrl = getCStringFromCEdit(&m_ctrlEditHttp);
 	TM_RecieverOpenHttpStream(m_rcvrHandle, NULL, T2A(httpUrl));
@@ -110,11 +111,11 @@ void CTMReceiverDemoDlg::OnBnClickedButtonopenrtsp()
 {
 	// TODO: Add your control notification handler code here
 	TM_RecieverClose(m_rcvrHandle);
-	doSomeSettings();
 	USES_CONVERSION;
+	doSomeSettingsBeforePlay();
 	CString rstpUrl = getCStringFromCEdit(&m_ctrlEditRtsp);
 	int ret = TM_RecieverOpenRtspStream(m_rcvrHandle, NULL, T2A(rstpUrl));
-	TM_RecieverEnableDisplay(m_rcvrHandle, GetDlgItem(IDC_STATICPlayWindow)->GetSafeHwnd());
+	doSomeSettingsAfterPlay();
 }
 
 
@@ -160,10 +161,15 @@ CString CTMReceiverDemoDlg::getCStringFromCEdit( CEdit *ctrlEdit )
 	return param;
 }
 
-int CTMReceiverDemoDlg::doSomeSettings()
+int CTMReceiverDemoDlg::doSomeSettingsBeforePlay()
 {
 	TM_RecieverEnableDisplay(m_rcvrHandle, GetDlgItem(IDC_STATICPlayWindow)->GetSafeHwnd());
 	TM_RecieverEnableStorage(m_rcvrHandle, "E:\\Example.mp4");
+	return 0;
+}
+
+int CTMReceiverDemoDlg::doSomeSettingsAfterPlay()
+{
 	TM_RecieverSetCallBackBeforeDecode(m_rcvrHandle, CBBeforeDeocode, (void *)this);
 	TM_RecieverSetCallBackAfterDecode(m_rcvrHandle, CBAfterDecode, (void *)this);
 	return 0;

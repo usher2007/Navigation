@@ -47,5 +47,6 @@ public:
 
 private:
 	CString getCStringFromCEdit( CEdit *ctrlEdit );
-	int doSomeSettings();
+	int doSomeSettingsAfterPlay();
+	int doSomeSettingsBeforePlay();
 };
