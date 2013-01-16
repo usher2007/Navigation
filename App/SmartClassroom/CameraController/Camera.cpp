@@ -137,7 +137,7 @@ int Camera::AddPreSetLocation(Location& loc)
 	sendCommand(SetPrePosCmd, RegularCmdLength);
 
 	memcpy(RecallPrePosCmd, PrefixOfRecallPrePos, 1024);
-	RecallPrePosCmd[5] = (unsigned char)(m_nPreLocNum);
+	RecallPrePosCmd[5] = (unsigned char)(locId);
 	RecallPrePosCmd[6] = (unsigned char)(RecallPrePosCmd[1] + RecallPrePosCmd[2] + RecallPrePosCmd[3] + RecallPrePosCmd[4] + RecallPrePosCmd[5]);
 	loc.SetCommand(RecallPrePosCmd, RegularCmdLength);
 	presetLocations[locId] = loc;
@@ -145,10 +145,10 @@ int Camera::AddPreSetLocation(Location& loc)
 	return 0;
 }
 
-int Camera::TurnToSpecificLocation(int locId)
+int Camera::RecallSpecificLocation(int locId)
 {
 	Location specificLoc;
-	if(presetLocations.find(locId) != presetLocations.end())
+	if(presetLocations.find(locId) == presetLocations.end())
 	{
 		return -1;
 	}

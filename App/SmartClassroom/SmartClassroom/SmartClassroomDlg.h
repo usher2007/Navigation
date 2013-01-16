@@ -35,6 +35,6 @@ protected:
 public:
 	CTabSheet m_tabSheet;
 	CTSettingTab m_TSettingPage;
-	CTSettingTab m_SSettingPage;
-	CTSettingTab m_LSettingPage;
+	//CSSettingTab m_SSettingPage;
+	//CLSettingTab m_LSettingPage;
 };

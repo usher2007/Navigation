@@ -24,6 +24,7 @@ CTSettingTab::~CTSettingTab()
 void CTSettingTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDITPosId, m_ctrlEditPosId);
 }
 
 
@@ -36,6 +37,8 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONTStop, &CTSettingTab::OnBnClickedButtontstop)
 	ON_BN_CLICKED(IDC_BUTTONTZoomIn, &CTSettingTab::OnBnClickedButtontzoomin)
 	ON_BN_CLICKED(IDC_BUTTONTZoomOut, &CTSettingTab::OnBnClickedButtontzoomout)
+	ON_BN_CLICKED(IDC_BUTTONSavePreSetPos, &CTSettingTab::OnBnClickedButtonsavepresetpos)
+	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -114,4 +117,46 @@ void CTSettingTab::OnBnClickedButtontzoomout()
 		m_pAPIController->TeacherPTZZoomOut();
 	}
 	return;
+}
+
+
+void CTSettingTab::OnBnClickedButtonsavepresetpos()
+{
+	// TODO: Add your control notification handler code here
+	int locId = getIntFromCEdit(&m_ctrlEditPosId);
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherPTZSetPrePos(locId);
+	}
+	return;
+}
+
+void CTSettingTab::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	int locId = getIntFromCEdit(&m_ctrlEditPosId);
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherPTZRecallPrePos(locId);
+	}
+	return;
+}
+
+int CTSettingTab::getIntFromCEdit( CEdit *ctrlEdit )
+{
+	int num;
+	CString param;
+	param = getCStringFromCEdit(ctrlEdit);
+	num = _ttoi(param);
+	return num;
+}
+
+CString CTSettingTab::getCStringFromCEdit( CEdit *ctrlEdit )
+{
+	int paramLen;
+	CString param;
+	paramLen = ctrlEdit->LineLength(0);
+	ctrlEdit->GetLine(0, param.GetBuffer(paramLen), paramLen);
+	param.ReleaseBuffer(paramLen);
+	return param;
 }

@@ -113,7 +113,7 @@ int CCameraController::RecallPreSetPos(int cameraId, int locId)
 {
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
-		cameraList[cameraId].TurnToSpecificLocation(locId);
+		cameraList[cameraId].RecallSpecificLocation(locId);
 		return S_OK;
 	}
 	return E_FAIL;

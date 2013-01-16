@@ -53,7 +53,7 @@ public:
 	int Open();
 	int AddPreSetLocation(Location& loc);
 	// Control
-	int TurnToSpecificLocation(int locId);
+	int RecallSpecificLocation(int locId);
 	int TurnLeft();
 	int TurnRight();
 	int TurnUp();
