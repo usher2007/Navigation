@@ -14,6 +14,8 @@ const static unsigned char TurnDownCmd[1024] = {(unsigned char)0xFF, (unsigned c
 const static unsigned char ZommInCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x20, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x21};
 //FF 01 00 40 00 00 41
 const static unsigned char ZoomOutCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x40, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x41};
+//FF 01 00 00 00 00 01
+const static unsigned char StopCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x01};
 //FF 01 00 03 00 10 14-> 16th pre position
 const static unsigned char PrefixOfSetPrePos[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x03, (unsigned char)0x00};
 //FF 01 00 07 00 10 18-> 16th position recall code
@@ -58,6 +60,7 @@ public:
 	int TurnDown();
 	int ZoomIn();
 	int ZoomOut();
+	int Stop();
 
 	const Location& getCurrentLocation();
 private:

@@ -102,6 +102,16 @@ int CAPIController::TeacherPTZZoomOut()
 	return E_FAIL;
 }
 
+int CAPIController::TeacherPTZStop()
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetCameraController()->Stop(TEA_CAMERA_ID);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 int CAPIController::TeacherPTZSetPrePos(int locId)
 {
 	if(m_pModuleFactory)

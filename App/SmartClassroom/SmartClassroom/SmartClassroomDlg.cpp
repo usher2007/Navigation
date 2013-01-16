@@ -48,10 +48,14 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	m_pAPIController = CAPIController::GetInstance();
 	m_tabSheet.AddPage(L"教师", &m_TSettingPage, IDD_DIALOGTSetting);
+	m_pAPIController->AddCamera(0, 1, 9600);
 	m_tabSheet.AddPage(L"学生", &m_SSettingPage, IDD_DIALOGSSetting);
 	m_tabSheet.AddPage(L"激光笔", &m_LSettingPage, IDD_DIALOGLSetting);
 	m_tabSheet.Show();
+
+	
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

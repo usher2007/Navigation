@@ -15,7 +15,6 @@ CTSettingTab::CTSettingTab(CWnd* pParent /*=NULL*/)
 	: CDialog(CTSettingTab::IDD, pParent)
 {
 	m_pAPIController = CAPIController::GetInstance();
-	m_pAPIController->AddCamera(0, 1, 9600);
 }
 
 CTSettingTab::~CTSettingTab()
@@ -33,22 +32,14 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONTUP, &CTSettingTab::OnBnClickedButtontup)
 	ON_BN_CLICKED(IDC_BUTTONTDOWN, &CTSettingTab::OnBnClickedButtontdown)
 	ON_BN_CLICKED(IDC_BUTTONTLeft, &CTSettingTab::OnBnClickedButtontleft)
+	ON_BN_CLICKED(IDC_BUTTONTRight, &CTSettingTab::OnBnClickedButtontright)
+	ON_BN_CLICKED(IDC_BUTTONTStop, &CTSettingTab::OnBnClickedButtontstop)
+	ON_BN_CLICKED(IDC_BUTTONTZoomIn, &CTSettingTab::OnBnClickedButtontzoomin)
+	ON_BN_CLICKED(IDC_BUTTONTZoomOut, &CTSettingTab::OnBnClickedButtontzoomout)
 END_MESSAGE_MAP()
 
 
 // CTSettingTab message handlers
-
-
-//void CTSettingTab::OnLButtonDown(UINT nFlags, CPoint point)
-//{
-//	// TODO: Add your message handler code here and/or call default
-//
-//	CDialog::OnLButtonDown(nFlags, point);
-//	if(m_nCurrentPage != GetCurFocus())
-//	{
-//
-//	}
-//}
 
 
 void CTSettingTab::OnBnClickedButtontup()
@@ -77,6 +68,50 @@ void CTSettingTab::OnBnClickedButtontleft()
 	if(m_pAPIController != NULL)
 	{
 		m_pAPIController->TeacherPTZLeft();
+	}
+	return;
+}
+
+
+void CTSettingTab::OnBnClickedButtontright()
+{
+	// TODO: Add your control notification handler code here
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherPTZRight();
+	}
+	return;
+}
+
+
+void CTSettingTab::OnBnClickedButtontstop()
+{
+	// TODO: Add your control notification handler code here
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherPTZStop();
+	}
+	return;
+}
+
+
+void CTSettingTab::OnBnClickedButtontzoomin()
+{
+	// TODO: Add your control notification handler code here
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherPTZZoomIn();
+	}
+	return;
+}
+
+
+void CTSettingTab::OnBnClickedButtontzoomout()
+{
+	// TODO: Add your control notification handler code here
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherPTZZoomOut();
 	}
 	return;
 }

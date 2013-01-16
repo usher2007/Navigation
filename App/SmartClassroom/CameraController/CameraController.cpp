@@ -16,6 +16,7 @@ CCameraController::CCameraController()
 int CCameraController::addCamera(int cameraId, int comNum, int baudRate)
 {
 	Camera *pCamera = new Camera(comNum, baudRate);
+	pCamera->Open();
 	cameraList[cameraId] = *pCamera;
 	return S_OK;
 }
@@ -82,6 +83,16 @@ int CCameraController::ZoomOut(int cameraId)
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
 		cameraList[cameraId].ZoomOut();
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+int CCameraController::Stop(int cameraId)
+{
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].Stop();
 		return S_OK;
 	}
 	return E_FAIL;

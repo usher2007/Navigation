@@ -21,7 +21,8 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 
-
+// User Defined
+	CAPIController *m_pAPIController;
 // Implementation
 protected:
 	HICON m_hIcon;

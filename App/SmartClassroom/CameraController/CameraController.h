@@ -30,6 +30,7 @@ public:
 	int TurnDown(int cameraId);
 	int ZoomIn(int cameraId);
 	int ZoomOut(int cameraId);
+	int Stop(int cameraId);
 
 	int SetPreSetPos(int cameraId, int locId);
 	int RecallPreSetPos(int cameraId, int locId);

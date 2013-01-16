@@ -29,4 +29,8 @@ public:
 	afx_msg void OnBnClickedButtontup();
 	afx_msg void OnBnClickedButtontdown();
 	afx_msg void OnBnClickedButtontleft();
+	afx_msg void OnBnClickedButtontright();
+	afx_msg void OnBnClickedButtontstop();
+	afx_msg void OnBnClickedButtontzoomin();
+	afx_msg void OnBnClickedButtontzoomout();
 };

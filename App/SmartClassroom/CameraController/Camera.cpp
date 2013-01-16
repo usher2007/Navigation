@@ -193,6 +193,11 @@ int Camera::ZoomOut()
 	return sendCommand(ZoomOutCmd, RegularCmdLength);
 }
 
+int Camera::Stop()
+{
+	return sendCommand(StopCmd, RegularCmdLength);
+}
+
 // Private Methods
 //int Camera::findLocById(int locId, Location& loc)
 //{
