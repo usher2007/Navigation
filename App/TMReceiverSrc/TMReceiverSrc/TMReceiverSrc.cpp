@@ -235,15 +235,15 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		if(packet.stream_index == m_videoStreamIndex)
 		{
 			//For debug
-			/*char tmp[1024];
+			char tmp[1024];
 			sprintf(tmp," ===================================GOOD Put %d good Packet!DTS:%lld\n",m_queueBuffer.nb_packets,packet.dts);
-			OutputDebugStringA(tmp);*/
+			OutputDebugStringA(tmp);
 			//m_channelPts[channel] = packet.pts;
 			m_queueBuffer.Put(&packet);
 			//char tmp[1024];
 			//sprintf(tmp, "Channel %d__PTS %lld\n", channel, packet.pts);
 			//OutputDebugStringA(tmp);
-			continue;
+			//continue;
 		}
 		Sleep(10);
 	}
