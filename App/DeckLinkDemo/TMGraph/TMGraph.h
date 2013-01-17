@@ -50,6 +50,15 @@ ISetTMCallBack : public IUnknown
 	virtual HRESULT STDMETHODCALLTYPE SetCallBackAfterDecode(TMReceiverCB cb, void* arg)PURE;
 };
 
+// {75D34474-BC0D-4A44-B535-FCF22E04EC07}
+DEFINE_GUID(IID_IGetSrcStatus, 
+	0x75d34474, 0xbc0d, 0x4a44, 0xb5, 0x35, 0xfc, 0xf2, 0x2e, 0x4, 0xec, 0x7);
+MIDL_INTERFACE("75D34474-BC0D-4A44-B535-FCF22E04EC07")
+IGetSrcStatus : public IUnknown
+{
+	virtual HRESULT STDMETHODCALLTYPE IsSourceHasAudio()PURE;
+};
+
 #ifndef WM_GRAPHNOTIFY
 #define WM_GRAPHNOTIFY (WM_APP + 100)
 #endif

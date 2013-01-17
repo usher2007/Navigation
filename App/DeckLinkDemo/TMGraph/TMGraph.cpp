@@ -79,6 +79,7 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 	if(m_pGraphBuilder != NULL)
 	{
 		m_bDisplay = bDisplay;
+		BOOL hasAudio = FALSE;
 		//Src Filter
 		CComPtr<IBaseFilter> pSrc;
 		hr = CoCreateInstance(CLSID_StreamReceiver, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
@@ -128,15 +129,29 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		hr = m_pGraphBuilder->AddFilter(pDecklinkRenderer, L"Decklink Renderer");
 		if(FAILED(hr)) return hr;
 
-		//Decklink Audio Capture
-		CComPtr<IBaseFilter> pDecklinkAudioCapture;
-		hr = AddFilter2(m_pGraphBuilder, CLSID_AudioInputDeviceCategory, L"Decklink Audio Capture", &pDecklinkAudioCapture);
-		if(FAILED(hr)) return hr;
 
+		CComPtr<IGetSrcStatus> pGetSrcStatus = NULL;
+		hr = pSrc->QueryInterface(IID_IGetSrcStatus, (void **)&pGetSrcStatus);
+		if(FAILED(hr)) return hr;
+		hasAudio = SUCCEEDED(pGetSrcStatus->IsSourceHasAudio());
+		if(!hasAudio)
+		{
+			//Decklink Audio Capture
+			/*CComPtr<IBaseFilter> pDecklinkAudioCapture;
+			hr = AddFilter2(m_pGraphBuilder, CLSID_AudioInputDeviceCategory, L"Decklink Audio Capture", &pDecklinkAudioCapture);
+			if(FAILED(hr)) return hr;*/
+		}
 		//Decklink Audio Renderer
 		CComPtr<IBaseFilter> pDecklinkAudioRenderer = NULL;
 		hr = AddFilter2(m_pGraphBuilder, CLSID_AudioRendererCategory, L"Decklink Audio Render", &pDecklinkAudioRenderer);
 		if(FAILED(hr)) return hr;
+
+		//Normal Audio Renderer
+		/*CComPtr<IBaseFilter> pAudioRenderer = NULL;
+		hr = CoCreateInstance(CLSID_AudioRender, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pAudioRenderer);
+		if(FAILED(hr)) return hr;
+		hr = m_pGraphBuilder->AddFilter(pAudioRenderer, L"Audio Renderer");
+		if(FAILED(hr)) return hr;*/
 
 		//Connect Filters
 		hr = ConnectFilters(m_pGraphBuilder, pSrc, pInfTee, MEDIATYPE_NULL);
@@ -145,8 +160,15 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		if(FAILED(hr)) return hr;
 		hr = ConnectFilters(m_pGraphBuilder, pInfTee, pDecklinkRenderer, MEDIATYPE_NULL);
 		if(FAILED(hr)) return hr;
-
-		hr = ConnectFilters(m_pGraphBuilder, pDecklinkAudioCapture, pDecklinkAudioRenderer, MEDIATYPE_NULL);
+		if(!hasAudio)
+		{
+			//hr = ConnectFilters(m_pGraphBuilder, pDecklinkAudioCapture, pDecklinkAudioRenderer, MEDIATYPE_NULL);
+		}
+		else
+		{
+			//hr = ConnectFilters(m_pGraphBuilder, pSrc, pAudioRenderer, MEDIATYPE_NULL);
+			hr = ConnectFilters(m_pGraphBuilder, pSrc, pDecklinkAudioRenderer, MEDIATYPE_NULL);
+		}
 		if(FAILED(hr)) return hr;
 
 		hr = SaveGraphFile(m_pGraphBuilder, L"F:\\yubo\\DecklinkDemo.grf");
