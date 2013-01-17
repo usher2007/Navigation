@@ -12,6 +12,11 @@ const AMOVIESETUP_MEDIATYPE sudOpVideoPinTypes =
 	&MEDIATYPE_Video,       // Major type
 	&MEDIASUBTYPE_NULL      // Minor type
 };
+const AMOVIESETUP_MEDIATYPE sudOpAudioPinTypes =
+{
+	&MEDIATYPE_Audio,       // Major type
+	&MEDIASUBTYPE_NULL      // Minor type
+};
 
 const AMOVIESETUP_PIN sudOpPins[] =
 {
@@ -25,7 +30,18 @@ const AMOVIESETUP_PIN sudOpPins[] =
 			NULL,                   // Connects to pin
 			1,                      // Number of types
 			&sudOpVideoPinTypes 
-	}
+	},
+	{
+		L"Audio Output",              // Pin string name
+			FALSE,                  // Is it rendered
+			TRUE,                   // Is it an output
+			FALSE,                  // Can we have none
+			FALSE,                  // Can we have many
+			&CLSID_NULL,            // Connects to filter
+			NULL,                   // Connects to pin
+			1,                      // Number of types
+			&sudOpAudioPinTypes 
+		}
 };
 
 const AMOVIESETUP_FILTER sudTMReceiverSrcax =
@@ -33,7 +49,7 @@ const AMOVIESETUP_FILTER sudTMReceiverSrcax =
 	&CLSID_TMStreamReceiver,    // Filter CLSID
 	L"TMReceiver Source Filter",       // String name
 	MERIT_DO_NOT_USE,       // Filter merit
-	1,                      // Number pins
+	2,                      // Number pins
 	sudOpPins               // Pin details
 };
 
@@ -54,7 +70,7 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 {
 	ASSERT(phr);
 	CAutoLock cAutoLock(&m_cStateLock);
-	m_paStreams = (CSourceStream **)new CSourceStream*[1];
+	m_paStreams = (CSourceStream **)new CSourceStream*[2];
 	if(m_paStreams == NULL)
 	{
 		if(phr)
@@ -62,9 +78,11 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 		return;
 	}
 
-	m_pVideoPin = new CTMReceiverOutputPin(phr, this, L"TMReceiver Video Pin");
+	m_pVideoPin = new CTMReceiverVideoOutputPin(phr, this, L"TMReceiver Video Pin");
+	m_pAudioPin = new CTMReceiverAudioOutputPin(phr, this, L"TMReceiver Audio Pin");
 
 	m_paStreams[0] = m_pVideoPin;
+	m_paStreams[1] = m_pAudioPin;
 	m_pFileName = NULL;
 	m_bRecordStatus = FALSE;
 	memset(m_recordFileName, 0x00, sizeof(m_recordFileName));
@@ -140,11 +158,32 @@ HRESULT CTMReceiverSrc::Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 			m_resolution.width = pVideoCodecCtx->width;
 			m_resolution.height = pVideoCodecCtx->height;
 		}
+		else if(m_pFormatContext->streams[i]->codec->codec_type = AVMEDIA_TYPE_AUDIO)
+		{
+			m_audioStreamIndex = i;
+			m_pAudioPin->m_pAudioCodecCtx = m_pFormatContext->streams[i]->codec;
+			m_pAudioPin->m_pAudioCodec = avcodec_find_decoder((m_pAudioPin->m_pAudioCodecCtx->codec_id));
+			if(m_pAudioPin->m_pAudioCodec == NULL)
+			{
+				continue;
+			}
+			if(avcodec_open(m_pAudioPin->m_pAudioCodecCtx, m_pAudioPin->m_pAudioCodec) < 0)
+			{
+				continue;
+			}
+			m_bHasAudio = TRUE;
+			m_pAudioPin->m_rtAvgTimePerPts = m_pFormatContext->streams[i]->time_base.num * ONESEC / m_pFormatContext->streams[i]->time_base.den;
+		}
 	}
 
 	if(m_resolution.width != DEFAULT_WIDTH || m_resolution.height != DEFAULT_HEIGHT)
 	{
 		return E_FAIL;
+	}
+
+	if(m_bHasAudio)
+	{
+		m_pAudioPin->m_pRelatedVideoPin = m_pVideoPin;
 	}
 
 	//TODO: Start a thread to read the packet.
@@ -214,12 +253,12 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 	AVPacket packetToAbolish;
 	while(!m_bQuitReaderThread)
 	{
-		if(m_queueBuffer.nb_packets > 256)
+		if(m_pVideoPin->m_queueBuffer.nb_packets > 256)
 		{
 			for(int i=0; i<10; i++)
 			{
 				av_init_packet(&packetToAbolish);
-				m_queueBuffer.Get(&packetToAbolish, 1);
+				m_pVideoPin->m_queueBuffer.Get(&packetToAbolish, 1);
 				//m_channelPts[channel] = packetToAbolish.pts;
 				av_free_packet(&packetToAbolish);
 			}
@@ -227,11 +266,11 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		int ret = av_read_frame(m_pFormatContext, &packet);
 		if(ret < 0)
 		{
-			av_init_packet(&packet);
+			/*av_init_packet(&packet);
 			packet.data = NULL;
 			packet.size = 0;
 			packet.stream_index = m_videoStreamIndex;
-			m_queueBuffer.Put(&packet);
+			m_queueBuffer.Put(&packet);*/
 			//For debug
 			char tmp[1024];
 			sprintf(tmp," ===================================BAD Put %d bad Packet!\n", ret);
@@ -243,14 +282,22 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		{
 			//For debug
 			char tmp[1024];
-			sprintf(tmp," ===================================GOOD Put %d good Packet!DTS:%lld\n",m_queueBuffer.nb_packets,packet.dts);
+			sprintf(tmp," ===================================GOOD Put %d good Video Packet!DTS:%lld\n",m_pVideoPin->m_queueBuffer.nb_packets,packet.dts);
 			OutputDebugStringA(tmp);
 			//m_channelPts[channel] = packet.pts;
-			m_queueBuffer.Put(&packet);
+			m_pVideoPin->m_queueBuffer.Put(&packet);
 			//char tmp[1024];
 			//sprintf(tmp, "Channel %d__PTS %lld\n", channel, packet.pts);
 			//OutputDebugStringA(tmp);
-			continue;
+			//continue;
+		}
+		else if(m_bHasAudio && packet.stream_index == m_audioStreamIndex)
+		{
+			// TODO
+			char tmp[1024];
+			sprintf(tmp," ===================================GOOD Put %d good Audio Packet!DTS:%lld\n",m_pAudioPin->m_queueBuffer.nb_packets,packet.dts);
+			OutputDebugStringA(tmp);
+			m_pAudioPin->m_queueBuffer.Put(&packet);
 		}
 		Sleep(10);
 	}
@@ -313,7 +360,7 @@ int CTMReceiverSrc::CallAfterDecodeCB(TMFrame *pFrame)
 // Video Output Pin
 //////////////////////////////////////////////////////////////////
 
-CTMReceiverOutputPin::CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName)
+CTMReceiverVideoOutputPin::CTMReceiverVideoOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName)
 	: CSourceStream(NAME("TMReceiver Source Filter Output Pin"), phr, pParent, pPinName)
 {
 	m_rtPosition = 0;
@@ -328,14 +375,14 @@ CTMReceiverOutputPin::CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent
 	m_bFPSGuessed = FALSE;
 }
 
-CTMReceiverOutputPin::~CTMReceiverOutputPin()
+CTMReceiverVideoOutputPin::~CTMReceiverVideoOutputPin()
 {
 	m_pDecoder->Release();
 	delete m_pDecoder;
 	m_pDecoder = NULL;
 }
 
-HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
+HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 {
 	//TODO: Fill buffer with the decoded frames.
 	CTMReceiverSrc* pFilter = (CTMReceiverSrc*)m_pFilter;
@@ -351,7 +398,7 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	{
 		m_pData = new BYTE[lDataLen];
 	}
-	if(pFilter->m_queueBuffer.nb_packets<=0)
+	if(m_queueBuffer.nb_packets<=0)
 	{
 		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
 		// The sample times are modified by the current rate.
@@ -372,16 +419,16 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	}
 	av_init_packet(&pkt);
 	int maxPktNum = m_bGetAvgFrameTime ? 10 : 5;
-	while (pFilter->m_queueBuffer.nb_packets > maxPktNum)
+	while (m_queueBuffer.nb_packets > maxPktNum)
 	{
 		CAutoLock lock(&m_csBuffer);
-		pFilter->m_queueBuffer.Get(&pkt,1);
+		m_queueBuffer.Get(&pkt,1);
 		av_free_packet(&pkt);
 	}
 
 	{
 		CAutoLock lock(&m_csBuffer);
-		pFilter->m_queueBuffer.Get(&pkt, 1);
+		m_queueBuffer.Get(&pkt, 1);
 		if(pkt.flags & AV_PKT_FLAG_KEY)
 		{
 	/*char tmp[1024];
@@ -527,16 +574,16 @@ HRESULT CTMReceiverOutputPin::FillBuffer(IMediaSample *pms)
 	return S_OK;
 }
 
-STDMETHODIMP CTMReceiverOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv){
+STDMETHODIMP CTMReceiverVideoOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv){
 	return CSourceStream::NonDelegatingQueryInterface(riid, ppv);
 }
 
-STDMETHODIMP CTMReceiverOutputPin::Notify(IBaseFilter * pSender, Quality q){
+STDMETHODIMP CTMReceiverVideoOutputPin::Notify(IBaseFilter * pSender, Quality q){
 
 	return S_OK;
 }  
 
-HRESULT CTMReceiverOutputPin::DecideBufferSize(IMemAllocator *pAlloc,ALLOCATOR_PROPERTIES *pProperties){
+HRESULT CTMReceiverVideoOutputPin::DecideBufferSize(IMemAllocator *pAlloc,ALLOCATOR_PROPERTIES *pProperties){
 
 	CheckPointer(pAlloc,E_POINTER);
 	CheckPointer(pProperties,E_POINTER);
@@ -566,7 +613,7 @@ HRESULT CTMReceiverOutputPin::DecideBufferSize(IMemAllocator *pAlloc,ALLOCATOR_P
 	return S_OK;	
 }
 
-HRESULT CTMReceiverOutputPin::CheckMediaType(const CMediaType *pMediaType){
+HRESULT CTMReceiverVideoOutputPin::CheckMediaType(const CMediaType *pMediaType){
 	CheckPointer(pMediaType,E_POINTER);
 
 	if((*(pMediaType->Type()) != MEDIATYPE_Video) ||   // we only output video
@@ -609,7 +656,7 @@ HRESULT CTMReceiverOutputPin::CheckMediaType(const CMediaType *pMediaType){
 
 }
 
-HRESULT CTMReceiverOutputPin::GetMediaType(int iPosition, CMediaType *pmt){
+HRESULT CTMReceiverVideoOutputPin::GetMediaType(int iPosition, CMediaType *pmt){
 	CheckPointer(pmt,E_POINTER);
 
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
@@ -652,7 +699,7 @@ HRESULT CTMReceiverOutputPin::GetMediaType(int iPosition, CMediaType *pmt){
 
 }
 
-HRESULT CTMReceiverOutputPin::GetMediaType(CMediaType *pmt){
+HRESULT CTMReceiverVideoOutputPin::GetMediaType(CMediaType *pmt){
 	VIDEOINFO* pvih = (VIDEOINFO*)pmt->AllocFormatBuffer(sizeof(VIDEOINFO));
 	LPBITMAPINFOHEADER lpBitmapInfoHeader = &(pvih->bmiHeader);
 	lpBitmapInfoHeader->biSize = sizeof(BITMAPINFOHEADER);
@@ -683,19 +730,19 @@ HRESULT CTMReceiverOutputPin::GetMediaType(CMediaType *pmt){
 	return S_OK;
 }
 
-STDMETHODIMP CTMReceiverOutputPin::Run()
+STDMETHODIMP CTMReceiverVideoOutputPin::Run()
 {
 	m_rtFirstFrameTime = 0;
 	return CSourceStream::Run();
 }
 
-STDMETHODIMP CTMReceiverOutputPin::Stop()
+STDMETHODIMP CTMReceiverVideoOutputPin::Stop()
 {
 	m_rtFirstFrameTime = 0;
 	return CSourceStream::Stop();
 }
 
-HRESULT CTMReceiverOutputPin::InitRecord(const char* fileName)
+HRESULT CTMReceiverVideoOutputPin::InitRecord(const char* fileName)
 {
 	avcodec_register_all();
 	av_register_all();
@@ -769,7 +816,7 @@ HRESULT CTMReceiverOutputPin::InitRecord(const char* fileName)
 	return S_OK;
 }
 
-HRESULT CTMReceiverOutputPin::StopRecord()
+HRESULT CTMReceiverVideoOutputPin::StopRecord()
 {
 	m_bRecordStatus = FALSE;
 	int ret = -1;
@@ -789,6 +836,388 @@ HRESULT CTMReceiverOutputPin::StopRecord()
 	pts = 1;
 	return S_OK;
 }
+
+//////////////////////////////////////////////////////////////////
+// Audio Output Pin
+//////////////////////////////////////////////////////////////////
+
+CTMReceiverAudioOutputPin::CTMReceiverAudioOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName)
+	: CSourceStream(NAME("TMReceiver Source Audio Output Pin"), phr, pParent, pPinName)
+{
+	m_pFrame = avcodec_alloc_frame();
+	m_rtSampleTime = 0;
+	m_remainData = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
+	m_remainDataSize = 0;
+}
+
+CTMReceiverAudioOutputPin::~CTMReceiverAudioOutputPin()
+{
+	av_free(m_pFrame);
+}
+
+STDMETHODIMP CTMReceiverAudioOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+{
+	return CSourceStream::NonDelegatingQueryInterface(riid, ppv);
+}
+
+HRESULT CTMReceiverAudioOutputPin::DecideBufferSize(IMemAllocator *pAlloc, ALLOCATOR_PROPERTIES *pProperties)
+{
+	CheckPointer(pAlloc,E_POINTER);
+	CheckPointer(pProperties,E_POINTER);
+	CAutoLock cAutoLock(m_pFilter->pStateLock());
+	HRESULT hr = NOERROR;
+	WAVEFORMATEX *pwi = (WAVEFORMATEX *) m_mt.Format();
+	pProperties->cBuffers = 1;
+	pProperties->cbBuffer = pwi->nSamplesPerSec;
+	pProperties->cbAlign = pwi->nBlockAlign;
+	ASSERT(pProperties->cbBuffer);
+	ALLOCATOR_PROPERTIES Actual;
+	hr = pAlloc->SetProperties(pProperties,&Actual);
+	if(FAILED(hr))
+	{
+		return hr;
+	}
+	if(Actual.cbBuffer < pProperties->cbBuffer)
+	{
+		return E_FAIL;
+	}
+	ASSERT(Actual.cBuffers == 1);
+	return NOERROR;
+}
+
+HRESULT CTMReceiverAudioOutputPin::CheckMediaType(const CMediaType *pMediaType)
+{
+	CheckPointer(pMediaType, E_POINTER);
+	if((*(pMediaType->Type())) != MEDIATYPE_Audio || !(pMediaType->IsFixedSize()))
+	{
+		return E_INVALIDARG;
+	}
+	const GUID *SubType = pMediaType->Subtype();
+	if(SubType == NULL)
+		return E_INVALIDARG;
+	if(*SubType != MEDIASUBTYPE_PCM)
+	{
+		return E_INVALIDARG;
+	}
+
+	WAVEFORMATEX *pwi = (WAVEFORMATEX *)pMediaType->Format();
+	int wBitPerSampleFromFFmpeg = 16;
+	switch(m_pAudioCodecCtx->sample_fmt)
+	{
+	case AV_SAMPLE_FMT_U8:
+		wBitPerSampleFromFFmpeg = 8; break;
+	case AV_SAMPLE_FMT_S32:
+		wBitPerSampleFromFFmpeg = 32; break;
+	default:
+		wBitPerSampleFromFFmpeg = 16;
+	}
+
+	if((pwi->nChannels != m_pAudioCodecCtx->channels) || 
+		(pwi->nSamplesPerSec != m_pAudioCodecCtx->sample_rate) ||
+		(pwi->wBitsPerSample != wBitPerSampleFromFFmpeg))
+	{
+		return E_INVALIDARG;
+	}
+
+	return S_OK;
+}
+
+HRESULT CTMReceiverAudioOutputPin::GetMediaType(int iPosition, CMediaType *pMediaType)
+{
+	if   (iPosition   <   0   ||   iPosition   >=   25)
+	{
+		return   E_FAIL;
+	}
+
+	pMediaType-> SetType(&MEDIATYPE_Audio);
+	pMediaType-> SetSubtype(&MEDIASUBTYPE_PCM);
+	pMediaType-> SetFormatType(&FORMAT_WaveFormatEx);
+
+	WAVEFORMATEX       format;
+	format.cbSize                     =   0;
+	format.wFormatTag             =   WAVE_FORMAT_PCM;
+	switch   (iPosition)
+	{
+	case   0:
+		format.nSamplesPerSec     =   44100;   //   44.1k,   stereo,   16-bit
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   16;
+		break;
+	case   1:
+		format.nSamplesPerSec     =   44100;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   16;
+		break;
+	case   2:
+		format.nSamplesPerSec     =   44100;
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   8;
+		break;
+	case   3:
+		format.nSamplesPerSec     =   44100;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   8;
+		break;
+	case   4:
+		format.nSamplesPerSec     =   22050;   //   22.050k,   stereo,   16-bit
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   16;
+		break;
+	case   5:
+		format.nSamplesPerSec     =   22050;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   16;
+		break;
+	case   6:
+		format.nSamplesPerSec     =   22050;
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   8;
+		break;
+	case   7:
+		format.nSamplesPerSec     =   22050;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   8;
+		break;
+	case   8:
+		format.nSamplesPerSec     =   11025;   //   11.025k,   stereo,   16-bit
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   16;
+		break;
+	case   9:
+		format.nSamplesPerSec     =   11025;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   16;
+		break;
+	case   10:
+		format.nSamplesPerSec     =   11025;
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   8;
+		break;
+	case   11:
+		format.nSamplesPerSec     =   11025;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   8;
+		break;
+	case   12:
+		format.nSamplesPerSec     =   48000;   //   48k,   stereo,   16-bit
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   16;
+		break;
+	case   13:
+		format.nSamplesPerSec     =   48000;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   16;
+		break;
+	case   14:
+		format.nSamplesPerSec     =   48000;
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   8;
+		break;
+	case   15:
+		format.nSamplesPerSec     =   48000;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   8;
+		break;
+	case   16:
+		format.nSamplesPerSec     =   32000;   //   32k,   stereo,   16-bit
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   16;
+		break;
+	case   17:
+		format.nSamplesPerSec     =   32000;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   16;
+		break;
+	case   18:
+		format.nSamplesPerSec     =   32000;
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   8;
+		break;
+	case   19:
+		format.nSamplesPerSec     =   32000;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   8;
+		break;
+	case   20:
+		format.nSamplesPerSec     =   8000;   //   8k,   stereo,   16-bit
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   16;
+		break;
+	case   21:
+		format.nSamplesPerSec     =   8000;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   16;
+		break;
+	case   22:
+		format.nSamplesPerSec     =   8000;
+		format.nChannels               =   2;
+		format.wBitsPerSample     =   8;
+		break;
+	case   23:
+		format.nSamplesPerSec     =   8000;
+		format.nChannels               =   1;
+		format.wBitsPerSample     =   8;
+		break;
+	case 24:
+		format.nSamplesPerSec     =   16000;     // for rtmp streams
+		format.nChannels          =   2;
+		format.wBitsPerSample     =   16;
+	}
+
+	format.nBlockAlign           =   format.nChannels   *   format.wBitsPerSample   /   8;
+	format.nAvgBytesPerSec   =   format.nSamplesPerSec   *   format.nBlockAlign;
+	pMediaType-> SetFormat(PBYTE(&format),   sizeof(WAVEFORMATEX));
+	return   NOERROR; 
+}
+
+HRESULT CTMReceiverAudioOutputPin::GetMediaType(CMediaType *pmt)
+{
+	CheckPointer(pmt,E_POINTER);
+	CAutoLock cAutoLock(m_pFilter->pStateLock());
+	WAVEFORMATEX *pwi = (WAVEFORMATEX *) pmt->AllocFormatBuffer(sizeof(WAVEFORMATEX));
+	if(NULL == pwi)
+		return(E_OUTOFMEMORY);
+	ZeroMemory(pwi, sizeof(WAVEFORMATEX));
+	int nFrequency = 48000;
+	int nChannels = 2;
+	int nBytesPerSample = 2;
+	long lBytesPerSecond = (long) (nBytesPerSample * nFrequency * nChannels);
+	long lBufferSize = (long) ((float) lBytesPerSecond);
+	pwi->wFormatTag = WAVE_FORMAT_PCM;
+	pwi->nChannels = (unsigned short)nChannels;
+	pwi->nSamplesPerSec = nFrequency;
+	pwi->nAvgBytesPerSec = lBytesPerSecond;
+	pwi->wBitsPerSample = (WORD) (nBytesPerSample * 8);
+	pwi->nBlockAlign = (WORD) (nBytesPerSample * nChannels);
+	pmt->SetType(&MEDIATYPE_Audio);
+	pmt->SetFormatType(&WMFORMAT_WaveFormatEx);
+	pmt->SetTemporalCompression(FALSE);
+	pmt->SetSubtype(&MEDIASUBTYPE_PCM);
+	pmt->SetSampleSize(lBufferSize);
+	return NOERROR;
+}
+
+HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
+{
+	CheckPointer(pms, E_POINTER);
+	AVPacket pkt, nextPkt;
+	BYTE *pData, *pActualPMSData, *pDataOrigin;
+	REFERENCE_TIME rtStart, rtStop, rtMediaStart,rtMediaStop;
+	bool setStart = false;
+	int lDataLen = pms->GetSize();
+	pData = new BYTE[lDataLen];
+	pDataOrigin = pData;
+
+	BYTE *outBuffer = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
+	int outBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2;
+	int curDataLength = 0;
+
+	if(m_remainDataSize > 0)
+	{
+		memcpy(pData, m_remainData, m_remainDataSize);
+		pData += m_remainDataSize;
+		curDataLength += m_remainDataSize;
+		m_remainDataSize = 0;
+	}
+
+	while(curDataLength < lDataLen)
+	{
+		av_init_packet(&pkt);
+		int pktQueueRet = m_queueBuffer.Get(&pkt, 1);
+		if(pktQueueRet == 0)
+		{
+			continue;
+		}
+		if(pktQueueRet < 0)
+		{
+			return S_FALSE;
+		}
+		if(pkt.data == NULL)
+		{
+			continue;
+		}
+
+		if(!setStart)
+		{
+			rtStart = pkt.pts * m_rtAvgTimePerPts;
+			setStart = true;
+		}
+		outBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2;
+		ZeroMemory(outBuffer, outBufferSize);
+		{
+			int len = avcodec_decode_audio3(m_pAudioCodecCtx, (int16_t *)outBuffer, &outBufferSize, &pkt);
+			if(len <= 0 || outBufferSize <= 0 || outBufferSize > lDataLen)
+			{
+				continue;
+			}
+			if(curDataLength + outBufferSize <= lDataLen)
+			{
+				curDataLength += outBufferSize;
+				memcpy(pData, outBuffer, outBufferSize);
+				pData += outBufferSize;
+			}
+			else
+			{
+				memcpy(pData, outBuffer, lDataLen-curDataLength);
+				outBuffer += (lDataLen - curDataLength);
+				ZeroMemory(m_remainData, AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2);
+				m_remainDataSize = outBufferSize - (lDataLen - curDataLength);
+				memcpy(m_remainData, outBuffer, m_remainDataSize);
+				curDataLength = lDataLen;
+			}
+		}
+	}
+
+	pms->GetPointer(&pActualPMSData);
+	ZeroMemory(pActualPMSData, lDataLen);
+	{
+		CAutoLock cAutoLockShared(&m_cSharedState);
+		memcpy(pActualPMSData, pDataOrigin, lDataLen);
+	}
+
+	while(true)
+	{
+		av_init_packet(&nextPkt);
+		int pktQueueRet = m_queueBuffer.QueryFirst(&nextPkt, 1);
+		if(pktQueueRet == 0)
+		{
+			continue;
+		}
+		if(pktQueueRet < 0)
+		{
+			return S_FALSE;
+		}
+		if(pkt.data == NULL)
+		{
+			return S_OK;
+		}
+		break;
+	}
+
+	rtStop = nextPkt.pts * m_rtAvgTimePerPts;
+	HRESULT hr = pms->SetTime(&rtStart, &rtStop);
+
+	hr = pms->SetSyncPoint(TRUE);
+	// TODO:Discontinuity?
+	hr = pms->SetPreroll(FALSE);
+	hr = pms->SetActualDataLength(pms->GetSize());
+	return NOERROR;
+}
+
+
+HRESULT InitRecord(const char* fileName)
+{
+	return S_OK;
+}
+HRESULT StopRecord()
+{
+	return S_OK;
+}
+
+
+//////////////////////////////////////////////////////////////////
+// H264 Video Decoder
+//////////////////////////////////////////////////////////////////
 
 H264Decoder::H264Decoder(void)
 {
