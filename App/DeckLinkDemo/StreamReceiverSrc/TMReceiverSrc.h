@@ -47,6 +47,14 @@ DECLARE_INTERFACE_(ISetTMCallBack, IUnknown)
 	STDMETHOD(SetCallBackAfterDecode(TMReceiverCB cb, void* arg))PURE;
 };
 
+// {75D34474-BC0D-4A44-B535-FCF22E04EC07}
+DEFINE_GUID(IID_IGetSrcStatus, 
+	0x75d34474, 0xbc0d, 0x4a44, 0xb5, 0x35, 0xfc, 0xf2, 0x2e, 0x4, 0xec, 0x7);
+DECLARE_INTERFACE_(IGetSrcStatus, IUnknown)
+{
+	STDMETHOD(IsSourceHasAudio())PURE;
+};
+
 
 extern const AMOVIESETUP_FILTER sudTMReceiverSrcax;
 
@@ -57,7 +65,7 @@ struct Resolution_t
 	int width;
 	int height;
 };
-class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordTMStream, public ISetTMCallBack
+class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordTMStream, public ISetTMCallBack, public IGetSrcStatus
 {
 	friend class CTMReceiverVideoOutputPin;
 public:
@@ -79,6 +87,10 @@ public:
 		{
 			return GetInterface((ISetTMCallBack *)this, ppv);
 		}
+		else if(riid == IID_IGetSrcStatus)
+		{
+			return GetInterface((IGetSrcStatus *)this, ppv);
+		}
 		else
 		{
 			return CSource::NonDelegatingQueryInterface(riid, ppv);
@@ -98,6 +110,9 @@ public:
 	// ISetCallBack functions
 	STDMETHODIMP SetCallBackBeforeDecode(TMReceiverCB cb, void* arg);
 	STDMETHODIMP SetCallBackAfterDecode(TMReceiverCB cb, void* arg);
+
+	//IGetSrcStatus functions
+	STDMETHODIMP IsSourceHasAudio();
 
 	int CallBeforeDecodeCB(TMFrame *pFrame);
 	int CallAfterDecodeCB(TMFrame *pFrame);

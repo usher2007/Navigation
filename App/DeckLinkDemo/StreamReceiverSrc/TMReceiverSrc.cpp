@@ -79,12 +79,11 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 	}
 
 	m_pVideoPin = new CTMReceiverVideoOutputPin(phr, this, L"TMReceiver Video Pin");
-	m_pAudioPin = new CTMReceiverAudioOutputPin(phr, this, L"TMReceiver Audio Pin");
 
 	m_paStreams[0] = m_pVideoPin;
-	m_paStreams[1] = m_pAudioPin;
 	m_pFileName = NULL;
 	m_bRecordStatus = FALSE;
+	m_bHasAudio = FALSE;
 	memset(m_recordFileName, 0x00, sizeof(m_recordFileName));
 	beforeDecodeCB = NULL;
 	beforeCBParam = NULL;
@@ -116,6 +115,7 @@ CTMReceiverSrc::~CTMReceiverSrc()
 HRESULT CTMReceiverSrc::Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 {
 	//TODO: Open the file using ffmpeg;
+	HRESULT hr = S_FALSE;
 	USES_CONVERSION;
 	AVCodecContext *pVideoCodecCtx = NULL;
 	AVCodec *pVideoCodec = NULL;
@@ -161,6 +161,8 @@ HRESULT CTMReceiverSrc::Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 		else if(m_pFormatContext->streams[i]->codec->codec_type = AVMEDIA_TYPE_AUDIO)
 		{
 			m_audioStreamIndex = i;
+			m_pAudioPin = new CTMReceiverAudioOutputPin(&hr, this, L"TMReceiver Audio Pin");
+			m_paStreams[1] = m_pAudioPin;
 			m_pAudioPin->m_pAudioCodecCtx = m_pFormatContext->streams[i]->codec;
 			m_pAudioPin->m_pAudioCodec = avcodec_find_decoder((m_pAudioPin->m_pAudioCodecCtx->codec_id));
 			if(m_pAudioPin->m_pAudioCodec == NULL)
@@ -336,6 +338,18 @@ STDMETHODIMP CTMReceiverSrc::SetCallBackAfterDecode(TMReceiverCB cb, void* arg)
 	afterDecodeCB = cb;
 	afterCBParam = arg;
 	return S_OK;
+}
+
+STDMETHODIMP CTMReceiverSrc::IsSourceHasAudio()
+{
+	if(m_bHasAudio)
+	{
+		return S_OK;
+	}
+	else
+	{
+		return E_FAIL;
+	}
 }
 
 int CTMReceiverSrc::CallBeforeDecodeCB(TMFrame *pFrame)
