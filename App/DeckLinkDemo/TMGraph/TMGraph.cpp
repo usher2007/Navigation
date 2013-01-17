@@ -134,24 +134,34 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		hr = pSrc->QueryInterface(IID_IGetSrcStatus, (void **)&pGetSrcStatus);
 		if(FAILED(hr)) return hr;
 		hasAudio = SUCCEEDED(pGetSrcStatus->IsSourceHasAudio());
+
+		CComPtr<IBaseFilter> pDecklinkAudioCapture = NULL;
+		CComPtr<IBaseFilter> pAudioInfTee = NULL;
+		CComPtr<IBaseFilter> pAudioRenderer = NULL;
 		if(!hasAudio)
 		{
 			//Decklink Audio Capture
-			/*CComPtr<IBaseFilter> pDecklinkAudioCapture;
 			hr = AddFilter2(m_pGraphBuilder, CLSID_AudioInputDeviceCategory, L"Decklink Audio Capture", &pDecklinkAudioCapture);
-			if(FAILED(hr)) return hr;*/
+			if(FAILED(hr)) return hr;
+		}
+		else
+		{
+			//Audio Inf Tee
+			hr = CoCreateInstance(CLSID_InfTee, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pAudioInfTee);
+			if(FAILED(hr)) return hr;
+			hr = m_pGraphBuilder->AddFilter(pAudioInfTee, L"Audio InfTee");
+			if(FAILED(hr)) return hr;
+
+			//Normal Audio Renderer
+			hr = CoCreateInstance(CLSID_AudioRender, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pAudioRenderer);
+			if(FAILED(hr)) return hr;
+			hr = m_pGraphBuilder->AddFilter(pAudioRenderer, L"Audio Renderer");
+			if(FAILED(hr)) return hr;
 		}
 		//Decklink Audio Renderer
 		CComPtr<IBaseFilter> pDecklinkAudioRenderer = NULL;
 		hr = AddFilter2(m_pGraphBuilder, CLSID_AudioRendererCategory, L"Decklink Audio Render", &pDecklinkAudioRenderer);
 		if(FAILED(hr)) return hr;
-
-		//Normal Audio Renderer
-		/*CComPtr<IBaseFilter> pAudioRenderer = NULL;
-		hr = CoCreateInstance(CLSID_AudioRender, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pAudioRenderer);
-		if(FAILED(hr)) return hr;
-		hr = m_pGraphBuilder->AddFilter(pAudioRenderer, L"Audio Renderer");
-		if(FAILED(hr)) return hr;*/
 
 		//Connect Filters
 		hr = ConnectFilters(m_pGraphBuilder, pSrc, pInfTee, MEDIATYPE_NULL);
@@ -162,14 +172,20 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 		if(FAILED(hr)) return hr;
 		if(!hasAudio)
 		{
-			//hr = ConnectFilters(m_pGraphBuilder, pDecklinkAudioCapture, pDecklinkAudioRenderer, MEDIATYPE_NULL);
+			hr = ConnectFilters(m_pGraphBuilder, pDecklinkAudioCapture, pDecklinkAudioRenderer, MEDIATYPE_NULL);
+			if(FAILED(hr)) return hr;
 		}
 		else
 		{
+			hr = ConnectFilters(m_pGraphBuilder, pSrc, pAudioInfTee, MEDIATYPE_NULL);
+			if(FAILED(hr)) return hr;
+			hr = ConnectFilters(m_pGraphBuilder, pAudioInfTee, pAudioRenderer, MEDIATYPE_NULL);
+			if(FAILED(hr)) return hr;
+			hr = ConnectFilters(m_pGraphBuilder, pAudioInfTee, pDecklinkAudioRenderer, MEDIATYPE_NULL);
+			if(FAILED(hr)) return hr;
+
 			//hr = ConnectFilters(m_pGraphBuilder, pSrc, pAudioRenderer, MEDIATYPE_NULL);
-			hr = ConnectFilters(m_pGraphBuilder, pSrc, pDecklinkAudioRenderer, MEDIATYPE_NULL);
 		}
-		if(FAILED(hr)) return hr;
 
 		hr = SaveGraphFile(m_pGraphBuilder, L"F:\\yubo\\DecklinkDemo.grf");
 		return S_OK;
@@ -204,7 +220,14 @@ HRESULT CTMGraph::Destroy()
 				if (SUCCEEDED(pFilter->QueryFilterInfo(&filterInfo)))
 				{
 					SAFE_RELEASE(filterInfo.pGraph);
-					if ((NULL == wcsstr(filterInfo.achName, L"Src Filter")) && (NULL == wcsstr(filterInfo.achName, L"Decklink Renderer")) && (NULL == wcsstr(filterInfo.achName, L"Inf Tee")) && (NULL == wcsstr(filterInfo.achName, L"Renderer")))
+					if ((NULL == wcsstr(filterInfo.achName, L"Src Filter")) 
+						&& (NULL == wcsstr(filterInfo.achName, L"Decklink Renderer")) 
+						&& (NULL == wcsstr(filterInfo.achName, L"Inf Tee")) 
+						&& (NULL == wcsstr(filterInfo.achName, L"Renderer"))
+						&& (NULL == wcsstr(filterInfo.achName, L"Decklink Audio Capture"))
+						&& (NULL == wcsstr(filterInfo.achName, L"Decklink Audio Render"))
+						&& (NULL == wcsstr(filterInfo.achName, L"Audio InfTee"))
+						&& (NULL == wcsstr(filterInfo.achName, L"Audio Renderer")))
 					{
 						// not the push source, infinite tee or renderer filter so remove from graph
 						hr = m_pGraphBuilder->RemoveFilter(pFilter);
