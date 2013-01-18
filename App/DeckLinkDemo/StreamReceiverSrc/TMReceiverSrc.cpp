@@ -294,7 +294,7 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		{
 			//For debug
 			char tmp[1024];
-			sprintf(tmp," ===================================GOOD Put %d good Video Packet!DTS:%lld\n",m_pVideoPin->m_queueBuffer.nb_packets,packet.dts);
+			sprintf(tmp," ===================================GOOD Put %d good Video Packet!\n",m_pVideoPin->m_queueBuffer.nb_packets);
 			OutputDebugStringA(tmp);
 			//m_channelPts[channel] = packet.pts;
 			m_pVideoPin->m_queueBuffer.Put(&packet);
@@ -307,7 +307,7 @@ void CTMReceiverSrc::ReadAndCachePreviewPackets()
 		{
 			// TODO
 			char tmp[1024];
-			sprintf(tmp," ===================================GOOD Put %d good Audio Packet!DTS:%lld\n",m_pAudioPin->m_queueBuffer.nb_packets,packet.dts);
+			sprintf(tmp," ===================================GOOD Put %d good Audio Packet!\n",m_pAudioPin->m_queueBuffer.nb_packets);
 			OutputDebugStringA(tmp);
 			m_pAudioPin->m_queueBuffer.Put(&packet);
 		}
@@ -573,9 +573,9 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 		pms->SetMediaTime(&rtMediaStart, &rtMediaStop);
 		m_rtSampleTime = rtStop;
 		m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame; 
-		//char tmp[1024];
-		//sprintf(tmp," Src Filter:Channel:%d__PTS:%lld__rtStart:%lld\n", pFilter->m_relatedChannel, pkt.pts, rtStart);
-		//OutputDebugStringA(tmp);
+		char tmp[1024];
+		sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Video! Start %lld - Stop:%lld\n", rtStart, rtStop);
+		OutputDebugStringA(tmp);
 	}
 	pms->SetSyncPoint(TRUE);
 
@@ -1249,7 +1249,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	hr = pms->SetPreroll(FALSE);
 	hr = pms->SetActualDataLength(pms->GetSize());
 
-	sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Audio!\n");
+	sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Audio! Start %lld - Stop:%lld\n", rtStart, rtStop);
 	OutputDebugStringA(tmp);
 	return NOERROR;
 }
