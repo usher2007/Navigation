@@ -205,6 +205,9 @@ public:
 	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc, ALLOCATOR_PROPERTIES *pProperties);
 	HRESULT GetMediaType(CMediaType *pmt);
 
+	STDMETHODIMP Stop();
+	STDMETHODIMP Run();
+
 	HRESULT InitRecord(const char* fileName);
 	HRESULT StopRecord();
 

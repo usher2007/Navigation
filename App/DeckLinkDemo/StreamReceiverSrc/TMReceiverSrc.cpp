@@ -222,6 +222,12 @@ STDMETHODIMP CTMReceiverSrc::Run(REFERENCE_TIME tStart){
 	m_pVideoPin->m_rtSampleTime = 0;
 	m_pVideoPin->m_rtPosition = 0;
 	m_pVideoPin->m_bGetAvgFrameTime = FALSE;
+
+	m_pAudioPin->m_bWorking = TRUE;
+	m_pAudioPin->m_rtFirstFrameTime = 0;
+	m_pAudioPin->m_rtSampleTime = 0;
+	m_pAudioPin->m_rtPosition = 0;
+	m_pAudioPin->m_bGetAvgFrameTime = FALSE;
 	return CBaseFilter::Run(tStart);
 }
 
@@ -233,6 +239,7 @@ STDMETHODIMP CTMReceiverSrc::Pause(){
 STDMETHODIMP CTMReceiverSrc::Stop(){
 	CAutoLock cObjectLock(m_pLock);
 	m_pVideoPin->m_bWorking = FALSE;
+	m_pAudioPin->m_bWorking = FALSE;
 	int ret = 0;
 	{
 		CAutoLock lock(&(m_pVideoPin->m_csDecoder));
@@ -244,6 +251,9 @@ STDMETHODIMP CTMReceiverSrc::Stop(){
 	}
 	m_pVideoPin->m_rtFirstFrameTime = 0;
 	m_pVideoPin->m_rtSampleTime = 0;
+
+	m_pAudioPin->m_rtFirstFrameTime = 0;
+	m_pAudioPin->m_rtSampleTime = 0;
 	return CBaseFilter::Stop();
 
 }
@@ -412,25 +422,25 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 	{
 		m_pData = new BYTE[lDataLen];
 	}
-	if(m_queueBuffer.nb_packets<=0)
-	{
-		REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
-		// The sample times are modified by the current rate.
-		rtStart = static_cast<REFERENCE_TIME>(m_rtSampleTime);
-		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
-		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
-		rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
-		pms->SetTime(&rtStart, &rtStop);
-		pms->SetMediaTime(&rtMediaStart, &rtMediaStop);
-		m_rtSampleTime = m_rtSampleTime + static_cast<int>(m_rtAvgTimePerFrame );
-		m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame;
-		pms->SetSyncPoint(TRUE);
-		Sleep(10);
-		//char tmp[1024];
-		//sprintf(tmp,"====================No Data!====================\n");
-		//OutputDebugStringA(tmp);
-		return S_OK;
-	}
+	//if(m_queueBuffer.nb_packets<=0)
+	//{
+	//	REFERENCE_TIME rtStart, rtStop, rtMediaStart, rtMediaStop;
+	//	// The sample times are modified by the current rate.
+	//	rtStart = static_cast<REFERENCE_TIME>(m_rtSampleTime);
+	//	rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
+	//	rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
+	//	rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
+	//	pms->SetTime(&rtStart, &rtStop);
+	//	pms->SetMediaTime(&rtMediaStart, &rtMediaStop);
+	//	m_rtSampleTime = m_rtSampleTime + static_cast<int>(m_rtAvgTimePerFrame );
+	//	m_rtPosition = m_rtPosition + m_rtAvgTimePerFrame;
+	//	pms->SetSyncPoint(TRUE);
+	//	Sleep(10);
+	//	//char tmp[1024];
+	//	//sprintf(tmp,"====================No Data!====================\n");
+	//	//OutputDebugStringA(tmp);
+	//	return S_OK;
+	//}
 	av_init_packet(&pkt);
 	int maxPktNum = m_bGetAvgFrameTime ? 10 : 5;
 	while (m_queueBuffer.nb_packets > maxPktNum)
@@ -862,6 +872,7 @@ CTMReceiverAudioOutputPin::CTMReceiverAudioOutputPin(HRESULT *phr, CTMReceiverSr
 	m_rtSampleTime = 0;
 	m_remainData = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
 	m_remainDataSize = 0;
+	m_rtFirstFrameTime = 0;
 }
 
 CTMReceiverAudioOutputPin::~CTMReceiverAudioOutputPin()
@@ -1113,6 +1124,9 @@ HRESULT CTMReceiverAudioOutputPin::GetMediaType(CMediaType *pmt)
 
 HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 {
+	char tmp[1024];
+	sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Audio Fill Buffer In!\n");
+	OutputDebugStringA(tmp);
 	CheckPointer(pms, E_POINTER);
 	AVPacket pkt, nextPkt;
 	BYTE *pData, *pActualPMSData, *pDataOrigin;
@@ -1125,6 +1139,19 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	BYTE *outBuffer = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
 	int outBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2;
 	int curDataLength = 0;
+
+	av_init_packet(&pkt);
+	int maxPktNum1 = 25;
+	int maxPktNum2 = 10;
+	while (m_queueBuffer.nb_packets > maxPktNum1)
+	{
+		while(m_queueBuffer.nb_packets > maxPktNum2)
+		{
+			CAutoLock lock(&m_csBuffer);
+			m_queueBuffer.Get(&pkt,1);
+			av_free_packet(&pkt);
+		}
+	}
 
 	if(m_remainDataSize > 0)
 	{
@@ -1151,18 +1178,24 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 			continue;
 		}
 
-		if(!setStart)
-		{
-			rtStart = pkt.pts * m_rtAvgTimePerPts;
-			setStart = true;
-		}
 		outBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2;
 		ZeroMemory(outBuffer, outBufferSize);
 		{
 			int len = avcodec_decode_audio3(m_pAudioCodecCtx, (int16_t *)outBuffer, &outBufferSize, &pkt);
 			if(len <= 0 || outBufferSize <= 0 || outBufferSize > lDataLen)
 			{
+				sprintf(tmp," Audio Decode Bad!\n");
+				OutputDebugStringA(tmp);
 				continue;
+			}
+			if(!setStart)
+			{
+				if(m_rtFirstFrameTime == 0)
+				{
+					m_rtFirstFrameTime = pkt.pts;
+				}
+				rtStart = (pkt.pts - m_rtFirstFrameTime) * m_rtAvgTimePerPts;
+				setStart = true;
 			}
 			if(curDataLength + outBufferSize <= lDataLen)
 			{
@@ -1208,22 +1241,36 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 		break;
 	}
 
-	rtStop = nextPkt.pts * m_rtAvgTimePerPts;
+	rtStop = (nextPkt.pts - m_rtFirstFrameTime) * m_rtAvgTimePerPts;
 	HRESULT hr = pms->SetTime(&rtStart, &rtStop);
 
 	hr = pms->SetSyncPoint(TRUE);
 	// TODO:Discontinuity?
 	hr = pms->SetPreroll(FALSE);
 	hr = pms->SetActualDataLength(pms->GetSize());
+
+	sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Audio!\n");
+	OutputDebugStringA(tmp);
 	return NOERROR;
 }
 
+STDMETHODIMP CTMReceiverAudioOutputPin::Run()
+{
+	m_rtFirstFrameTime = 0;
+	return CSourceStream::Run();
+}
 
-HRESULT InitRecord(const char* fileName)
+STDMETHODIMP CTMReceiverAudioOutputPin::Stop()
+{
+	m_rtFirstFrameTime = 0;
+	return CSourceStream::Stop();
+}
+
+HRESULT CTMReceiverAudioOutputPin::InitRecord(const char* fileName)
 {
 	return S_OK;
 }
-HRESULT StopRecord()
+HRESULT CTMReceiverAudioOutputPin::StopRecord()
 {
 	return S_OK;
 }
