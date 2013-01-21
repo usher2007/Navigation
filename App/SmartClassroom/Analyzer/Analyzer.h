@@ -10,10 +10,15 @@
 #define ANALYZER_API __declspec(dllimport)
 #endif
 
+#include <vector>
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv;
+
 // This class is exported from the Analyzer.dll
 class ANALYZER_API CPositionAnalyzer {
 public:
 	CPositionAnalyzer(void);
+	int AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons);
 	// TODO: add your methods here.
 };
 

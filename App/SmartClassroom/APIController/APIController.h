@@ -26,7 +26,7 @@ public:
 	int TeacherPTZZoomOut();
 	int TeacherPTZStop();
 
-	int TeacherPTZSetPrePos(int id);
+	int TeacherPTZSetPrePos(int locId, int pixLeft, int pixRight, double realLeft, double realRight);
 	int TeacherPTZRecallPrePos(int id);
 
 private:

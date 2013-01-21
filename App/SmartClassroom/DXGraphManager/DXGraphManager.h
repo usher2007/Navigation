@@ -10,13 +10,13 @@
 #define DXGRAPHMANAGER_API __declspec(dllimport)
 #endif
 
+#include "DXFilterGraphTea.h"
 // This class is exported from the DXGraphManager.dll
 class DXGRAPHMANAGER_API CDXGraphManager {
 public:
 	CDXGraphManager(void);
 	// TODO: add your methods here.
+private:
+	CDXFilterGraphTea * m_pTeacherGraph;
 };
 
-extern DXGRAPHMANAGER_API int nDXGraphManager;
-
-DXGRAPHMANAGER_API int fnDXGraphManager(void);

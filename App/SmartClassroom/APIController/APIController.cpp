@@ -112,10 +112,18 @@ int CAPIController::TeacherPTZStop()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZSetPrePos(int locId)
+int CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRight, double realLeft, double realRight )
 {
 	if(m_pModuleFactory)
 	{
+		if(locId == 0)
+		{
+			m_pModuleFactory->GetConfigManager()->SetTeacherFullScreen(locId);
+		}
+		else
+		{
+			m_pModuleFactory->GetConfigManager()->SetTeacherPresetLoc(locId, pixLeft, pixRight);
+		}
 		m_pModuleFactory->GetCameraController()->SetPreSetPos(TEA_CAMERA_ID, locId);
 		return S_OK;
 	}

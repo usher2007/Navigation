@@ -10,13 +10,23 @@
 #define CONFIGMANAGER_API __declspec(dllimport)
 #endif
 
+#include <vector>
+
 // This class is exported from the ConfigManager.dll
 class CONFIGMANAGER_API CConfigManager {
 public:
 	CConfigManager(void);
 	// TODO: add your methods here.
+	int SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
+	int SetTeacherFullScreen(int locId);
+private:
+	typedef struct LocRange
+	{
+		int left;
+		int right;
+	} LocRange;
+	int m_fullScreenLocId;
+	std::vector<int> presetLocIds; // must be orderer
+	std::vector<LocRange> presetLocRanges; // correspond to the LocId one to one
 };
 
-extern CONFIGMANAGER_API int nConfigManager;
-
-CONFIGMANAGER_API int fnConfigManager(void);

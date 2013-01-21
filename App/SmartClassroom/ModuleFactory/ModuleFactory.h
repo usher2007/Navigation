@@ -11,17 +11,20 @@
 #endif
 
 #include "CameraController.h"
+#include "ConfigManager.h"
 // This class is exported from the ModuleFactory.dll
 class MODULEFACTORY_API CModuleFactory {
 public:
 	static CModuleFactory* GetInstance();
-	CCameraController* GetCameraController();
+	CCameraController * GetCameraController();
+	CConfigManager * GetConfigManager();
 private:
 	CModuleFactory(void);
 	~CModuleFactory();
 	static CModuleFactory *m_pInstance;
 
-	CCameraController* m_pCameraController;
+	CCameraController * m_pCameraController;
+	CConfigManager * m_pConfigManager;
 	// TODO: add your methods here.
 };
 

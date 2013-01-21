@@ -13,6 +13,7 @@ CModuleFactory* CModuleFactory::m_pInstance = NULL;
 CModuleFactory::CModuleFactory()
 {
 	m_pCameraController = new CCameraController();
+	m_pConfigManager = new CConfigManager();
 	return;
 }
 
@@ -32,4 +33,9 @@ CModuleFactory* CModuleFactory::GetInstance()
 CCameraController * CModuleFactory::GetCameraController()
 {
 	return m_pCameraController;
+}
+
+CConfigManager * CModuleFactory::GetConfigManager()
+{
+	return m_pConfigManager;
 }
