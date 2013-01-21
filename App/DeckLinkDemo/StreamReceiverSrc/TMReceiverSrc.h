@@ -22,6 +22,8 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 };
 
+EXTERN_GUID(WMFORMAT_WaveFormatEx,
+	0x05589f81, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a);
 // {6F568873-134B-4FF3-B0B2-D886D859A0C7}
 DEFINE_GUID(CLSID_TMStreamReceiver, 
 	0x6f568873, 0x134b, 0x4ff3, 0xb0, 0xb2, 0xd8, 0x86, 0xd8, 0x59, 0xa0, 0xc7);
@@ -45,18 +47,27 @@ DECLARE_INTERFACE_(ISetTMCallBack, IUnknown)
 	STDMETHOD(SetCallBackAfterDecode(TMReceiverCB cb, void* arg))PURE;
 };
 
+// {75D34474-BC0D-4A44-B535-FCF22E04EC07}
+DEFINE_GUID(IID_IGetSrcStatus, 
+	0x75d34474, 0xbc0d, 0x4a44, 0xb5, 0x35, 0xfc, 0xf2, 0x2e, 0x4, 0xec, 0x7);
+DECLARE_INTERFACE_(IGetSrcStatus, IUnknown)
+{
+	STDMETHOD(IsSourceHasAudio())PURE;
+};
+
 
 extern const AMOVIESETUP_FILTER sudTMReceiverSrcax;
 
-class CTMReceiverOutputPin;
+class CTMReceiverVideoOutputPin;
+class CTMReceiverAudioOutputPin;
 struct Resolution_t
 {
 	int width;
 	int height;
 };
-class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordTMStream, public ISetTMCallBack
+class CTMReceiverSrc : public CSource, public IFileSourceFilter, public IRecordTMStream, public ISetTMCallBack, public IGetSrcStatus
 {
-	friend class CTMReceiverOutputPin;
+	friend class CTMReceiverVideoOutputPin;
 public:
 	~CTMReceiverSrc();
 	static CUnknown * WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT *phr);
@@ -75,6 +86,10 @@ public:
 		else if(riid == IID_ISetTMCallBack)
 		{
 			return GetInterface((ISetTMCallBack *)this, ppv);
+		}
+		else if(riid == IID_IGetSrcStatus)
+		{
+			return GetInterface((IGetSrcStatus *)this, ppv);
 		}
 		else
 		{
@@ -96,22 +111,27 @@ public:
 	STDMETHODIMP SetCallBackBeforeDecode(TMReceiverCB cb, void* arg);
 	STDMETHODIMP SetCallBackAfterDecode(TMReceiverCB cb, void* arg);
 
+	//IGetSrcStatus functions
+	STDMETHODIMP IsSourceHasAudio();
+
 	int CallBeforeDecodeCB(TMFrame *pFrame);
 	int CallAfterDecodeCB(TMFrame *pFrame);
 
-	CTMReceiverOutputPin *m_pVideoPin;
+	CTMReceiverVideoOutputPin *m_pVideoPin;
+	CTMReceiverAudioOutputPin *m_pAudioPin;
 
 private:
 	CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr);
 	LPWSTR      m_pFileName;
-	PacketQueue m_queueBuffer;
 	AVFormatContext *m_pFormatContext;
 	int m_videoStreamIndex;
+	int m_audioStreamIndex;
 	struct Resolution_t m_resolution;
 	HANDLE m_readerThread;
 	BOOL m_bQuitReaderThread;
 	BOOL m_bRecordStatus;
 	char m_recordFileName[1024];
+	BOOL m_bHasAudio;
 
 	TMReceiverCB beforeDecodeCB;
 	TMReceiverCB afterDecodeCB;
@@ -124,11 +144,11 @@ public:
 	int GetImageHeight() { return m_resolution.height > 0 ? m_resolution.height : -1;}
 };
 class H264Decoder;
-class CTMReceiverOutputPin : public CSourceStream
+class CTMReceiverVideoOutputPin : public CSourceStream
 {
 public:
-	CTMReceiverOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName);
-	~CTMReceiverOutputPin();
+	CTMReceiverVideoOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName);
+	~CTMReceiverVideoOutputPin();
 
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 	HRESULT CheckMediaType(const CMediaType *pMediaType);
@@ -166,9 +186,57 @@ public:
 	LONGLONG pts;
 	BOOL m_bFindKeyFrame;
 
+	PacketQueue m_queueBuffer;
 private:
 	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
 	void UpdateFromSeek();
+};
+
+class CTMReceiverAudioOutputPin : public CSourceStream
+{
+public:
+	CTMReceiverAudioOutputPin(HRESULT *phr, CTMReceiverSrc *pParent, LPCWSTR pPinName);
+	~CTMReceiverAudioOutputPin();
+
+	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+	HRESULT CheckMediaType(const CMediaType *pMediaType);
+	HRESULT GetMediaType(int iPosition, CMediaType *pmt);
+	HRESULT FillBuffer(IMediaSample *pms);
+	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc, ALLOCATOR_PROPERTIES *pProperties);
+	HRESULT GetMediaType(CMediaType *pmt);
+
+	STDMETHODIMP Stop();
+	STDMETHODIMP Run();
+
+	HRESULT InitRecord(const char* fileName);
+	HRESULT StopRecord();
+
+
+	CRefTime					m_rtPosition;
+	CRefTime					m_rtSampleTime;
+	CRefTime					m_rtAvgTimePerFrame;
+	CRefTime					m_rtAvgTimePerPts;
+	CRefTime                    m_rtFirstFrameTime;
+	BOOL						m_bWorking;
+	BOOL                        m_bGetAvgFrameTime;
+	BOOL                        m_bFPSGuessed;
+
+	CTMReceiverVideoOutputPin *m_pRelatedVideoPin;
+
+	CCritSec m_csDecoder;
+	CCritSec m_csBuffer;
+	BYTE *m_pData;
+	BOOL m_pinIntialized;
+
+	AVCodecContext *m_pAudioCodecCtx;
+	AVCodec *m_pAudioCodec;
+	AVFrame *m_pFrame;
+
+	PacketQueue m_queueBuffer;
+private:
+	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
+	BYTE *m_remainData;
+	int m_remainDataSize;
 };
 
 class H264Decoder

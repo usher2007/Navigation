@@ -1,19 +1,30 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
 #include "stdafx.h"
+#include <atlconv.h>
+#include <tchar.h>
+#include <streams.h>
+#include <initguid.h>
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-					 )
+#pragma warning(disable:4710)
+
+STDAPI DllRegisterServer()
 {
-	switch (ul_reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return TRUE;
+	return AMovieDllRegisterServer2( TRUE );
 }
 
+STDAPI DllUnregisterServer()
+{
+	return AMovieDllRegisterServer2( FALSE );
+}
+
+
+//
+// DllEntryPoint
+//
+extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
+
+BOOL APIENTRY DllMain(HANDLE hModule, 
+	DWORD  dwReason, 
+	LPVOID lpReserved)
+{
+	return DllEntryPoint((HINSTANCE)(hModule), dwReason, lpReserved);
+}
