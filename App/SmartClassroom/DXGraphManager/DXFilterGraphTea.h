@@ -1,7 +1,12 @@
 #pragma once
 #include "DShow.h"
 #include <InitGuid.h>
+#include <atlcomcli.h>
 
+
+#ifndef WM_GRAPHNOTIFY
+#define WM_GRAPHNOTIFY (WM_APP + 100)
+#endif
 
 class CDXFilterGraphTea
 {

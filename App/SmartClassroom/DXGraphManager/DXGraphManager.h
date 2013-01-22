@@ -15,7 +15,7 @@
 class DXGRAPHMANAGER_API CDXGraphManager {
 public:
 	CDXGraphManager(void);
-	// TODO: add your methods here.
+	
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
 };
