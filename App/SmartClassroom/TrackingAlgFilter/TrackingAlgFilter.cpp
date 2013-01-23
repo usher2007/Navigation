@@ -160,7 +160,7 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	m_mtPreferred.InitMediaType();
 	m_pTrackingAlg = new TrackingAlg;
 	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
-
+	m_bTracking = FALSE;
 	namedWindow("Debug");
 }
 
@@ -221,39 +221,41 @@ STDMETHODIMP CTrackingAlgFilter::NonDelegatingQueryInterface(REFIID riid, void *
 {
 	CheckPointer(ppv,E_POINTER);
 
-	//if (riid == IID_INullIPP) {
-	//	return GetInterface((INullIPP *) this, ppv);
-	//}
+	if (riid == IID_ITrackingControl) {
+		return GetInterface((ITrackingControl *) this, ppv);
+	}
 	//else if (riid == IID_ISpecifyPropertyPages) {
 	//	return GetInterface((ISpecifyPropertyPages *) this, ppv);
 	//}
-	//else {
-	//	return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
-	//}
-	return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
+	else {
+		return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
+	}
 }
 
 
 HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 {
-	QueryPerformanceCounter((LARGE_INTEGER *)&T1);
+	if(m_bTracking)
+	{
+		QueryPerformanceCounter((LARGE_INTEGER *)&T1);
 
-	PBYTE p;
-	pSample->GetPointer(&p);
+		PBYTE p;
+		pSample->GetPointer(&p);
 
-	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
-	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
-	imshow("Debug", img);
-	m_pTrackingAlg->Update(img);
+		int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
+		cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
+		imshow("Debug", img);
+		m_pTrackingAlg->Update(img);
 
-	QueryPerformanceCounter((LARGE_INTEGER *)&T2);
+		QueryPerformanceCounter((LARGE_INTEGER *)&T2);
 
-	dfTime = (T2-T1)*1000/FREQ;
-	char tmp[1024];
-	sprintf(tmp, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Time Performance: %f!\n", dfTime);
-	OutputDebugStringA(tmp);
+		dfTime = (T2-T1)*1000/FREQ;
+		char tmp[1024];
+		sprintf(tmp, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Time Performance: %f!\n", dfTime);
+		OutputDebugStringA(tmp);
 
-	cv::waitKey(1);
+		cv::waitKey(1);
+	}
 	return NOERROR;
 }
 
@@ -276,4 +278,14 @@ LONG CTrackingAlgFilter::GetWidth()
 LONG CTrackingAlgFilter::GetHeight()
 {
 	return m_biHeight > 0 ? m_biHeight : DEFUALT_HEIGHT;
+}
+
+STDMETHODIMP CTrackingAlgFilter::StartTracking()
+{
+	m_bTracking = TRUE;
+}
+
+STDMETHODIMP CTrackingAlgFilter::StopTracking()
+{
+	m_bTracking = FALSE;
 }

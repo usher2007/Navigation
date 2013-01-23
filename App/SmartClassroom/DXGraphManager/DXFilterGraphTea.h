@@ -1,8 +1,8 @@
 #pragma once
 #include "DShow.h"
 #include <InitGuid.h>
+#include "FilterUIDs.h"
 #include <atlcomcli.h>
-
 
 #ifndef WM_GRAPHNOTIFY
 #define WM_GRAPHNOTIFY (WM_APP + 100)
@@ -26,6 +26,12 @@ public:
 
 	HRESULT Destroy();
 
+	//
+	// --- ITrackingControl Interface --
+	//
+	HRESULT StartTracking();
+	HRESULT StopTracking();
+
 private:
 	HRESULT init();
 
@@ -34,6 +40,7 @@ private:
 	CComPtr<IMediaEventEx> m_pMediaEvent;
 	CComPtr<IVideoWindow> m_pVideoWindow;
 	CComPtr<IBasicVideo> m_pBasicVideo;
+	CComPtr<ITrackingControl> m_pTrackingControl;
 
 	HWND m_hDisplayWnd;
 	BOOL m_bDisplay;

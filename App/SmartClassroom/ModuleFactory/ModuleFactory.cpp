@@ -14,6 +14,7 @@ CModuleFactory::CModuleFactory()
 {
 	m_pCameraController = new CCameraController();
 	m_pConfigManager = new CConfigManager();
+	m_pGraphManager = new CDXGraphManager();
 	return;
 }
 
@@ -38,4 +39,9 @@ CCameraController * CModuleFactory::GetCameraController()
 CConfigManager * CModuleFactory::GetConfigManager()
 {
 	return m_pConfigManager;
+}
+
+CDXGraphManager * CModuleFactory::GetGraphManager()
+{
+	return m_pGraphManager;
 }

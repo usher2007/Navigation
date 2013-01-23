@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "DXFilterGraphTea.h"
-#include "FilterUIDs.h"
 #include "Utils.h"
 
 CDXFilterGraphTea::CDXFilterGraphTea()
@@ -17,7 +17,9 @@ HRESULT CDXFilterGraphTea::init()
 	m_pVideoWindow = NULL;
 	m_pBasicVideo = NULL;
 	m_hDisplayWnd = NULL;
+	m_pTrackingControl = NULL;
 	m_bDisplay = FALSE;
+	return S_OK;
 }
 
 HRESULT CDXFilterGraphTea::Create()
@@ -62,6 +64,8 @@ HRESULT CDXFilterGraphTea::BuildGraph(BOOL bDisplay)
 
 		CComPtr<IBaseFilter> pTrackingAlgFilter;
 		hr = CoCreateInstance(CLSID_TrackingAlg, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pTrackingAlgFilter);
+		if(FAILED(hr)) return hr;
+		hr = pTrackingAlgFilter->QueryInterface(IID_ITrackingControl, (void **)&m_pTrackingControl);
 		if(FAILED(hr)) return hr;
 		hr = m_pGraphBuilder->AddFilter(pTrackingAlgFilter, L"Tracking Algorithm");
 		if(FAILED(hr)) return hr;
@@ -199,6 +203,26 @@ HRESULT CDXFilterGraphTea::Destroy()
 	else
 	{
 		hr = S_FALSE;
+	}
+	return hr;
+}
+
+HRESULT CDXFilterGraphTea::StartTracking()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->StartTracking();
+	}
+	return hr;
+}
+
+HRESULT CDXFilterGraphTea::StopTracking()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->StopTracking();
 	}
 	return hr;
 }

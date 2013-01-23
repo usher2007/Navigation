@@ -28,7 +28,7 @@ public:
 	HRESULT CheckMediaType(const CMediaType *pmt);
 };
 
-class CTrackingAlgFilter : public CTransInPlaceFilter
+class CTrackingAlgFilter : public CTransInPlaceFilter, public ITrackingControl
 {
 	friend class CTrackingAlgInputPin;
 	friend class CTrackingAlgOutputPin;
@@ -54,6 +54,12 @@ public:
 	LONG GetWidth();
 	LONG GetHeight();
 
+	//
+	// --- ITrackingControl Implement --
+	//
+	STDMETHODIMP StartTracking();
+	STDMETHODIMP StopTracking();
+
 private:
 
 	CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);
@@ -70,6 +76,7 @@ private:
 	LONG m_biHeight;
 
 	TrackingAlg *m_pTrackingAlg;
+	BOOL m_bTracking;
 };
 
 

@@ -12,12 +12,16 @@
 
 #include "CameraController.h"
 #include "ConfigManager.h"
+#include "DXGraphManager.h"
+
 // This class is exported from the ModuleFactory.dll
 class MODULEFACTORY_API CModuleFactory {
 public:
 	static CModuleFactory* GetInstance();
 	CCameraController * GetCameraController();
 	CConfigManager * GetConfigManager();
+	CDXGraphManager * GetGraphManager();
+
 private:
 	CModuleFactory(void);
 	~CModuleFactory();
@@ -25,6 +29,7 @@ private:
 
 	CCameraController * m_pCameraController;
 	CConfigManager * m_pConfigManager;
+	CDXGraphManager * m_pGraphManager;
 	// TODO: add your methods here.
 };
 

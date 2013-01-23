@@ -32,7 +32,17 @@ CAPIController* CAPIController::GetInstance()
 	}
 }
 
-int CAPIController::AddCamera(int cameraId, int comNum, int baudRate)
+HRESULT CAPIController::BuildTeacherGraph( BOOL bDisplay, HWND displayWnd, HWND notifyWnd )
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->CreateTeacherGraph(bDisplay, displayWnd, notifyWnd);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::AddCamera( int cameraId, int comNum, int baudRate )
 {
 	if(m_pModuleFactory)
 	{
@@ -42,7 +52,7 @@ int CAPIController::AddCamera(int cameraId, int comNum, int baudRate)
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZUp()
+HRESULT CAPIController::TeacherPTZUp()
 {
 	if(m_pModuleFactory)
 	{
@@ -52,7 +62,7 @@ int CAPIController::TeacherPTZUp()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZDown()
+HRESULT CAPIController::TeacherPTZDown()
 {
 	if(m_pModuleFactory)
 	{
@@ -62,7 +72,7 @@ int CAPIController::TeacherPTZDown()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZLeft()
+HRESULT CAPIController::TeacherPTZLeft()
 {
 	if(m_pModuleFactory)
 	{
@@ -72,7 +82,7 @@ int CAPIController::TeacherPTZLeft()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZRight()
+HRESULT CAPIController::TeacherPTZRight()
 {
 	if(m_pModuleFactory)
 	{
@@ -82,7 +92,7 @@ int CAPIController::TeacherPTZRight()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZZoomIn()
+HRESULT CAPIController::TeacherPTZZoomIn()
 {
 	if(m_pModuleFactory)
 	{
@@ -92,7 +102,7 @@ int CAPIController::TeacherPTZZoomIn()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZZoomOut()
+HRESULT CAPIController::TeacherPTZZoomOut()
 {
 	if(m_pModuleFactory)
 	{
@@ -102,7 +112,7 @@ int CAPIController::TeacherPTZZoomOut()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZStop()
+HRESULT CAPIController::TeacherPTZStop()
 {
 	if(m_pModuleFactory)
 	{
@@ -112,7 +122,7 @@ int CAPIController::TeacherPTZStop()
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRight, double realLeft, double realRight )
+HRESULT CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRight, double realLeft, double realRight )
 {
 	if(m_pModuleFactory)
 	{
@@ -130,7 +140,7 @@ int CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRight, d
 	return E_FAIL;
 }
 
-int CAPIController::TeacherPTZRecallPrePos(int locId)
+HRESULT CAPIController::TeacherPTZRecallPrePos( int locId )
 {
 	if(m_pModuleFactory)
 	{
@@ -138,4 +148,45 @@ int CAPIController::TeacherPTZRecallPrePos(int locId)
 		return S_OK;
 	}
 	return E_FAIL;
+}
+
+
+HRESULT CAPIController::TeacherGraphRun()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->RunTeacherGraph();
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherGraphStop()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->StopTeacherGraph();
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherTrackingStart()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->StartTeacherTracking();
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherTrackingStop()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->StopTeacherTracking();
+	}
+	return hr;
 }

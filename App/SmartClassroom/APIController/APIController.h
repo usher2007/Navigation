@@ -17,17 +17,32 @@ class APICONTROLLER_API CAPIController {
 public:
 	static CAPIController* GetInstance();
 
-	int AddCamera(int cameraId, int comNum, int baudRate);
-	int TeacherPTZUp();
-	int TeacherPTZDown();
-	int TeacherPTZLeft();
-	int TeacherPTZRight();
-	int TeacherPTZZoomIn();
-	int TeacherPTZZoomOut();
-	int TeacherPTZStop();
+	// Teacher Part
+	HRESULT BuildTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
-	int TeacherPTZSetPrePos(int locId, int pixLeft, int pixRight, double realLeft, double realRight);
-	int TeacherPTZRecallPrePos(int id);
+	HRESULT AddCamera(int cameraId, int comNum, int baudRate);
+	HRESULT TeacherPTZUp();
+	HRESULT TeacherPTZDown();
+	HRESULT TeacherPTZLeft();
+	HRESULT TeacherPTZRight();
+	HRESULT TeacherPTZZoomIn();
+	HRESULT TeacherPTZZoomOut();
+	HRESULT TeacherPTZStop();
+
+	HRESULT TeacherPTZSetPrePos(int locId, int pixLeft, int pixRight, double realLeft, double realRight);
+	HRESULT TeacherPTZRecallPrePos(int locId);
+
+	HRESULT TeacherGraphRun();
+	HRESULT TeacherGraphStop();
+
+	HRESULT TeacherTrackingStart();
+	HRESULT TeacherTrackingStop();
+
+	// Student Part
+	HRESULT BuildStudentGraph();
+
+	// LaserPoint Part
+	HRESULT BuildLaserPointGraph();
 
 private:
 	CAPIController(void);

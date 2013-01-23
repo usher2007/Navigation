@@ -126,7 +126,7 @@ void CTSettingTab::OnBnClickedButtonsavepresetpos()
 	int locId = getIntFromCEdit(&m_ctrlEditPosId);
 	if(m_pAPIController != NULL)
 	{
-		m_pAPIController->TeacherPTZSetPrePos(locId);
+		m_pAPIController->TeacherPTZSetPrePos(locId, 0, 0, 0, 0);
 	}
 	return;
 }
