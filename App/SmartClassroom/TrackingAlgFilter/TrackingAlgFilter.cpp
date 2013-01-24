@@ -283,9 +283,11 @@ LONG CTrackingAlgFilter::GetHeight()
 STDMETHODIMP CTrackingAlgFilter::StartTracking()
 {
 	m_bTracking = TRUE;
+	return S_OK;
 }
 
 STDMETHODIMP CTrackingAlgFilter::StopTracking()
 {
 	m_bTracking = FALSE;
+	return S_FALSE;
 }

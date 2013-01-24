@@ -57,9 +57,11 @@ HRESULT CDXFilterGraphTea::BuildGraph(BOOL bDisplay)
 		m_bDisplay = bDisplay;
 
 		CComPtr<IBaseFilter> pSrc;
-		hr = CoCreateInstance(CLSID_TWCapture01, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
+		/*hr = CoCreateInstance(CLSID_TWCapture01, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
 		if(FAILED(hr)) return hr;
 		hr = m_pGraphBuilder->AddFilter(pSrc, L"TW01");
+		if(FAILED(hr)) return hr;*/
+		hr = CUtils::AddFilter2(m_pGraphBuilder, CLSID_VideoInputDeviceCategory, L"TW6802 PCI, Analog 01 Capture", &pSrc);
 		if(FAILED(hr)) return hr;
 
 		CComPtr<IBaseFilter> pTrackingAlgFilter;
