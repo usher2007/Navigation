@@ -79,7 +79,7 @@ CTMReceiverSrc::CTMReceiverSrc(LPUNKNOWN lpunk, HRESULT *phr)
 	}
 
 	m_pVideoPin = new CTMReceiverVideoOutputPin(phr, this, L"TMReceiver Video Pin");
-
+	m_pAudioPin = NULL;
 	m_paStreams[0] = m_pVideoPin;
 	m_pFileName = NULL;
 	m_bRecordStatus = FALSE;
@@ -222,12 +222,14 @@ STDMETHODIMP CTMReceiverSrc::Run(REFERENCE_TIME tStart){
 	m_pVideoPin->m_rtSampleTime = 0;
 	m_pVideoPin->m_rtPosition = 0;
 	m_pVideoPin->m_bGetAvgFrameTime = FALSE;
-
-	m_pAudioPin->m_bWorking = TRUE;
-	m_pAudioPin->m_rtFirstFrameTime = 0;
-	m_pAudioPin->m_rtSampleTime = 0;
-	m_pAudioPin->m_rtPosition = 0;
-	m_pAudioPin->m_bGetAvgFrameTime = FALSE;
+	if(m_bHasAudio)
+	{
+		m_pAudioPin->m_bWorking = TRUE;
+		m_pAudioPin->m_rtFirstFrameTime = 0;
+		m_pAudioPin->m_rtSampleTime = 0;
+		m_pAudioPin->m_rtPosition = 0;
+		m_pAudioPin->m_bGetAvgFrameTime = FALSE;
+	}
 	return CBaseFilter::Run(tStart);
 }
 
@@ -239,7 +241,6 @@ STDMETHODIMP CTMReceiverSrc::Pause(){
 STDMETHODIMP CTMReceiverSrc::Stop(){
 	CAutoLock cObjectLock(m_pLock);
 	m_pVideoPin->m_bWorking = FALSE;
-	m_pAudioPin->m_bWorking = FALSE;
 	int ret = 0;
 	{
 		CAutoLock lock(&(m_pVideoPin->m_csDecoder));
@@ -251,9 +252,12 @@ STDMETHODIMP CTMReceiverSrc::Stop(){
 	}
 	m_pVideoPin->m_rtFirstFrameTime = 0;
 	m_pVideoPin->m_rtSampleTime = 0;
-
-	m_pAudioPin->m_rtFirstFrameTime = 0;
-	m_pAudioPin->m_rtSampleTime = 0;
+	if(m_pAudioPin)
+	{
+		m_pAudioPin->m_bWorking = FALSE;
+		m_pAudioPin->m_rtFirstFrameTime = 0;
+		m_pAudioPin->m_rtSampleTime = 0;
+	}
 	return CBaseFilter::Stop();
 
 }
@@ -1142,7 +1146,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 
 	av_init_packet(&pkt);
 	int maxPktNum1 = 25;
-	int maxPktNum2 = 10;
+	int maxPktNum2 = 5;
 	while (m_queueBuffer.nb_packets > maxPktNum1)
 	{
 		while(m_queueBuffer.nb_packets > maxPktNum2)
