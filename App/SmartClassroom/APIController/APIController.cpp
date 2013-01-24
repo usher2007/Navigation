@@ -190,3 +190,23 @@ HRESULT CAPIController::TeacherTrackingStop()
 	}
 	return hr;
 }
+
+HRESULT CAPIController::TeacherSetEnvParams(double roomWidth, double cameraDistance)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetTeaEnvParams(roomWidth, cameraDistance);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherGetEnvParams(double& roomWidth, double& cameraDistance)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->GetTeaEnvParams(roomWidth, cameraDistance);
+	}
+	return hr;
+}

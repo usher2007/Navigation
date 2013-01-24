@@ -11,3 +11,9 @@ CPositionAnalyzer::CPositionAnalyzer()
 {
 	return;
 }
+
+
+HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons)
+{
+
+}

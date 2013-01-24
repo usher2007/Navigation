@@ -38,6 +38,9 @@ public:
 	HRESULT TeacherTrackingStart();
 	HRESULT TeacherTrackingStop();
 
+	HRESULT TeacherSetEnvParams(double roomWidth, double cameraDistance);
+	HRESULT TeacherGetEnvParams(double& roomWidth, double& cameraDistance);
+
 	// Student Part
 	HRESULT BuildStudentGraph();
 

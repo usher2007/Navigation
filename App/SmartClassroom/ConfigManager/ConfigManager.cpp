@@ -12,12 +12,31 @@ CConfigManager::CConfigManager()
 	return;
 }
 
-int CConfigManager::SetTeacherPresetLoc(int locId, int leftRange, int rightRange)
+HRESULT CConfigManager::SetTeacherPresetLoc( int locId, int leftRange, int rightRange )
 {
-	return -1; // NO IMP
+	LocRange tmpLoc;
+	tmpLoc.left = leftRange;
+	tmpLoc.right = rightRange;
+	m_teacherEnt.presetLocDict[locId] = tmpLoc;
+	return S_OK;
 }
 
-int CConfigManager::SetTeacherFullScreen(int locId)
+HRESULT CConfigManager::SetTeacherFullScreen( int locId )
 {
-	return -1; // NO IMP
+	m_teacherEnt.fullScreenLocId = locId;
+	return S_OK;
+}
+
+HRESULT CConfigManager::SetTeaEnvParams( double roomWidth, double cameraDistance )
+{
+	m_teacherEnt.roomWidth = roomWidth;
+	m_teacherEnt.cameraDistance = cameraDistance;
+	return S_OK;
+}
+
+HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistance)
+{
+	roomWidth = m_teacherEnt.roomWidth;
+	cameraDistance = m_teacherEnt.cameraDistance;
+	return S_OK;
 }

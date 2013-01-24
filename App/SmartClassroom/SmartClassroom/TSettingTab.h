@@ -17,6 +17,7 @@ private:
 private:
 	int getIntFromCEdit( CEdit *ctrlEdit );
 	CString getCStringFromCEdit( CEdit *ctrlEdit );
+	double getDoubleFromCEdit( CEdit *ctrlEdit);
 //System Defined
 public:
 	CTSettingTab(CWnd* pParent = NULL);   // standard constructor
@@ -41,4 +42,6 @@ public:
 	afx_msg void OnBnClickedButtonsavepresetpos();
 	CEdit m_ctrlEditPosId;
 	afx_msg void OnBnClickedButton1();
+	CEdit m_ctrlEditTeaLeftBorder;
+	CEdit m_ctrlEditTeaRightBorder;
 };

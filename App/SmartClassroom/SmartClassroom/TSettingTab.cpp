@@ -5,6 +5,7 @@
 #include "SmartClassroom.h"
 #include "TSettingTab.h"
 #include "afxdialogex.h"
+#include <iostream>
 
 
 // CTSettingTab dialog
@@ -25,6 +26,8 @@ void CTSettingTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDITPosId, m_ctrlEditPosId);
+	DDX_Control(pDX, IDC_EDITTeaLeftBorder, m_ctrlEditTeaLeftBorder);
+	DDX_Control(pDX, IDC_EDITTeaRightBorder, m_ctrlEditTeaRightBorder);
 }
 
 
@@ -124,9 +127,19 @@ void CTSettingTab::OnBnClickedButtonsavepresetpos()
 {
 	// TODO: Add your control notification handler code here
 	int locId = getIntFromCEdit(&m_ctrlEditPosId);
+	double leftBorder = getDoubleFromCEdit(&m_ctrlEditTeaLeftBorder);
+	double rightBorder = getDoubleFromCEdit(&m_ctrlEditTeaRightBorder);
+	double roomWidth = 0.0, cameraDistance = 0.0;
 	if(m_pAPIController != NULL)
 	{
-		m_pAPIController->TeacherPTZSetPrePos(locId, 0, 0, 0, 0);
+		m_pAPIController->TeacherGetEnvParams(roomWidth, cameraDistance);
+		int pixLeftBorder = 0, pixRightBorder = 0;
+		if(roomWidth != 0)
+		{
+			pixLeftBorder = leftBorder / roomWidth * 720;
+			pixRightBorder = rightBorder /  roomWidth * 720;
+		}
+		m_pAPIController->TeacherPTZSetPrePos(locId, pixLeftBorder, pixRightBorder, leftBorder, rightBorder);
 	}
 	return;
 }
@@ -159,4 +172,13 @@ CString CTSettingTab::getCStringFromCEdit( CEdit *ctrlEdit )
 	ctrlEdit->GetLine(0, param.GetBuffer(paramLen), paramLen);
 	param.ReleaseBuffer(paramLen);
 	return param;
+}
+
+double CTSettingTab::getDoubleFromCEdit(CEdit *ctrlEdit)
+{
+	double ret = 0.0;
+	CString param;
+	param = getCStringFromCEdit(ctrlEdit);
+	ret = _ttol(param);
+	return ret;
 }

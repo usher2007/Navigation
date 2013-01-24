@@ -11,22 +11,26 @@
 #endif
 
 #include <vector>
+#include "ConfigEntity.h"
 
 // This class is exported from the ConfigManager.dll
 class CONFIGMANAGER_API CConfigManager {
 public:
 	CConfigManager(void);
 	// TODO: add your methods here.
-	int SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
-	int SetTeacherFullScreen(int locId);
+	HRESULT LoadConfigFile();
+	HRESULT DumpConfigFile();
+	HRESULT SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
+	HRESULT SetTeacherFullScreen(int locId);
+	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
+	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 private:
-	typedef struct LocRange
-	{
-		int left;
-		int right;
-	} LocRange;
-	int m_fullScreenLocId;
-	std::vector<int> presetLocIds; // must be orderer
-	std::vector<LocRange> presetLocRanges; // correspond to the LocId one to one
+	HRESULT loadTeacherConfig();
+	HRESULT loadStudentConfig();
+	HRESULT loadLaserPointConfig();
+private:
+	TeacherEntity m_teacherEnt;
+	StudentEntity m_studentEnt;
+	LaserPointEntity m_laserPointEntity;
 };
 
