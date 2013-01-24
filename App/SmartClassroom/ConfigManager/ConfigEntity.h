@@ -9,6 +9,7 @@ typedef struct LocRange
 } LocRange;
 
 typedef std::map<int, LocRange> PresetLocDict;
+typedef std::map<int, LocRange>::iterator PresetLocDictIter;
 
 class TeacherEntity
 {

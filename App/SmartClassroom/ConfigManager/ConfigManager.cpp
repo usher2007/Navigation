@@ -40,3 +40,9 @@ HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistanc
 	cameraDistance = m_teacherEnt.cameraDistance;
 	return S_OK;
 }
+
+HRESULT CConfigManager::GetTeaPresetLocDict(PresetLocDict& locDict)
+{
+	locDict = m_teacherEnt.presetLocDict;
+	return S_OK;
+}

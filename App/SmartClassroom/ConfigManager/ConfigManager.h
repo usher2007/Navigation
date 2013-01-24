@@ -24,6 +24,7 @@ public:
 	HRESULT SetTeacherFullScreen(int locId);
 	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
+	HRESULT GetTeaPresetLocDict(PresetLocDict& locDict);
 private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();
