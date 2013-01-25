@@ -6,6 +6,8 @@ static const LONGLONG ONESEC = 10000000;
 static const int FPS = 25;
 static const int DEFAULT_WIDTH = 720;
 static const int DEFAULT_HEIGHT = 576;
+
+static const CRefTime Offset = ONESEC/FPS;
 DWORD ReaderProc(LPVOID pParam);
 const AMOVIESETUP_MEDIATYPE sudOpVideoPinTypes =
 {
@@ -401,6 +403,8 @@ CTMReceiverVideoOutputPin::CTMReceiverVideoOutputPin(HRESULT *phr, CTMReceiverSr
 	m_pinIntialized = FALSE;
 	m_pDecoder = NULL;
 	m_bFPSGuessed = FALSE;
+	m_rtStartForAudio = 0;
+	m_rtStopForAudio = 0;
 }
 
 CTMReceiverVideoOutputPin::~CTMReceiverVideoOutputPin()
@@ -570,6 +574,8 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 		}
 		rtStart = (pkt.pts  - m_rtFirstFrameTime)*100/9*10;
 		rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
+// FOR DEBUG
+rtStart += Offset;
 		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
 		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
 		rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
@@ -580,6 +586,12 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 		char tmp[1024];
 		sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Video! Start %lld - Stop:%lld\n", rtStart, rtStop);
 		OutputDebugStringA(tmp);
+
+		if(m_rtStartForAudio == 0)
+		{
+			m_rtStartForAudio = rtStart;
+		}
+		m_rtStopForAudio = rtStop;
 	}
 	pms->SetSyncPoint(TRUE);
 
@@ -897,7 +909,7 @@ HRESULT CTMReceiverAudioOutputPin::DecideBufferSize(IMemAllocator *pAlloc, ALLOC
 	HRESULT hr = NOERROR;
 	WAVEFORMATEX *pwi = (WAVEFORMATEX *) m_mt.Format();
 	pProperties->cBuffers = 1;
-	pProperties->cbBuffer = pwi->nSamplesPerSec;
+	pProperties->cbBuffer = pwi->nSamplesPerSec / 2;
 	pProperties->cbAlign = pwi->nBlockAlign;
 	ASSERT(pProperties->cbBuffer);
 	ALLOCATOR_PROPERTIES Actual;
@@ -1145,8 +1157,8 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	int curDataLength = 0;
 
 	av_init_packet(&pkt);
-	int maxPktNum1 = 25;
-	int maxPktNum2 = 5;
+	int maxPktNum1 = 5;
+	int maxPktNum2 = 2;
 	while (m_queueBuffer.nb_packets > maxPktNum1)
 	{
 		while(m_queueBuffer.nb_packets > maxPktNum2)
@@ -1246,8 +1258,12 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	}
 
 	rtStop = (nextPkt.pts - m_rtFirstFrameTime) * m_rtAvgTimePerPts;
+	// Sync With Video
+	rtStart = m_pRelatedVideoPin->m_rtStartForAudio - 2*Offset;
+	rtStop = m_pRelatedVideoPin->m_rtStopForAudio - 2*Offset;
+	/*rtStart = 0;
+	rtStop = 0;*/
 	HRESULT hr = pms->SetTime(&rtStart, &rtStop);
-
 	hr = pms->SetSyncPoint(TRUE);
 	// TODO:Discontinuity?
 	hr = pms->SetPreroll(FALSE);
@@ -1255,6 +1271,8 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 
 	sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Audio! Start %lld - Stop:%lld\n", rtStart, rtStop);
 	OutputDebugStringA(tmp);
+
+	m_pRelatedVideoPin->m_rtStartForAudio = 0;
 	return NOERROR;
 }
 

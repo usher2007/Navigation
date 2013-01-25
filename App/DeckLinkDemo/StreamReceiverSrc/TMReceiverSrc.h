@@ -187,6 +187,9 @@ public:
 	BOOL m_bFindKeyFrame;
 
 	PacketQueue m_queueBuffer;
+
+	CRefTime m_rtStartForAudio;
+	CRefTime m_rtStopForAudio;
 private:
 	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
 	void UpdateFromSeek();
