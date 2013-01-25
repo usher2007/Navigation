@@ -1153,6 +1153,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	pDataOrigin = pData;
 
 	BYTE *outBuffer = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
+	BYTE *outBufferOrigin = outBuffer;
 	int outBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2;
 	int curDataLength = 0;
 
@@ -1202,6 +1203,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 			{
 				sprintf(tmp," Audio Decode Bad!\n");
 				OutputDebugStringA(tmp);
+				av_free_packet(&pkt);
 				continue;
 			}
 			if(!setStart)
@@ -1229,6 +1231,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 				curDataLength = lDataLen;
 			}
 		}
+		av_free_packet(&pkt);
 	}
 
 	pms->GetPointer(&pActualPMSData);
@@ -1238,34 +1241,11 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 		memcpy(pActualPMSData, pDataOrigin, lDataLen);
 	}
 
-	while(true)
-	{
-		av_init_packet(&nextPkt);
-		int pktQueueRet = m_queueBuffer.QueryFirst(&nextPkt, 1);
-		if(pktQueueRet == 0)
-		{
-			continue;
-		}
-		if(pktQueueRet < 0)
-		{
-			return S_FALSE;
-		}
-		if(pkt.data == NULL)
-		{
-			return S_OK;
-		}
-		break;
-	}
-
-	rtStop = (nextPkt.pts - m_rtFirstFrameTime) * m_rtAvgTimePerPts;
 	// Sync With Video
 	rtStart = m_pRelatedVideoPin->m_rtStartForAudio - 2*Offset;
 	rtStop = m_pRelatedVideoPin->m_rtStopForAudio - 2*Offset;
-	/*rtStart = 0;
-	rtStop = 0;*/
 	HRESULT hr = pms->SetTime(&rtStart, &rtStop);
 	hr = pms->SetSyncPoint(TRUE);
-	// TODO:Discontinuity?
 	hr = pms->SetPreroll(FALSE);
 	hr = pms->SetActualDataLength(pms->GetSize());
 
@@ -1273,6 +1253,8 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	OutputDebugStringA(tmp);
 
 	m_pRelatedVideoPin->m_rtStartForAudio = 0;
+	delete[] outBufferOrigin;
+	delete[] pDataOrigin;
 	return NOERROR;
 }
 
