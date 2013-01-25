@@ -1242,9 +1242,10 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	}
 
 	// Sync With Video
-	rtStart = m_pRelatedVideoPin->m_rtStartForAudio - 2*Offset;
-	rtStop = m_pRelatedVideoPin->m_rtStopForAudio - 2*Offset;
-	HRESULT hr = pms->SetTime(&rtStart, &rtStop);
+	rtStart = m_pRelatedVideoPin->m_rtStartForAudio;
+	rtStop = m_pRelatedVideoPin->m_rtStopForAudio;
+	HRESULT hr = E_FAIL;
+	//hr = pms->SetTime(&rtStart, &rtStop);
 	hr = pms->SetSyncPoint(TRUE);
 	hr = pms->SetPreroll(FALSE);
 	hr = pms->SetActualDataLength(pms->GetSize());
