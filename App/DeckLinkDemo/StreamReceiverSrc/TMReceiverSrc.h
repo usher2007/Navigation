@@ -178,6 +178,7 @@ public:
 	H264Decoder *m_pDecoder;
 	BYTE *m_pData;
 	BOOL m_pinIntialized;
+	BOOL m_bDecodeSuccess;
 
 	AVFormatContext *m_fileSaverCtx;
 	AVOutputFormat *m_fileSaverFmt;
@@ -210,6 +211,7 @@ public:
 
 	STDMETHODIMP Stop();
 	STDMETHODIMP Run();
+	STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
 
 	HRESULT InitRecord(const char* fileName);
 	HRESULT StopRecord();
@@ -240,6 +242,10 @@ private:
 	CCritSec m_cSharedState;            // Lock on m_rtSampleTime and m_Ball
 	BYTE *m_remainData;
 	int m_remainDataSize;
+
+	LONGLONG m_nBytePerSec;
+	LONGLONG m_nDiffOrigin;
+	LONGLONG m_rtOffset;
 };
 
 class H264Decoder

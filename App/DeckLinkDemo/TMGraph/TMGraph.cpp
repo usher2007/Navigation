@@ -184,7 +184,7 @@ HRESULT CTMGraph::BuildFilterGraph(const char* fileName, BOOL bDisplay)
 			hr = ConnectFilters(m_pGraphBuilder, pAudioInfTee, pDecklinkAudioRenderer, MEDIATYPE_NULL);
 			if(FAILED(hr)) return hr;
 
-			//hr = ConnectFilters(m_pGraphBuilder, pSrc, pAudioRenderer, MEDIATYPE_NULL);
+			//hr = ConnectFilters(m_pGraphBuilder, pSrc, pDecklinkAudioRenderer, MEDIATYPE_NULL);
 		}
 
 		hr = SaveGraphFile(m_pGraphBuilder, L"F:\\yubo\\DecklinkDemo.grf");
