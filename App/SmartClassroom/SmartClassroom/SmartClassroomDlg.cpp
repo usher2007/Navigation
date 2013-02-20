@@ -54,7 +54,7 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	m_tabSheet.AddPage(L"¼¤¹â±Ê", &m_LSettingPage, IDD_DIALOGLSetting);*/
 	m_tabSheet.Show();
 
-	m_pAPIController->AddCamera(0, 1, 9600);
+	m_pAPIController->AddTeaCamera();
 	m_pAPIController->BuildTeacherGraph(TRUE, GetDlgItem(IDC_STATICPlayWndTea)->GetSafeHwnd(), this->GetSafeHwnd());
 	m_pAPIController->TeacherGraphRun();
 	

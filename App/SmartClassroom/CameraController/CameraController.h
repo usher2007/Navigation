@@ -9,7 +9,7 @@
 #else
 #define CAMERACONTROLLER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include <iostream>
 #include <hash_map>
 

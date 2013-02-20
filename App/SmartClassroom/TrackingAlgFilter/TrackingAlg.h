@@ -16,6 +16,7 @@ class TrackingAlg
 public:
 	TrackingAlg();
 	int Update(Mat& frame);
+	vector<Point2f> GetTrackedPerson();
 private:
 	BackgroundSubtractorMOG2 bgSubtractor;
 	PersonManager personManager;

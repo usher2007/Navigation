@@ -9,7 +9,7 @@
 #else
 #define CONFIGMANAGER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include <vector>
 #include "ConfigEntity.h"
 
@@ -25,6 +25,9 @@ public:
 	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 	HRESULT GetTeaPresetLocDict(PresetLocDict& locDict);
+	int GetTeaId();
+	int GetTeaFullScreenLocId();
+	int GetTeaPixRangeOverlap();
 private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();

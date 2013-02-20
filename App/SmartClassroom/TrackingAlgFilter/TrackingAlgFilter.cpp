@@ -161,6 +161,7 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	m_pTrackingAlg = new TrackingAlg;
 	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
 	m_bTracking = FALSE;
+	m_pPosAnalyzer = new CPositionAnalyzer;
 	namedWindow("Debug");
 }
 
@@ -254,6 +255,7 @@ HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 		sprintf(tmp, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Time Performance: %f!\n", dfTime);
 		OutputDebugStringA(tmp);
 
+		m_pPosAnalyzer->AnalyzeTeacherPositions(m_pTrackingAlg->GetTrackedPerson());
 		cv::waitKey(1);
 	}
 	return NOERROR;

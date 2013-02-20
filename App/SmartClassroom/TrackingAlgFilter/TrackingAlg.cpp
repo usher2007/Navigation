@@ -109,3 +109,8 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 	}
 	return 0;
 }
+
+vector<Point2f> TrackingAlg::GetTrackedPerson()
+{
+	return personManager.GetTrackedPersons();
+}

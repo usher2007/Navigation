@@ -33,6 +33,7 @@ public:
 	int ProcessBaryCenter(const Point2f& baryCenter);
 	int Update();
 	int DrawPersons(Mat& image);
+	vector<Point2f> GetTrackedPersons();
 private:
 	vector<Person> detectedPersons;
 	vector<Person> trackedPersons;

@@ -4,8 +4,6 @@
 #include "stdafx.h"
 #include "APIController.h"
 
-const int TEA_CAMERA_ID = 0;
-const int STU_CAMERA_ID = 1;
 
 
 // This is the constructor of a class that has been exported.
@@ -42,7 +40,7 @@ HRESULT CAPIController::BuildTeacherGraph( BOOL bDisplay, HWND displayWnd, HWND 
 	return E_FAIL;
 }
 
-HRESULT CAPIController::AddCamera( int cameraId, int comNum, int baudRate )
+HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate )
 {
 	if(m_pModuleFactory)
 	{
@@ -52,11 +50,22 @@ HRESULT CAPIController::AddCamera( int cameraId, int comNum, int baudRate )
 	return E_FAIL;
 }
 
+HRESULT CAPIController::AddTeaCamera()
+{
+	if(m_pModuleFactory)
+	{
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		return addCamera(teaId, 1, 9600);
+	}
+	return E_FAIL;
+}
+
 HRESULT CAPIController::TeacherPTZUp()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->TurnUp(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->TurnUp(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -66,7 +75,8 @@ HRESULT CAPIController::TeacherPTZDown()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->TurnDown(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->TurnDown(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -76,7 +86,8 @@ HRESULT CAPIController::TeacherPTZLeft()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->TurnLeft(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->TurnLeft(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -86,7 +97,8 @@ HRESULT CAPIController::TeacherPTZRight()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->TurnRight(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->TurnRight(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -96,7 +108,8 @@ HRESULT CAPIController::TeacherPTZZoomIn()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->ZoomIn(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->ZoomIn(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -106,7 +119,8 @@ HRESULT CAPIController::TeacherPTZZoomOut()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->ZoomOut(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->ZoomOut(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -116,7 +130,8 @@ HRESULT CAPIController::TeacherPTZStop()
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->Stop(TEA_CAMERA_ID);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->Stop(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -134,7 +149,8 @@ HRESULT CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRigh
 		{
 			m_pModuleFactory->GetConfigManager()->SetTeacherPresetLoc(locId, pixLeft, pixRight);
 		}
-		m_pModuleFactory->GetCameraController()->SetPreSetPos(TEA_CAMERA_ID, locId);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->SetPreSetPos(teaId, locId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -144,7 +160,8 @@ HRESULT CAPIController::TeacherPTZRecallPrePos( int locId )
 {
 	if(m_pModuleFactory)
 	{
-		m_pModuleFactory->GetCameraController()->RecallPreSetPos(TEA_CAMERA_ID, locId);
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->RecallPreSetPos(teaId, locId);
 		return S_OK;
 	}
 	return E_FAIL;

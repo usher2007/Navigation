@@ -20,7 +20,7 @@ public:
 	// Teacher Part
 	HRESULT BuildTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
-	HRESULT AddCamera(int cameraId, int comNum, int baudRate);
+	HRESULT AddTeaCamera();
 	HRESULT TeacherPTZUp();
 	HRESULT TeacherPTZDown();
 	HRESULT TeacherPTZLeft();
@@ -51,6 +51,8 @@ private:
 	CAPIController(void);
 	~CAPIController();
 
+	HRESULT addCamera(int cameraId, int comNum, int baudRate);
+private:
 	static CAPIController* m_pInstance;
 	CModuleFactory* m_pModuleFactory;
 	// TODO: add your methods here.

@@ -3,6 +3,7 @@
 #include <streams.h>
 #include "TrackingAlgUIDs.h"
 #include "TrackingAlg.h"
+#include "Analyzer.h"
 
 class CTrackingAlgInputPin : public CTransInPlaceInputPin
 {
@@ -77,6 +78,8 @@ private:
 
 	TrackingAlg *m_pTrackingAlg;
 	BOOL m_bTracking;
+
+	CPositionAnalyzer *m_pPosAnalyzer;
 };
 
 

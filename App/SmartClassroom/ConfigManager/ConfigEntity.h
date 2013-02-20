@@ -19,6 +19,7 @@ public:
 	double roomWidth;
 	double cameraDistance;
 	PresetLocDict presetLocDict; 
+	int pixRangeOverlap;
 };
 
 class StudentEntity

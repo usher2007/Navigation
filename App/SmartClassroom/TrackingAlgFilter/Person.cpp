@@ -220,3 +220,15 @@ int PersonManager::updateTrackedPersons()
 	return 0;
 }
 
+vector<Point2f> PersonManager::GetTrackedPersons()
+{
+	vector<Point2f> trackedPersonCenters;
+	vector<Person>::iterator personIter;
+	for(personIter=trackedPersons.begin(); personIter!=trackedPersons.end(); ++personIter)
+	{
+		trackedPersonCenters.push_back(personIter->GetBaryCenter());
+	}
+	
+	return trackedPersonCenters;
+}
+

@@ -46,3 +46,13 @@ HRESULT CConfigManager::GetTeaPresetLocDict(PresetLocDict& locDict)
 	locDict = m_teacherEnt.presetLocDict;
 	return S_OK;
 }
+
+int CConfigManager::GetTeaId()
+{
+	return m_teacherEnt.id;
+}
+
+int CConfigManager::GetTeaFullScreenLocId()
+{
+	return m_teacherEnt.fullScreenLocId;
+}

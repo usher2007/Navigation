@@ -42,6 +42,8 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONTZoomOut, &CTSettingTab::OnBnClickedButtontzoomout)
 	ON_BN_CLICKED(IDC_BUTTONSavePreSetPos, &CTSettingTab::OnBnClickedButtonsavepresetpos)
 	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTONStartTracking, &CTSettingTab::OnBnClickedButtonstarttracking)
+	ON_BN_CLICKED(IDC_BUTTONStopTracking, &CTSettingTab::OnBnClickedButtonstoptracking)
 END_MESSAGE_MAP()
 
 
@@ -144,9 +146,25 @@ void CTSettingTab::OnBnClickedButtonsavepresetpos()
 	return;
 }
 
+void CTSettingTab::OnBnClickedButtonstarttracking()
+{
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherTrackingStart();
+	}
+}
+
+void CTSettingTab::OnBnClickedButtonstoptracking()
+{
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherTrackingStop();
+	}
+}
+
 void CTSettingTab::OnBnClickedButton1()
 {
-	// TODO: Add your control notification handler code here
+	// TODO: Remove this function
 	int locId = getIntFromCEdit(&m_ctrlEditPosId);
 	if(m_pAPIController != NULL)
 	{
@@ -182,3 +200,5 @@ double CTSettingTab::getDoubleFromCEdit(CEdit *ctrlEdit)
 	ret = _ttol(param);
 	return ret;
 }
+
+
