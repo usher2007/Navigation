@@ -40,6 +40,16 @@ HRESULT CAPIController::BuildTeacherGraph( BOOL bDisplay, HWND displayWnd, HWND 
 	return E_FAIL;
 }
 
+HRESULT CAPIController::BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd)
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->CreateTeacherPTZGraph(bDisplay, displayWnd, notifyWnd);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate )
 {
 	if(m_pModuleFactory)
@@ -167,6 +177,25 @@ HRESULT CAPIController::TeacherPTZRecallPrePos( int locId )
 	return E_FAIL;
 }
 
+HRESULT CAPIController::TeacherPTZGraphRun()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->RunTeacherPTZGraph();
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherPTZGraphStop()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->StopTeacherPTZGraph();
+	}
+	return hr;
+}
 
 HRESULT CAPIController::TeacherGraphRun()
 {

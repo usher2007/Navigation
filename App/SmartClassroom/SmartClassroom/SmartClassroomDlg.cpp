@@ -56,7 +56,9 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 
 	m_pAPIController->AddTeaCamera();
 	m_pAPIController->BuildTeacherGraph(TRUE, GetDlgItem(IDC_STATICPlayWndTea)->GetSafeHwnd(), this->GetSafeHwnd());
+	m_pAPIController->BuildTeacherPTZGraph(TRUE, GetDlgItem(IDC_STATICPlayWndTeaPTZ)->GetSafeHwnd(), this->GetSafeHwnd());
 	m_pAPIController->TeacherGraphRun();
+	m_pAPIController->TeacherPTZGraphRun();
 	
 
 	return TRUE;  // return TRUE  unless you set the focus to a control

@@ -2,13 +2,13 @@
 #include "DXFilterGraphTea.h"
 #include "Utils.h"
 
-CDXFilterGraphTea::CDXFilterGraphTea()
+CDXFilterGraph::CDXFilterGraph()
 {
 	init();
 	return;
 }
 
-HRESULT CDXFilterGraphTea::init()
+HRESULT CDXFilterGraph::init()
 {
 	CoInitialize(NULL);
 	m_pGraphBuilder = NULL;
@@ -17,12 +17,11 @@ HRESULT CDXFilterGraphTea::init()
 	m_pVideoWindow = NULL;
 	m_pBasicVideo = NULL;
 	m_hDisplayWnd = NULL;
-	m_pTrackingControl = NULL;
 	m_bDisplay = FALSE;
 	return S_OK;
 }
 
-HRESULT CDXFilterGraphTea::Create()
+HRESULT CDXFilterGraph::Create()
 {
 	HRESULT hr = S_FALSE;
 
@@ -48,6 +47,125 @@ HRESULT CDXFilterGraphTea::Create()
 
 	return S_OK;
 }
+
+HRESULT CDXFilterGraph::SetDisplayWindow(HWND windowHandle)
+{
+	if(m_pVideoWindow)
+	{
+		m_pVideoWindow->put_Visible(OAFALSE);
+		m_pVideoWindow->put_Owner((OAHWND)windowHandle);
+		RECT windowRect;
+		::GetClientRect(windowHandle, &windowRect);
+		m_pVideoWindow->put_Left(0);
+		m_pVideoWindow->put_Top(0);
+		m_pVideoWindow->put_Width(windowRect.right - windowRect.left);
+		m_pVideoWindow->put_Height(windowRect.bottom - windowRect.top);
+		m_pVideoWindow->put_WindowStyle(WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS);
+		m_pVideoWindow->put_MessageDrain((OAHWND)windowHandle);
+
+		if(windowHandle != NULL)
+		{
+			m_pVideoWindow->put_Visible(OATRUE);
+		}
+		else
+		{
+			m_pVideoWindow->put_Visible(OAFALSE);
+		}
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CDXFilterGraph::SetNotifyWindow(HWND windowHandle)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pMediaEvent != NULL)
+	{
+		hr = m_pMediaEvent->SetNotifyWindow((OAHWND)windowHandle, WM_GRAPHNOTIFY, 0);
+		return hr;
+	}
+	return E_FAIL;
+}
+
+HRESULT CDXFilterGraph::Run()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pMediaControl != NULL)
+	{
+		hr = m_pMediaControl->Run();
+		return hr;
+	}
+	return E_FAIL;
+}
+
+HRESULT CDXFilterGraph::Stop()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pMediaControl != NULL)
+	{
+		hr = m_pMediaControl->Stop();
+		return hr;
+	}
+	return E_FAIL;
+}
+
+IMediaEventEx * CDXFilterGraph::GetEventHandle()
+{
+	return m_pMediaEvent;
+}
+
+HRESULT CDXFilterGraph::Destroy()
+{
+	HRESULT hr = S_OK;
+
+	m_pMediaEvent = NULL;
+	m_pVideoWindow = NULL;
+	m_pBasicVideo = NULL;
+
+	if(m_pGraphBuilder && m_pMediaControl)
+	{
+		m_pMediaControl->Stop();
+
+		CComPtr<IEnumFilters> pEnum = NULL;
+		hr = m_pGraphBuilder->EnumFilters(&pEnum);
+		if(SUCCEEDED(hr))
+		{
+			IBaseFilter *pFilter = NULL;
+			while(S_OK == pEnum->Next(1, &pFilter, NULL))
+			{
+				FILTER_INFO filterInfo;
+				if(SUCCEEDED(pFilter->QueryFilterInfo(&filterInfo)))
+				{
+					SAFE_RELEASE(filterInfo.pGraph);
+					CComPtr<IEnumPins> pIEnumPins = NULL;
+					hr = pFilter->EnumPins(&pIEnumPins);
+					if(SUCCEEDED(hr))
+					{
+						IPin *pIPin = NULL;
+						while(S_OK == pIEnumPins->Next(1, &pIPin, NULL))
+						{
+							m_pGraphBuilder->Disconnect(pIPin);
+							SAFE_RELEASE(pIPin);
+						}
+					}
+				}
+				SAFE_RELEASE(pFilter);
+			}
+		}
+	}
+	else
+	{
+		hr = S_FALSE;
+	}
+	return hr;
+}
+
+CDXFilterGraphTea::CDXFilterGraphTea()
+{
+	init();
+	return;
+}
+
 
 HRESULT CDXFilterGraphTea::BuildGraph(BOOL bDisplay)
 {
@@ -97,117 +215,6 @@ HRESULT CDXFilterGraphTea::BuildGraph(BOOL bDisplay)
 	}
 }
 
-HRESULT CDXFilterGraphTea::SetDisplayWindow(HWND windowHandle)
-{
-	if(m_pVideoWindow)
-	{
-		m_pVideoWindow->put_Visible(OAFALSE);
-		m_pVideoWindow->put_Owner((OAHWND)windowHandle);
-		RECT windowRect;
-		::GetClientRect(windowHandle, &windowRect);
-		m_pVideoWindow->put_Left(0);
-		m_pVideoWindow->put_Top(0);
-		m_pVideoWindow->put_Width(windowRect.right - windowRect.left);
-		m_pVideoWindow->put_Height(windowRect.bottom - windowRect.top);
-		m_pVideoWindow->put_WindowStyle(WS_CHILD|WS_CLIPCHILDREN|WS_CLIPSIBLINGS);
-		m_pVideoWindow->put_MessageDrain((OAHWND)windowHandle);
-
-		if(windowHandle != NULL)
-		{
-			m_pVideoWindow->put_Visible(OATRUE);
-		}
-		else
-		{
-			m_pVideoWindow->put_Visible(OAFALSE);
-		}
-		return S_OK;
-	}
-	return E_FAIL;
-}
-
-HRESULT CDXFilterGraphTea::SetNotifyWindow(HWND windowHandle)
-{
-	HRESULT hr = E_FAIL;
-	if(m_pMediaEvent != NULL)
-	{
-		hr = m_pMediaEvent->SetNotifyWindow((OAHWND)windowHandle, WM_GRAPHNOTIFY, 0);
-		return hr;
-	}
-	return E_FAIL;
-}
-
-HRESULT CDXFilterGraphTea::Run()
-{
-	HRESULT hr = E_FAIL;
-	if(m_pMediaControl != NULL)
-	{
-		hr = m_pMediaControl->Run();
-		return hr;
-	}
-	return E_FAIL;
-}
-
-HRESULT CDXFilterGraphTea::Stop()
-{
-	HRESULT hr = E_FAIL;
-	if(m_pMediaControl != NULL)
-	{
-		hr = m_pMediaControl->Stop();
-		return hr;
-	}
-	return E_FAIL;
-}
-
-IMediaEventEx * CDXFilterGraphTea::GetEventHandle()
-{
-	return m_pMediaEvent;
-}
-
-HRESULT CDXFilterGraphTea::Destroy()
-{
-	HRESULT hr = S_OK;
-
-	m_pMediaEvent = NULL;
-	m_pVideoWindow = NULL;
-	m_pBasicVideo = NULL;
-
-	if(m_pGraphBuilder && m_pMediaControl)
-	{
-		m_pMediaControl->Stop();
-
-		CComPtr<IEnumFilters> pEnum = NULL;
-		hr = m_pGraphBuilder->EnumFilters(&pEnum);
-		if(SUCCEEDED(hr))
-		{
-			IBaseFilter *pFilter = NULL;
-			while(S_OK == pEnum->Next(1, &pFilter, NULL))
-			{
-				FILTER_INFO filterInfo;
-				if(SUCCEEDED(pFilter->QueryFilterInfo(&filterInfo)))
-				{
-					SAFE_RELEASE(filterInfo.pGraph);
-					CComPtr<IEnumPins> pIEnumPins = NULL;
-					hr = pFilter->EnumPins(&pIEnumPins);
-					if(SUCCEEDED(hr))
-					{
-						IPin *pIPin = NULL;
-						while(S_OK == pIEnumPins->Next(1, &pIPin, NULL))
-						{
-							m_pGraphBuilder->Disconnect(pIPin);
-							SAFE_RELEASE(pIPin);
-						}
-					}
-				}
-				SAFE_RELEASE(pFilter);
-			}
-		}
-	}
-	else
-	{
-		hr = S_FALSE;
-	}
-	return hr;
-}
 
 HRESULT CDXFilterGraphTea::StartTracking()
 {
@@ -227,4 +234,51 @@ HRESULT CDXFilterGraphTea::StopTracking()
 		hr = m_pTrackingControl->StopTracking();
 	}
 	return hr;
+}
+
+
+// 
+// ------ Teacher PTZ Graph ------ 
+// 
+CDXFilterGraphTeaPTZ::CDXFilterGraphTeaPTZ()
+{
+	init();
+	return;
+}
+
+HRESULT CDXFilterGraphTeaPTZ::BuildGraph(BOOL bDisplay)
+{
+	HRESULT hr = S_FALSE;
+	if(m_pGraphBuilder != NULL)
+	{
+		m_bDisplay = bDisplay;
+
+		CComPtr<IBaseFilter> pSrc;
+		/*hr = CoCreateInstance(CLSID_TWCapture01, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pSrc);
+		if(FAILED(hr)) return hr;
+		hr = m_pGraphBuilder->AddFilter(pSrc, L"TW01");
+		if(FAILED(hr)) return hr;*/
+		hr = CUtils::AddFilter2(m_pGraphBuilder, CLSID_VideoInputDeviceCategory, L"TW6802 PCI, Analog 02 Capture", &pSrc);
+		if(FAILED(hr)) return hr;
+
+		CComPtr<IBaseFilter> pRenderer;
+		if(m_bDisplay)
+		{
+			hr = CoCreateInstance(CLSID_VideoRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pRenderer);
+			if(FAILED(hr)) return hr;
+		}
+		else
+		{
+			hr = CoCreateInstance(CLSID_NullRenderer,NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pRenderer);
+			if(FAILED(hr)) return hr;
+		}
+		hr = m_pGraphBuilder->AddFilter(pRenderer, L"Renderer");
+		if(FAILED(hr)) return hr;
+
+		hr = CUtils::ConnectFilters(m_pGraphBuilder, pSrc, pRenderer, MEDIATYPE_NULL);
+		if(FAILED(hr)) return hr;
+
+		//hr = CUtils::SaveGraphFile(m_pGraphBuilder, L"F:\\TMReceiver.grf");
+		return S_OK;
+	}
 }

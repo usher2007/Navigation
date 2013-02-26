@@ -16,11 +16,15 @@ class DXGRAPHMANAGER_API CDXGraphManager {
 public:
 	CDXGraphManager(void);
 	HRESULT CreateTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
+	HRESULT CreateTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 	HRESULT RunTeacherGraph();
+	HRESULT RunTeacherPTZGraph();
 	HRESULT StopTeacherGraph();
+	HRESULT StopTeacherPTZGraph();
 	HRESULT StartTeacherTracking();
 	HRESULT StopTeacherTracking();
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
+	CDXFilterGraphTeaPTZ *m_pTeacherPTZGraph;
 };
 

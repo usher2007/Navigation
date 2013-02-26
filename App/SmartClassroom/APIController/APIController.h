@@ -19,6 +19,7 @@ public:
 
 	// Teacher Part
 	HRESULT BuildTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
+	HRESULT BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
 	HRESULT AddTeaCamera();
 	HRESULT TeacherPTZUp();
@@ -31,6 +32,9 @@ public:
 
 	HRESULT TeacherPTZSetPrePos(int locId, int pixLeft, int pixRight, double realLeft, double realRight);
 	HRESULT TeacherPTZRecallPrePos(int locId);
+
+	HRESULT TeacherPTZGraphRun();
+	HRESULT TeacherPTZGraphStop();
 
 	HRESULT TeacherGraphRun();
 	HRESULT TeacherGraphStop();

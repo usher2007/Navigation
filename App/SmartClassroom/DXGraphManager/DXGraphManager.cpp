@@ -66,3 +66,39 @@ HRESULT CDXGraphManager::StopTeacherTracking()
 	}
 	return hr;
 }
+
+
+HRESULT CDXGraphManager::CreateTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd)
+{
+	HRESULT hr = S_FALSE;
+	m_pTeacherPTZGraph = new CDXFilterGraphTeaPTZ();
+	hr = m_pTeacherPTZGraph->Create();
+	if(FAILED(hr)) return hr;
+	hr = m_pTeacherPTZGraph->BuildGraph(bDisplay);
+	if(FAILED(hr)) return hr;
+	hr = m_pTeacherPTZGraph->SetDisplayWindow(displayWnd);
+	if(FAILED(hr)) return hr;
+	hr = m_pTeacherPTZGraph->SetNotifyWindow(notifyWnd);
+	if(FAILED(hr)) return hr;
+	return S_OK;
+}
+
+HRESULT CDXGraphManager::RunTeacherPTZGraph()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTeacherPTZGraph)
+	{
+		hr = m_pTeacherPTZGraph->Run();
+	}
+	return hr;
+}
+
+HRESULT CDXGraphManager::StopTeacherPTZGraph()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTeacherPTZGraph)
+	{
+		hr = m_pTeacherPTZGraph->Stop();
+	}
+	return hr;
+}
