@@ -1,3 +1,4 @@
+#pragma once
 #include <initguid.h>
 
 // {A31E6B72-C03B-42EE-BFDD-774F9A905984}

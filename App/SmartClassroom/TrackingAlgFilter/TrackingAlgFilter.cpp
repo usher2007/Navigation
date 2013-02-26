@@ -6,6 +6,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
+#include "Analyzer.h"
+
 const LONG DEFAULT_WIDTH = 720;
 const LONG DEFUALT_HEIGHT = 576;
 
@@ -161,7 +163,7 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	m_pTrackingAlg = new TrackingAlg;
 	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
 	m_bTracking = FALSE;
-	m_pPosAnalyzer = new CPositionAnalyzer;
+	m_pPosAnalyzer = (void *)(new CPositionAnalyzer);
 	namedWindow("Debug");
 }
 
@@ -255,7 +257,7 @@ HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 		sprintf(tmp, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Time Performance: %f!\n", dfTime);
 		OutputDebugStringA(tmp);
 
-		m_pPosAnalyzer->AnalyzeTeacherPositions(m_pTrackingAlg->GetTrackedPerson());
+		((CPositionAnalyzer *)m_pPosAnalyzer)->AnalyzeTeacherPositions(m_pTrackingAlg->GetTrackedPerson());
 		cv::waitKey(1);
 	}
 	return NOERROR;

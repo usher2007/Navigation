@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Analyzer.h"
+#include "ModuleFactory.h"
 #include "CameraController.h"
 #include "ConfigManager.h"
 
@@ -10,29 +11,30 @@
 // see Analyzer.h for the class definition
 CPositionAnalyzer::CPositionAnalyzer()
 {
+	m_pModuleFactory = CModuleFactory::GetInstance();
 	return;
 }
 
 
 HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons)
 {
-	int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
-	int teaFullScreenId = m_pModuleFactory->GetConfigManager()->GetTeaFullScreenLocId();
+	int teaId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaId();
+	int teaFullScreenId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaFullScreenLocId();
 	if(trackedPersons.empty())
 	{
 		return S_FALSE;
 	}
 	else if(trackedPersons.size() > 1)
 	{
-		m_pModuleFactory->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
+		((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
 		return S_OK;
 	}
 	else
 	{
 		PresetLocDict teaPresetLocDict;
 		PresetLocDictIter teaPresetLocDictIter;
-		m_pModuleFactory->GetConfigManager()->GetTeaPresetLocDict(teaPresetLocDict);
-		int rangeOverlap = m_pModuleFactory->GetConfigManager()->GetTeaPixRangeOverlap();
+		((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaPresetLocDict(teaPresetLocDict);
+		int rangeOverlap = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaPixRangeOverlap();
 		for(teaPresetLocDictIter=teaPresetLocDict.begin(); teaPresetLocDictIter!=teaPresetLocDict.end(); ++teaPresetLocDictIter)
 		{
 			if(trackedPersons[0].x >= teaPresetLocDictIter->second.left && trackedPersons[0].x < teaPresetLocDictIter->second.right)
@@ -64,7 +66,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 						}
 					}
 				}
-				m_pModuleFactory->GetCameraController()->RecallPreSetPos(teaId, locId);
+				((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, locId);
 				return S_OK;
 			}
 		}

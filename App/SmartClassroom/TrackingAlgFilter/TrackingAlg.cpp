@@ -11,6 +11,8 @@ int TrackingAlg::Update(Mat& frame)
 	if(frame.empty())
 		return -1;
 
+	int res;
+
 	if(frameIndex == 0)
 	{
 		bgSubtractor(frame, gbmForeground, Utility::GBM_LEARNING_RATE);
@@ -30,17 +32,20 @@ int TrackingAlg::Update(Mat& frame)
 
 	gbmForeground = gbmForeground/255;
 	vector<Point2f> baryCenters;
-	CalcImageBaryCenters(gbmForeground, baryCenters);
-	vector<Point2f>::iterator centerIter;
-	personManager.ResetAllPersonStatus();
-
-	for(centerIter=baryCenters.begin(); centerIter!=baryCenters.end(); ++centerIter)
+	res = CalcImageBaryCenters(gbmForeground, baryCenters);
+	if(res >= 0)
 	{
-		personManager.ProcessBaryCenter(*centerIter);
+		vector<Point2f>::iterator centerIter;
+		personManager.ResetAllPersonStatus();
+
+		for(centerIter=baryCenters.begin(); centerIter!=baryCenters.end(); ++centerIter)
+		{
+			personManager.ProcessBaryCenter(*centerIter);
+
+		}
+		personManager.Update();
 
 	}
-	personManager.Update();
-
 	rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0));
 	rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255));
 
@@ -66,6 +71,10 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 		{
 			foreCandidates.push_back(j);
 		}
+	}
+	if(foreCandidates.empty())
+	{
+		return -1;
 	}
 	vector<int>::iterator it = foreCandidates.begin();
 	int lastIndex = *it;

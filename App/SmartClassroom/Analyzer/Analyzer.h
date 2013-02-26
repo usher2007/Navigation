@@ -10,7 +10,6 @@
 #define ANALYZER_API __declspec(dllimport)
 #endif
 
-#include "ModuleFactory.h"
 #include <vector>
 #include "opencv2/highgui/highgui.hpp"
 using namespace cv;
@@ -22,6 +21,6 @@ public:
 	HRESULT AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons);
 
 private:
-	CModuleFactory * m_pModuleFactory;
+	void * m_pModuleFactory;
 };
 

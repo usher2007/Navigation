@@ -42,6 +42,8 @@ public:
 	afx_msg void OnBnClickedButtonsavepresetpos();
 	CEdit m_ctrlEditPosId;
 	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButtonstarttracking();
+	afx_msg void OnBnClickedButtonstoptracking();
 	CEdit m_ctrlEditTeaLeftBorder;
 	CEdit m_ctrlEditTeaRightBorder;
 };

@@ -9,6 +9,12 @@
 // see ConfigManager.h for the class definition
 CConfigManager::CConfigManager()
 {
+	m_teacherEnt.id = 0;
+	m_teacherEnt.fullScreenLocId = 0;
+	m_teacherEnt.pixRangeOverlap = 20;
+
+	m_studentEnt.id = 1;
+	m_laserPointEnt.id = 1;
 	return;
 }
 
@@ -55,4 +61,9 @@ int CConfigManager::GetTeaId()
 int CConfigManager::GetTeaFullScreenLocId()
 {
 	return m_teacherEnt.fullScreenLocId;
+}
+
+int CConfigManager::GetTeaPixRangeOverlap()
+{
+	return m_teacherEnt.pixRangeOverlap;
 }

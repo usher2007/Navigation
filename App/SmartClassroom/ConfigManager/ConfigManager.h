@@ -35,6 +35,6 @@ private:
 private:
 	TeacherEntity m_teacherEnt;
 	StudentEntity m_studentEnt;
-	LaserPointEntity m_laserPointEntity;
+	LaserPointEntity m_laserPointEnt;
 };
 
