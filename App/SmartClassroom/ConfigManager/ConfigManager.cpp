@@ -12,6 +12,8 @@ CConfigManager::CConfigManager()
 	m_teacherEnt.id = 0;
 	m_teacherEnt.fullScreenLocId = 0;
 	m_teacherEnt.pixRangeOverlap = 20;
+	m_teacherEnt.roomWidth = 6.0;
+	m_teacherEnt.cameraDistance = 3.0;
 
 	m_studentEnt.id = 1;
 	m_laserPointEnt.id = 1;
@@ -49,7 +51,12 @@ HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistanc
 
 HRESULT CConfigManager::GetTeaPresetLocDict(PresetLocDict& locDict)
 {
-	locDict = m_teacherEnt.presetLocDict;
+	locDict.clear();
+	PresetLocDictIter pIter = m_teacherEnt.presetLocDict.begin();
+	for(; pIter!=m_teacherEnt.presetLocDict.end(); ++pIter)
+	{
+		locDict[pIter->first] = pIter->second;
+	}
 	return S_OK;
 }
 
