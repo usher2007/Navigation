@@ -21,6 +21,6 @@ ITrackingControl : public IUnknown
 {
 public:
 	//²¶»ñÍ¼Æ¬µÄÃüÁî
-	virtual HRESULT STDMETHODCALLTYPE StartTracking() = 0;
+	virtual HRESULT STDMETHODCALLTYPE StartTracking(BOOL bShowTrackingRes) = 0;
 	virtual HRESULT STDMETHODCALLTYPE StopTracking() = 0;
 };

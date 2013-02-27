@@ -17,11 +17,13 @@ public:
 	TrackingAlg();
 	int Update(Mat& frame);
 	vector<Point2f> GetTrackedPerson();
+	HRESULT SetShowTracking(BOOL bShowTracking);
 private:
 	BackgroundSubtractorMOG2 bgSubtractor;
 	PersonManager personManager;
 	int frameIndex;
 	Mat gbmForeground;
+	BOOL bShowTrackingResult;
 
 private:
 	int CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCenters);

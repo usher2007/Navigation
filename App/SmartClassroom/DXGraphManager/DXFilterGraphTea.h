@@ -48,7 +48,7 @@ public:
 	//
 	// --- ITrackingControl Interface --
 	//
-	HRESULT StartTracking();
+	HRESULT StartTracking(BOOL bShowTrackingRes);
 	HRESULT StopTracking();
 
 private:

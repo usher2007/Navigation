@@ -47,12 +47,12 @@ HRESULT CDXGraphManager::StopTeacherGraph()
 	return hr;
 }
 
-HRESULT CDXGraphManager::StartTeacherTracking()
+HRESULT CDXGraphManager::StartTeacherTracking(BOOL bShowTrackingRes)
 {
 	HRESULT hr = E_FAIL;
 	if(m_pTeacherGraph)
 	{
-		hr = m_pTeacherGraph->StartTracking();
+		hr = m_pTeacherGraph->StartTracking(bShowTrackingRes);
 	}
 	return hr;
 }

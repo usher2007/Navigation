@@ -45,6 +45,8 @@ public:
 	HRESULT TeacherSetEnvParams(double roomWidth, double cameraDistance);
 	HRESULT TeacherGetEnvParams(double& roomWidth, double& cameraDistance);
 
+	HRESULT TeacherSetShowTracking(BOOL bShowTracking);
+
 	// Student Part
 	HRESULT BuildStudentGraph();
 

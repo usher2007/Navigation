@@ -23,11 +23,13 @@ public:
 	HRESULT SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
 	HRESULT SetTeacherFullScreen(int locId);
 	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
+	HRESULT SetTeaShowTracking(BOOL bShowTracking);
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 	HRESULT GetTeaPresetLocDict(PresetLocDict& locDict);
 	int GetTeaId();
 	int GetTeaFullScreenLocId();
 	int GetTeaPixRangeOverlap();
+	BOOL IsTeaShowTracking();
 private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();

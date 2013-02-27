@@ -216,12 +216,12 @@ HRESULT CDXFilterGraphTea::BuildGraph(BOOL bDisplay)
 }
 
 
-HRESULT CDXFilterGraphTea::StartTracking()
+HRESULT CDXFilterGraphTea::StartTracking(BOOL bShowTrackingRes)
 {
 	HRESULT hr = E_FAIL;
 	if(m_pTrackingControl)
 	{
-		hr = m_pTrackingControl->StartTracking();
+		hr = m_pTrackingControl->StartTracking(bShowTrackingRes);
 	}
 	return hr;
 }

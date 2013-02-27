@@ -14,6 +14,7 @@ CConfigManager::CConfigManager()
 	m_teacherEnt.pixRangeOverlap = 20;
 	m_teacherEnt.roomWidth = 6.0;
 	m_teacherEnt.cameraDistance = 3.0;
+	m_teacherEnt.bShowTracking = FALSE;
 
 	m_studentEnt.id = 1;
 	m_laserPointEnt.id = 1;
@@ -39,6 +40,12 @@ HRESULT CConfigManager::SetTeaEnvParams( double roomWidth, double cameraDistance
 {
 	m_teacherEnt.roomWidth = roomWidth;
 	m_teacherEnt.cameraDistance = cameraDistance;
+	return S_OK;
+}
+
+HRESULT CConfigManager::SetTeaShowTracking(BOOL bShowTracking)
+{
+	m_teacherEnt.bShowTracking = bShowTracking;
 	return S_OK;
 }
 
@@ -73,4 +80,9 @@ int CConfigManager::GetTeaFullScreenLocId()
 int CConfigManager::GetTeaPixRangeOverlap()
 {
 	return m_teacherEnt.pixRangeOverlap;
+}
+
+BOOL CConfigManager::IsTeaShowTracking()
+{
+	return m_teacherEnt.bShowTracking;
 }

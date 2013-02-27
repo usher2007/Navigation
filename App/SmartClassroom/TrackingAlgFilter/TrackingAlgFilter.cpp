@@ -164,7 +164,6 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
 	m_bTracking = FALSE;
 	m_pPosAnalyzer = (void *)(new CPositionAnalyzer);
-	namedWindow("Debug");
 }
 
 CUnknown * WINAPI CTrackingAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -247,7 +246,6 @@ HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 
 		int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
 		cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
-		imshow("Debug", img);
 		m_pTrackingAlg->Update(img);
 
 		QueryPerformanceCounter((LARGE_INTEGER *)&T2);
@@ -284,8 +282,9 @@ LONG CTrackingAlgFilter::GetHeight()
 	return m_biHeight > 0 ? m_biHeight : DEFUALT_HEIGHT;
 }
 
-STDMETHODIMP CTrackingAlgFilter::StartTracking()
+STDMETHODIMP CTrackingAlgFilter::StartTracking(BOOL bShowTrackingRes)
 {
+	m_pTrackingAlg->SetShowTracking(bShowTrackingRes);
 	m_bTracking = TRUE;
 	return S_OK;
 }

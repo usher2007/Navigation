@@ -10,6 +10,6 @@ DEFINE_GUID(IID_ITrackingControl,
 	0x194e38fa, 0xa8b6, 0x4208, 0xa7, 0x2d, 0x82, 0xaf, 0x19, 0x1b, 0xa7, 0xd4);
 DECLARE_INTERFACE_(ITrackingControl, IUnknown)
 {
-	STDMETHOD(StartTracking)(THIS_ )PURE;
+	STDMETHOD(StartTracking)(THIS_ BOOL bShowTrackingRes)PURE;
 	STDMETHOD(StopTracking)(THIS_)PURE;
 };

@@ -20,6 +20,7 @@ public:
 	double cameraDistance;
 	PresetLocDict presetLocDict; 
 	int pixRangeOverlap;
+	BOOL bShowTracking;
 };
 
 class StudentEntity

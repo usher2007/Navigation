@@ -5,6 +5,7 @@
 #include "SmartClassroom.h"
 #include "TSettingTab.h"
 #include "afxdialogex.h"
+#include "resource.h"
 #include <iostream>
 
 
@@ -41,7 +42,7 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONTZoomIn, &CTSettingTab::OnBnClickedButtontzoomin)
 	ON_BN_CLICKED(IDC_BUTTONTZoomOut, &CTSettingTab::OnBnClickedButtontzoomout)
 	ON_BN_CLICKED(IDC_BUTTONSavePreSetPos, &CTSettingTab::OnBnClickedButtonsavepresetpos)
-	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButtonRecall)
 	ON_BN_CLICKED(IDC_BUTTONStartTracking, &CTSettingTab::OnBnClickedButtonstarttracking)
 	ON_BN_CLICKED(IDC_BUTTONStopTracking, &CTSettingTab::OnBnClickedButtonstoptracking)
 END_MESSAGE_MAP()
@@ -49,7 +50,20 @@ END_MESSAGE_MAP()
 
 // CTSettingTab message handlers
 
+BOOL CTSettingTab::OnInitDialog()
+{
+	CDialog::OnInitDialog();
 
+	// Set the icon for this dialog.  The framework does this automatically
+	//  when the application's main window is not a dialog
+	SetIcon(m_hIcon, TRUE);			// Set big icon
+	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	// TODO: Add extra initialization here
+	((CButton *)GetDlgItem(IDC_CHECKShowTracking))->SetCheck(BST_CHECKED);
+
+	return TRUE;  // return TRUE  unless you set the focus to a control
+}
 void CTSettingTab::OnBnClickedButtontup()
 {
 	// TODO: Add your control notification handler code here
@@ -150,6 +164,8 @@ void CTSettingTab::OnBnClickedButtonstarttracking()
 {
 	if(m_pAPIController != NULL)
 	{
+		BOOL bShowTracking = (BST_CHECKED == IsDlgButtonChecked(IDC_CHECKShowTracking));
+		m_pAPIController->TeacherSetShowTracking(bShowTracking);
 		m_pAPIController->TeacherTrackingStart();
 	}
 }
@@ -162,7 +178,7 @@ void CTSettingTab::OnBnClickedButtonstoptracking()
 	}
 }
 
-void CTSettingTab::OnBnClickedButton1()
+void CTSettingTab::OnBnClickedButtonRecall()
 {
 	// TODO: Remove this function
 	int locId = getIntFromCEdit(&m_ctrlEditPosId);

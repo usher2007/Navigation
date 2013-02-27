@@ -222,7 +222,8 @@ HRESULT CAPIController::TeacherTrackingStart()
 	HRESULT hr = E_FAIL;
 	if(m_pModuleFactory)
 	{
-		hr = m_pModuleFactory->GetGraphManager()->StartTeacherTracking();
+		BOOL bShowTracking = m_pModuleFactory->GetConfigManager()->IsTeaShowTracking();
+		hr = m_pModuleFactory->GetGraphManager()->StartTeacherTracking(bShowTracking);
 	}
 	return hr;
 }
@@ -253,6 +254,16 @@ HRESULT CAPIController::TeacherGetEnvParams(double& roomWidth, double& cameraDis
 	if(m_pModuleFactory)
 	{
 		hr = m_pModuleFactory->GetConfigManager()->GetTeaEnvParams(roomWidth, cameraDistance);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherSetShowTracking(BOOL bShowTracking)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetTeaShowTracking(bShowTracking);
 	}
 	return hr;
 }

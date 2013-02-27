@@ -27,8 +27,9 @@ public:
 	enum { IDD = IDD_DIALOGTSetting };
 
 protected:
+	HICON m_hIcon;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
+	virtual BOOL OnInitDialog();
 	DECLARE_MESSAGE_MAP()
 public:
 //	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
@@ -41,7 +42,7 @@ public:
 	afx_msg void OnBnClickedButtontzoomout();
 	afx_msg void OnBnClickedButtonsavepresetpos();
 	CEdit m_ctrlEditPosId;
-	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButtonRecall();
 	afx_msg void OnBnClickedButtonstarttracking();
 	afx_msg void OnBnClickedButtonstoptracking();
 	CEdit m_ctrlEditTeaLeftBorder;

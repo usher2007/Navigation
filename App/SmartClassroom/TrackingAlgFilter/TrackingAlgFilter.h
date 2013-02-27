@@ -57,7 +57,7 @@ public:
 	//
 	// --- ITrackingControl Implement --
 	//
-	STDMETHODIMP StartTracking();
+	STDMETHODIMP StartTracking(BOOL bShowTrackingRes);
 	STDMETHODIMP StopTracking();
 
 private:

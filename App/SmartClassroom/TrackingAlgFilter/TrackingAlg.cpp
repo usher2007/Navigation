@@ -4,6 +4,7 @@
 TrackingAlg::TrackingAlg()
 {
 	frameIndex = 0;
+	bShowTrackingResult = FALSE;
 }
 
 int TrackingAlg::Update(Mat& frame)
@@ -46,11 +47,13 @@ int TrackingAlg::Update(Mat& frame)
 		personManager.Update();
 
 	}
-	rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0));
-	rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255));
+	if(bShowTrackingResult)
+	{
+		rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
+		rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
 
-	personManager.DrawPersons(frame);
-
+		personManager.DrawPersons(frame);
+	}
 	frameIndex ++;
 }
 
@@ -122,4 +125,10 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 vector<Point2f> TrackingAlg::GetTrackedPerson()
 {
 	return personManager.GetTrackedPersons();
+}
+
+HRESULT TrackingAlg::SetShowTracking(BOOL bShowTracking)
+{
+	this->bShowTrackingResult = bShowTracking;
+	return S_OK;
 }

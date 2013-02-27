@@ -21,7 +21,7 @@ public:
 	HRESULT RunTeacherPTZGraph();
 	HRESULT StopTeacherGraph();
 	HRESULT StopTeacherPTZGraph();
-	HRESULT StartTeacherTracking();
+	HRESULT StartTeacherTracking(BOOL bShowTrackingRes);
 	HRESULT StopTeacherTracking();
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
