@@ -15,8 +15,8 @@ namespace Utility
 	const int DISAPPEAR_FRAME_THRESH = 10;
 	const int LEAST_HUMAN_GAP = 50;
 	const int HUMAN_WIDTH = 30;
-	const int CENTER_WEIGHT_THRESH = 10;
-	const int TRACK_INTERVAL = 1;
+	const int CENTER_WEIGHT_THRESH = 25;
+	const int TRACK_INTERVAL = 2;
 	const int FG_LOW_THRESH = 128;
 	const int FG_UP_THRESH = 255;
 	const double GBM_LEARNING_RATE = 0.01;

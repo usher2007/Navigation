@@ -31,11 +31,11 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 	}
 	else
 	{
-		PresetLocDict teaPresetLocDict;
+		PresetLocDict * teaPresetLocDict = NULL;
 		PresetLocDictIter teaPresetLocDictIter;
-		((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaPresetLocDict(teaPresetLocDict);
+		((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaPresetLocDict(&teaPresetLocDict);
 		int rangeOverlap = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaPixRangeOverlap();
-		for(teaPresetLocDictIter=teaPresetLocDict.begin(); teaPresetLocDictIter!=teaPresetLocDict.end(); ++teaPresetLocDictIter)
+		for(teaPresetLocDictIter=teaPresetLocDict->begin(); teaPresetLocDictIter!=teaPresetLocDict->end(); ++teaPresetLocDictIter)
 		{
 			if(trackedPersons[0].x >= teaPresetLocDictIter->second.left && trackedPersons[0].x < teaPresetLocDictIter->second.right)
 			{
@@ -44,7 +44,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 				{
 					//Find the previous range
 					PresetLocDictIter prev;
-					for(prev=teaPresetLocDict.begin(); prev!=teaPresetLocDict.end(); ++prev)
+					for(prev=teaPresetLocDict->begin(); prev!=teaPresetLocDict->end(); ++prev)
 					{
 						if(teaPresetLocDictIter->second.left > prev->second.left &&
 							teaPresetLocDictIter->second.left < prev->second.right)
@@ -57,7 +57,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 				{
 					//Find the afterward range
 					PresetLocDictIter after;
-					for(after=teaPresetLocDict.begin(); after!=teaPresetLocDict.end(); ++after)
+					for(after=teaPresetLocDict->begin(); after!=teaPresetLocDict->end(); ++after)
 					{
 						if(teaPresetLocDictIter->second.right > after->second.left &&
 							teaPresetLocDictIter->second.right < after->second.right)

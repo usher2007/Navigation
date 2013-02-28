@@ -25,7 +25,7 @@ public:
 	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
 	HRESULT SetTeaShowTracking(BOOL bShowTracking);
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
-	HRESULT GetTeaPresetLocDict(PresetLocDict& locDict);
+	HRESULT GetTeaPresetLocDict(PresetLocDict** locDict);
 	int GetTeaId();
 	int GetTeaFullScreenLocId();
 	int GetTeaPixRangeOverlap();

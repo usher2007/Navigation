@@ -56,14 +56,15 @@ HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistanc
 	return S_OK;
 }
 
-HRESULT CConfigManager::GetTeaPresetLocDict(PresetLocDict& locDict)
+HRESULT CConfigManager::GetTeaPresetLocDict( PresetLocDict** locDict )
 {
-	locDict.clear();
-	PresetLocDictIter pIter = m_teacherEnt.presetLocDict.begin();
+	//locDict.clear();
+	/*PresetLocDictIter pIter = m_teacherEnt.presetLocDict.begin();
 	for(; pIter!=m_teacherEnt.presetLocDict.end(); ++pIter)
 	{
 		locDict[pIter->first] = pIter->second;
-	}
+	}*/
+	*locDict = &m_teacherEnt.presetLocDict;
 	return S_OK;
 }
 

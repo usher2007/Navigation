@@ -25,6 +25,13 @@ int TrackingAlg::Update(Mat& frame)
 	if(frameIndex%Utility::TRACK_INTERVAL != 0)
 	{
 		frameIndex++;
+		if(bShowTrackingResult)
+		{
+			rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
+			rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
+
+			personManager.DrawPersons(frame);
+		}
 		return 0;
 	}
 
