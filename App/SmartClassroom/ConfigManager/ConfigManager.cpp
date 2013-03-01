@@ -9,16 +9,21 @@
 // see ConfigManager.h for the class definition
 CConfigManager::CConfigManager()
 {
-	m_teacherEnt.id = 0;
-	m_teacherEnt.fullScreenLocId = 0;
-	m_teacherEnt.pixRangeOverlap = 20;
-	m_teacherEnt.roomWidth = 6.0;
-	m_teacherEnt.cameraDistance = 3.0;
-	m_teacherEnt.bShowTracking = FALSE;
+	LoadConfigFile();
 
 	m_studentEnt.id = 1;
 	m_laserPointEnt.id = 1;
 	return;
+}
+
+HRESULT CConfigManager::LoadConfigFile()
+{
+	HRESULT hr = loadTeacherConfig();
+	if(FAILED(hr))
+	{
+
+	}
+	return S_OK;
 }
 
 HRESULT CConfigManager::SetTeacherPresetLoc( int locId, int leftRange, int rightRange )
@@ -86,4 +91,26 @@ int CConfigManager::GetTeaPixRangeOverlap()
 BOOL CConfigManager::IsTeaShowTracking()
 {
 	return m_teacherEnt.bShowTracking;
+}
+
+HRESULT CConfigManager::loadTeacherConfig()
+{
+	m_teacherEnt.id = 0;
+	m_teacherEnt.fullScreenLocId = 0;
+	m_teacherEnt.pixRangeOverlap = 20;
+	m_teacherEnt.roomWidth = 6.0;
+	m_teacherEnt.cameraDistance = 3.0;
+	m_teacherEnt.bShowTracking = FALSE;
+
+	LocRange tmpRange;
+	tmpRange.left = 0;
+	tmpRange.right = 252;
+	m_teacherEnt.presetLocDict[1] = tmpRange;
+	tmpRange.left = 190;
+	tmpRange.right = 408;
+	m_teacherEnt.presetLocDict[2] = tmpRange;
+	tmpRange.left = 365;
+	tmpRange.right = 720;
+	m_teacherEnt.presetLocDict[3] = tmpRange;
+	return S_OK;
 }

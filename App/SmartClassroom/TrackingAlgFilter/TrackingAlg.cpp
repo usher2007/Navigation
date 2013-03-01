@@ -29,7 +29,10 @@ int TrackingAlg::Update(Mat& frame)
 		{
 			rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
 			rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
-
+			rectangle(frame, Utility::PAD_AREA_1, Scalar(0,255,0), 3);
+			rectangle(frame, Utility::PAD_AREA_2, Scalar(0,255,0), 3);
+			rectangle(frame, Utility::PAD_AREA_3, Scalar(0,255,0), 3);
+			rectangle(frame, Utility::PAD_AREA_4, Scalar(0,255,0), 3);
 			personManager.DrawPersons(frame);
 		}
 		return 0;
@@ -58,6 +61,10 @@ int TrackingAlg::Update(Mat& frame)
 	{
 		rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
 		rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
+		rectangle(frame, Utility::PAD_AREA_1, Scalar(0,255,0), 3);
+		rectangle(frame, Utility::PAD_AREA_2, Scalar(0,255,0), 3);
+		rectangle(frame, Utility::PAD_AREA_3, Scalar(0,255,0), 3);
+		rectangle(frame, Utility::PAD_AREA_4, Scalar(0,255,0), 3);
 
 		personManager.DrawPersons(frame);
 	}

@@ -21,4 +21,10 @@ namespace Utility
 	const int FG_UP_THRESH = 255;
 	const double GBM_LEARNING_RATE = 0.01;
 	const double FG_HIST_THRESH = 2;
+
+	//For Debug
+	const Rect PAD_AREA_1(190, 120, 20, 300);
+	const Rect PAD_AREA_2(232, 120, 20, 300);
+	const Rect PAD_AREA_3(365, 120, 20, 300);
+	const Rect PAD_AREA_4(408, 120, 20, 300);
 }

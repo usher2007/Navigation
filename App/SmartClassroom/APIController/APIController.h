@@ -58,6 +58,7 @@ private:
 	~CAPIController();
 
 	HRESULT addCamera(int cameraId, int comNum, int baudRate);
+	HRESULT restoreCameraPresetLoc(int cameraId);
 private:
 	static CAPIController* m_pInstance;
 	CModuleFactory* m_pModuleFactory;

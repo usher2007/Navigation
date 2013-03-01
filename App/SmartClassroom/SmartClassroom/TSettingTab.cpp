@@ -213,7 +213,7 @@ double CTSettingTab::getDoubleFromCEdit(CEdit *ctrlEdit)
 	double ret = 0.0;
 	CString param;
 	param = getCStringFromCEdit(ctrlEdit);
-	ret = _ttol(param);
+	ret = _ttof(param);
 	return ret;
 }
 
