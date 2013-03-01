@@ -12,6 +12,7 @@
 CPositionAnalyzer::CPositionAnalyzer()
 {
 	m_pModuleFactory = CModuleFactory::GetInstance();
+	m_nPrevLocId = 0;
 	return;
 }
 
@@ -66,7 +67,11 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 						}
 					}
 				}
-				((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, locId);
+				if(m_nPrevLocId != locId)
+				{
+					((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, locId);
+					m_nPrevLocId = locId;
+				}
 				return S_OK;
 			}
 		}

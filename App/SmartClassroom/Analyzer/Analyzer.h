@@ -22,5 +22,6 @@ public:
 
 private:
 	void * m_pModuleFactory;
+	int m_nPrevLocId;
 };
 
