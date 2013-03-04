@@ -294,3 +294,71 @@ STDMETHODIMP CTrackingAlgFilter::StopTracking()
 	m_bTracking = FALSE;
 	return S_FALSE;
 }
+
+STDMETHODIMP CTrackingAlgFilter::ConfigTrackingArea(int beginX, int beginY, int beginWidth, int beginHeight, 
+	                                                int stopX, int stopY, int stopWidth, int stopHeight)
+{
+	if(beginX >= 0 && beginY >= 0 && beginWidth > 0 && stopHeight > 0)
+	{
+		TrackingConfig::BEGIN_TRACKING_AREA = Rect(beginX, beginY, beginWidth, beginHeight);
+	}
+	if(stopX >= 0 && stopY >= 0 && stopWidth > 0 && stopHeight > 0)
+	{
+		TrackingConfig::STOP_TRACKING_AREA = Rect(stopX, stopY, stopWidth, stopHeight);
+	}
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigHuman(int leastHumanGap, int humanWidth)
+{
+	if(leastHumanGap > 0)
+	{
+		TrackingConfig::LEAST_HUMAN_GAP = leastHumanGap;
+	}
+	if(humanWidth > 0)
+	{
+		TrackingConfig::HUMAN_WIDTH = humanWidth;
+	}
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigVariousThresh(int disappearFrameThresh, int centerWeightThresh, 
+	                                                 int fgLowThresh, int fgHighThresh, double fgHistThresh)
+{
+	if(disappearFrameThresh > 0)
+	{
+		TrackingConfig::DISAPPEAR_FRAME_THRESH = disappearFrameThresh;
+	}
+	if(centerWeightThresh > 0)
+	{
+		TrackingConfig::CENTER_WEIGHT_THRESH = centerWeightThresh;
+	}
+	if(fgLowThresh > 0)
+	{
+		TrackingConfig::FG_LOW_THRESH = fgLowThresh;
+	}
+	if(fgHighThresh > 0)
+	{
+		TrackingConfig::FG_UP_THRESH = fgHighThresh;
+	}
+	if(fgHistThresh > 0)
+	{
+		TrackingConfig::FG_HIST_THRESH = fgHistThresh;
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigMiscellaneous(double gbmLearningRate, int trackInterval)
+{
+	if(gbmLearningRate > 0)
+	{
+		TrackingConfig::GBM_LEARNING_RATE = gbmLearningRate;
+	}
+	if(trackInterval > 0)
+	{
+		TrackingConfig::TRACK_INTERVAL = trackInterval;
+	}
+
+	return S_OK;
+}

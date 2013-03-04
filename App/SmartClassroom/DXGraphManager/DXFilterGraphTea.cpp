@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DXFilterGraphTea.h"
 #include "Utils.h"
+#include "ModuleFactory.h"
 
 CDXFilterGraph::CDXFilterGraph()
 {
@@ -18,6 +19,7 @@ HRESULT CDXFilterGraph::init()
 	m_pBasicVideo = NULL;
 	m_hDisplayWnd = NULL;
 	m_bDisplay = FALSE;
+	m_pModuleFactory = CModuleFactory::GetInstance();
 	return S_OK;
 }
 
@@ -234,6 +236,16 @@ HRESULT CDXFilterGraphTea::StopTracking()
 		hr = m_pTrackingControl->StopTracking();
 	}
 	return hr;
+}
+
+HRESULT CDXFilterGraphTea::SyncConfiguration()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		CConfigManager *pConfigManager = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager();
+	}
+	return S_OK;
 }
 
 

@@ -36,6 +36,7 @@ protected:
 
 	HWND m_hDisplayWnd;
 	BOOL m_bDisplay;
+	void *m_pModuleFactory;
 };
 
 class CDXFilterGraphTea : public CDXFilterGraph
@@ -50,6 +51,11 @@ public:
 	//
 	HRESULT StartTracking(BOOL bShowTrackingRes);
 	HRESULT StopTracking();
+
+	//
+	// --- Transport the params from Config to Tracking Filter --
+	//
+	HRESULT SyncConfiguration();
 
 private:
 	CComPtr<ITrackingControl> m_pTrackingControl;

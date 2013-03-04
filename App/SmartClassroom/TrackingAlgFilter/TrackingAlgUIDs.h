@@ -12,4 +12,11 @@ DECLARE_INTERFACE_(ITrackingControl, IUnknown)
 {
 	STDMETHOD(StartTracking)(THIS_ BOOL bShowTrackingRes)PURE;
 	STDMETHOD(StopTracking)(THIS_)PURE;
+	STDMETHOD(ConfigTrackingArea)(THIS_ int beginX, THIS_ int beginY, THIS_ int beginWidth, THIS_ int beginHeight,
+		                          THIS_ int stopX, THIS_ int stopY, THIS_ int stopWidth, THIS_ int stopHeight)PURE;
+	STDMETHOD(ConfigHuman)(THIS_ int leastHumanGap, THIS_ int humanWidth)PURE;
+	STDMETHOD(ConfigVariousThresh)(THIS_ int disappearFrameThresh, THIS_ int centerWeightThresh, THIS_ int fgLowThresh, 
+								   THIS_ int fgHighThresh, THIS_ double fgHistThresh)PURE;
+	STDMETHOD(ConfigMiscellaneous)(THIS_ double gbmLearningRate, THIS_ int trackInterval)PURE;
+
 };

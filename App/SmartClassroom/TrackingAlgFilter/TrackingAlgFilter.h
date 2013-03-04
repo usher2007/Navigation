@@ -59,6 +59,12 @@ public:
 	//
 	STDMETHODIMP StartTracking(BOOL bShowTrackingRes);
 	STDMETHODIMP StopTracking();
+	STDMETHODIMP ConfigTrackingArea(int beginX, int beginY, int beginWidth,  int beginHeight,
+		                            int stopX,  int stopY,  int stopWidth,  int stopHeight);
+	STDMETHODIMP ConfigHuman( int leastHumanGap,  int humanWidth);
+	STDMETHODIMP ConfigVariousThresh( int disappearFrameThresh,  int centerWeightThresh,  int fgLowThresh, 
+		                              int fgHighThresh,  double fgHistThresh);
+	STDMETHODIMP ConfigMiscellaneous( double gbmLearningRate,  int trackInterval);
 
 private:
 

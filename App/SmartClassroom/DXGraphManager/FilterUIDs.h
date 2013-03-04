@@ -23,4 +23,11 @@ public:
 	//²¶»ñÍ¼Æ¬µÄÃüÁî
 	virtual HRESULT STDMETHODCALLTYPE StartTracking(BOOL bShowTrackingRes) = 0;
 	virtual HRESULT STDMETHODCALLTYPE StopTracking() = 0;
+	virtual HRESULT STDMETHODCALLTYPE ConfigTrackingArea(int beginX, int beginY, int beginWidth,  int beginHeight,
+		                                                 int stopX,  int stopY,  int stopWidth,  int stopHeight)PURE;
+	virtual HRESULT STDMETHODCALLTYPE ConfigHuman( int leastHumanGap,  int humanWidth)PURE;
+	virtual HRESULT STDMETHODCALLTYPE ConfigVariousThresh( int disappearFrameThresh,  int centerWeightThresh,  int fgLowThresh, 
+		 int fgHighThresh,  double fgHistThresh)PURE;
+	virtual HRESULT STDMETHODCALLTYPE ConfigMiscellaneous( double gbmLearningRate,  int trackInterval)PURE;
 };
+
