@@ -156,11 +156,11 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 			}
 			int nextDelimPos = paramValue.find(',', nDelimPos);
 			std::string id = paramValue.substr(nDelimPos, nextDelimPos-nDelimPos);
-			m_teacherEnt.presetLocIds[i-1]=atoi(id.c_str());
+			m_teacherEnt.presetLocIds.push_back(atoi(id.c_str()));
 			nDelimPos = nextDelimPos;
 		}
 		std::string id = paramValue.substr(nDelimPos+1, paramValue.length()-nDelimPos-1);
-		m_teacherEnt.presetLocIds[i-1] = atoi(id.c_str());
+		m_teacherEnt.presetLocIds.push_back(atoi(id.c_str()));
 	}
 	else if(paramName.compare("PRESET_LOC_PIX_RANGES") == 0)
 	{

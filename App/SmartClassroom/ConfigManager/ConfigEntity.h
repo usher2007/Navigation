@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include <iostream>
 #include <string>
 
@@ -22,7 +23,7 @@ public:
 	double roomWidth;                          // The Room's width, in meters
 	double cameraDistance;                     // The distance between camera and rostrum
 	int numOfPresetLoc;                        // Count of preset locations
-	int presetLocIds[10];                      // Array of preset location ids, max 10
+	std::vector<int> presetLocIds;                      // Array of preset location ids, max 10
 	PresetLocDict presetLocDict;               // The preseted camera locations
 	int pixRangeOverlap;                       // The overlap width between two locations, in pixels
 	BOOL bShowTracking;                        // Flag denote showing tracking result or not
