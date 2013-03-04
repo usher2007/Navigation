@@ -16,30 +16,30 @@ int TrackingAlg::Update(Mat& frame)
 
 	if(frameIndex == 0)
 	{
-		bgSubtractor(frame, gbmForeground, Utility::GBM_LEARNING_RATE);
-		threshold(gbmForeground, gbmForeground, Utility::FG_LOW_THRESH, Utility::FG_UP_THRESH, THRESH_BINARY);
+		bgSubtractor(frame, gbmForeground, TrackingConfig::GBM_LEARNING_RATE);
+		threshold(gbmForeground, gbmForeground, TrackingConfig::FG_LOW_THRESH, TrackingConfig::FG_UP_THRESH, THRESH_BINARY);
 		frameIndex ++;
 		return 0;
 	}
 
-	if(frameIndex%Utility::TRACK_INTERVAL != 0)
+	if(frameIndex%TrackingConfig::TRACK_INTERVAL != 0)
 	{
 		frameIndex++;
 		if(bShowTrackingResult)
 		{
-			rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
-			rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
-			rectangle(frame, Utility::PAD_AREA_1, Scalar(0,255,0), 3);
-			rectangle(frame, Utility::PAD_AREA_2, Scalar(0,255,0), 3);
-			rectangle(frame, Utility::PAD_AREA_3, Scalar(0,255,0), 3);
-			rectangle(frame, Utility::PAD_AREA_4, Scalar(0,255,0), 3);
+			rectangle(frame, TrackingConfig::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
+			rectangle(frame, TrackingConfig::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
+			rectangle(frame, TrackingConfig::PAD_AREA_1, Scalar(0,255,0), 3);
+			rectangle(frame, TrackingConfig::PAD_AREA_2, Scalar(0,255,0), 3);
+			rectangle(frame, TrackingConfig::PAD_AREA_3, Scalar(0,255,0), 3);
+			rectangle(frame, TrackingConfig::PAD_AREA_4, Scalar(0,255,0), 3);
 			personManager.DrawPersons(frame);
 		}
 		return 0;
 	}
 
-	bgSubtractor(frame, gbmForeground, Utility::GBM_LEARNING_RATE);
-	threshold(gbmForeground, gbmForeground, Utility::FG_LOW_THRESH, Utility::FG_UP_THRESH, THRESH_BINARY);
+	bgSubtractor(frame, gbmForeground, TrackingConfig::GBM_LEARNING_RATE);
+	threshold(gbmForeground, gbmForeground, TrackingConfig::FG_LOW_THRESH, TrackingConfig::FG_UP_THRESH, THRESH_BINARY);
 
 	gbmForeground = gbmForeground/255;
 	vector<Point2f> baryCenters;
@@ -59,12 +59,12 @@ int TrackingAlg::Update(Mat& frame)
 	}
 	if(bShowTrackingResult)
 	{
-		rectangle(frame, Utility::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
-		rectangle(frame, Utility::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
-		rectangle(frame, Utility::PAD_AREA_1, Scalar(0,255,0), 3);
-		rectangle(frame, Utility::PAD_AREA_2, Scalar(0,255,0), 3);
-		rectangle(frame, Utility::PAD_AREA_3, Scalar(0,255,0), 3);
-		rectangle(frame, Utility::PAD_AREA_4, Scalar(0,255,0), 3);
+		rectangle(frame, TrackingConfig::BEGIN_TRACKING_AREA, Scalar(255,0,0), 2);
+		rectangle(frame, TrackingConfig::STOP_TRACKING_AREA, Scalar(0,0,255), 2);
+		rectangle(frame, TrackingConfig::PAD_AREA_1, Scalar(0,255,0), 3);
+		rectangle(frame, TrackingConfig::PAD_AREA_2, Scalar(0,255,0), 3);
+		rectangle(frame, TrackingConfig::PAD_AREA_3, Scalar(0,255,0), 3);
+		rectangle(frame, TrackingConfig::PAD_AREA_4, Scalar(0,255,0), 3);
 
 		personManager.DrawPersons(frame);
 	}
@@ -84,7 +84,7 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 	vector<int> foreCandidates;
 	for(int j=0; j<maxCol; j++)
 	{
-		if(foreHistByCol.at<double>(0,j) > Utility::FG_HIST_THRESH*avgForeHist)
+		if(foreHistByCol.at<double>(0,j) > TrackingConfig::FG_HIST_THRESH*avgForeHist)
 		{
 			foreCandidates.push_back(j);
 		}
@@ -100,7 +100,7 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 	double eachColSum = 0;
 	for(; it != foreCandidates.end(); it ++)
 	{
-		if((*it) - lastIndex < Utility::LEAST_HUMAN_GAP && it != foreCandidates.end()-1)
+		if((*it) - lastIndex < TrackingConfig::LEAST_HUMAN_GAP && it != foreCandidates.end()-1)
 		{
 			continueNum++;
 			sumWeight += (*it)*foreHistByCol.at<double>(0,(*it))/1000;
@@ -108,7 +108,7 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 		}
 		else
 		{
-			if(continueNum > Utility::HUMAN_WIDTH)
+			if(continueNum > TrackingConfig::HUMAN_WIDTH)
 			{
 				int personWidth = (*(it-1))-(*(it-continueNum));
 				Mat person = Mat(doubleImg,Rect(*(it-continueNum),0,personWidth,doubleImg.rows));
@@ -124,7 +124,7 @@ int TrackingAlg::CalcImageBaryCenters(const Mat& img, vector<Point2f>& baryCente
 					}
 					center.y = sumWeightY/sumY;
 					double centerWeight = eachColSum/continueNum*1000;
-					if(centerWeight > Utility::CENTER_WEIGHT_THRESH)
+					if(centerWeight > TrackingConfig::CENTER_WEIGHT_THRESH)
 						baryCenters.push_back(center);
 			}
 			continueNum = 0;

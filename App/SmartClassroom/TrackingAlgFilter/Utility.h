@@ -5,26 +5,26 @@
 #include "opencv2/video/background_segm.hpp"
 using namespace cv;
 
-namespace Utility
+class TrackingConfig
 {
-	const string VIDEO_FILE_NAME = "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\T_WALK4.mp4";
-	const string RESULT_FILE_NAME = "H:\\GitHubCode\\Navigation\\Research\\TrackingByGBM\\Data\\12.12\\T_WALK4.avi";
-	const double PI = 3.1415926;
-	const Rect BEGIN_TRACKING_AREA(120, 115, 480, 346);
-	const Rect STOP_TRACKING_AREA(90, 72, 540, 432);
-	const int DISAPPEAR_FRAME_THRESH = 10;
-	const int LEAST_HUMAN_GAP = 50;
-	const int HUMAN_WIDTH = 30;
-	const int CENTER_WEIGHT_THRESH = 25;
-	const int TRACK_INTERVAL = 2;
-	const int FG_LOW_THRESH = 128;
-	const int FG_UP_THRESH = 255;
-	const double GBM_LEARNING_RATE = 0.01;
-	const double FG_HIST_THRESH = 2;
-
-	//For Debug
-	const Rect PAD_AREA_1(190, 120, 20, 300);
-	const Rect PAD_AREA_2(232, 120, 20, 300);
-	const Rect PAD_AREA_3(365, 120, 20, 300);
-	const Rect PAD_AREA_4(408, 120, 20, 300);
-}
+public:
+static string VIDEO_FILE_NAME;
+static string RESULT_FILE_NAME;
+static Rect BEGIN_TRACKING_AREA;
+static Rect STOP_TRACKING_AREA;
+static int DISAPPEAR_FRAME_THRESH;
+static int LEAST_HUMAN_GAP;
+static int HUMAN_WIDTH;
+static int CENTER_WEIGHT_THRESH;
+static int TRACK_INTERVAL;
+static int FG_LOW_THRESH;
+static int FG_UP_THRESH;
+static double GBM_LEARNING_RATE;
+static double FG_HIST_THRESH;
+static double PI;
+//For Debug
+static Rect PAD_AREA_1;
+static Rect PAD_AREA_2;
+static Rect PAD_AREA_3;
+static Rect PAD_AREA_4;
+};
