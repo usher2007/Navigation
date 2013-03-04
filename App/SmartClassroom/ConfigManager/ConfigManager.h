@@ -34,6 +34,8 @@ private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();
 	HRESULT loadLaserPointConfig();
+	HRESULT getParamNameAndVal(const std::string& paramLine, std::string& paramName, std::string& paramValue);
+	HRESULT setTeaParametersFromFile(const std::string& paramName, std::string& paramValue);
 private:
 	TeacherEntity m_teacherEnt;
 	StudentEntity m_studentEnt;
