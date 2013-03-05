@@ -6,6 +6,9 @@
 #include <string>
 
 const std::string TeacherConfigFile = "..\\Config\\Teacher.conf";
+const char ARRAYDELIMITER = ',';
+const char DICTIONARYDELIMITER = ';';
+const char NAMEVALUEDELIMITER = '=';
 const std::string ID = "ID";
 const std::string CLASSROOMWIDTH = "CLS_RM_WIDTH";
 const std::string CAMERADISTANCE = "CAM_DIST";

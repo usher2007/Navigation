@@ -180,7 +180,7 @@ HRESULT CConfigManager::loadTeacherConfig()
 
 HRESULT CConfigManager::getParamNameAndVal(const std::string& paramLine, std::string& paramName, std::string& paramValue)
 {
-	std::size_t nDelimiterPos = paramLine.find('=');
+	std::size_t nDelimiterPos = paramLine.find(NAMEVALUEDELIMITER);
 	paramName = paramLine.substr(0,nDelimiterPos);
 	paramValue = paramLine.substr(nDelimiterPos+1, paramLine.length()-nDelimiterPos-1);
 	return S_OK;
@@ -229,9 +229,9 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 			{
 				nDelimiPos++;
 			}
-			int nextDelimPos = paramValue.find(';', nDelimiPos);
+			int nextDelimPos = paramValue.find(DICTIONARYDELIMITER, nDelimiPos);
 			std::string ranges = paramValue.substr(nDelimiPos, nextDelimPos-nDelimiPos);
-			int rangeDelimPos = ranges.find(',');
+			int rangeDelimPos = ranges.find(ARRAYDELIMITER);
 			LocRange tmpRange;
 			tmpRange.left = atoi(ranges.substr(0, rangeDelimPos).c_str());
 			tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
@@ -239,7 +239,7 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 			nDelimiPos = nextDelimPos;
 		}
 		std::string ranges = paramValue.substr(nDelimiPos+1, paramValue.length()-nDelimiPos-1);
-		int rangeDelimPos = ranges.find(',');
+		int rangeDelimPos = ranges.find(ARRAYDELIMITER);
 		LocRange tmpRange;
 		tmpRange.left = atoi(ranges.substr(0, rangeDelimPos).c_str());
 		tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
@@ -320,7 +320,7 @@ HRESULT CConfigManager::processArrayParameters( const std::string& paramName, st
 			{
 				nDelimPos++;
 			}
-			int nextDelimPos = paramValue.find(',', nDelimPos);
+			int nextDelimPos = paramValue.find(ARRAYDELIMITER, nDelimPos);
 			std::string arrayElem = paramValue.substr(nDelimPos, nextDelimPos-nDelimPos);
 			resultArray->push_back(atoi(arrayElem.c_str()));
 			nDelimPos = nextDelimPos;
