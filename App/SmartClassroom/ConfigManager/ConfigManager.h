@@ -24,18 +24,31 @@ public:
 	HRESULT SetTeacherFullScreen(int locId);
 	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
 	HRESULT SetTeaShowTracking(BOOL bShowTracking);
+
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 	HRESULT GetTeaPresetLocDict(PresetLocDict** locDict);
 	int GetTeaId();
 	int GetTeaFullScreenLocId();
 	int GetTeaPixRangeOverlap();
 	BOOL IsTeaShowTracking();
+	HRESULT GetTeaBeginTrackingArea(int& x, int& y, int& width, int& height);
+	HRESULT GetTeaStopTrackingArea(int& x, int& y, int& width, int& height);
+	int GetTeaLeastHumanGap();
+	int GetTeaHumanWidth();
+	int GetTeaDisFrameThresh();
+	int GetTeaCenterWeightThresh();
+	int GetTeaFgLowThresh();
+	int GetTeaFgUpThresh();
+	double GetTeaFgHistThresh();
+	double GetTeaGBMLearningRate();
+	int GetTeaTrackingInterval();
 private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();
 	HRESULT loadLaserPointConfig();
 	HRESULT getParamNameAndVal(const std::string& paramLine, std::string& paramName, std::string& paramValue);
 	HRESULT setTeaParametersFromFile(const std::string& paramName, std::string& paramValue);
+	HRESULT processArrayParameters(const std::string& paramName, std::string& paramValue, int arrayLen);
 private:
 	TeacherEntity m_teacherEnt;
 	StudentEntity m_studentEnt;

@@ -93,6 +93,77 @@ BOOL CConfigManager::IsTeaShowTracking()
 	return m_teacherEnt.bShowTracking;
 }
 
+HRESULT CConfigManager::GetTeaBeginTrackingArea(int& x, int& y, int& width, int& height)
+{
+	if(m_teacherEnt.beginTrackArea.size() == 4)
+	{
+		x = m_teacherEnt.beginTrackArea[0];
+		y = m_teacherEnt.beginTrackArea[1];
+		width = m_teacherEnt.beginTrackArea[2];
+		height = m_teacherEnt.beginTrackArea[3];
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CConfigManager::GetTeaStopTrackingArea(int& x, int& y, int& width, int& height)
+{
+	if(m_teacherEnt.stopTrackArea.size() == 4)
+	{
+		x = m_teacherEnt.stopTrackArea[0];
+		y = m_teacherEnt.stopTrackArea[1];
+		width = m_teacherEnt.stopTrackArea[2];
+		height = m_teacherEnt.stopTrackArea[3];
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+int CConfigManager::GetTeaLeastHumanGap()
+{
+	return m_teacherEnt.leastHumanGap;
+}
+
+int CConfigManager::GetTeaHumanWidth()
+{
+	return m_teacherEnt.humanWidth;
+}
+
+int CConfigManager::GetTeaDisFrameThresh()
+{
+	return m_teacherEnt.disappearFrameThresh;
+}
+
+int CConfigManager::GetTeaCenterWeightThresh()
+{
+	return m_teacherEnt.centerWeightThresh;
+}
+
+int CConfigManager::GetTeaFgLowThresh()
+{
+	return m_teacherEnt.fgLowThresh;
+}
+
+int CConfigManager::GetTeaFgUpThresh()
+{
+	return m_teacherEnt.fgUpThresh;
+}
+
+double CConfigManager::GetTeaFgHistThresh()
+{
+	return m_teacherEnt.fgHistThresh;
+}
+
+double CConfigManager::GetTeaGBMLearningRate()
+{
+	return m_teacherEnt.gbmLearningRate;
+}
+
+int CConfigManager::GetTeaTrackingInterval()
+{
+	return m_teacherEnt.trackingInterval;
+}
+
 HRESULT CConfigManager::loadTeacherConfig()
 {
 	std::ifstream teacherIn(TeacherConfigFile);
@@ -117,52 +188,39 @@ HRESULT CConfigManager::getParamNameAndVal(const std::string& paramLine, std::st
 
 HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, std::string& paramValue )
 {
-	if(paramName.compare("ID") == 0)
+	if(paramName.compare(ID) == 0)
 	{
 		m_teacherEnt.id = atoi(paramValue.c_str());
 	}
-	else if(paramName.compare("CLS_RM_WIDTH") == 0)
+	else if(paramName.compare(CLASSROOMWIDTH) == 0)
 	{
 		m_teacherEnt.roomWidth = atof(paramValue.c_str());
 	}
-	else if(paramName.compare("CAM_DIST") == 0)
+	else if(paramName.compare(CAMERADISTANCE) == 0)
 	{
 		m_teacherEnt.cameraDistance = atof(paramValue.c_str());
 	}
-	else if(paramName.compare("FULL_SCR_LOC_ID") == 0)
+	else if(paramName.compare(FULLSCREENLOCID) == 0)
 	{
 		m_teacherEnt.fullScreenLocId = atoi(paramValue.c_str());
 	}
-	else if(paramName.compare("PIX_LOC_OVERLAP") == 0)
+	else if(paramName.compare(PIXOVERLLAP) == 0)
 	{
 		m_teacherEnt.pixRangeOverlap = atoi(paramValue.c_str());
 	}
-	else if(paramName.compare("SHOW_TRACK_RES") == 0)
+	else if(paramName.compare(SHOWTRACKRESULT) == 0)
 	{
 		m_teacherEnt.bShowTracking = (atoi(paramValue.c_str()) == 1);
 	}
-	else if(paramName.compare("PRESET_LOC_NUM") == 0)
+	else if(paramName.compare(NUMOFPRESETLOC) == 0)
 	{
 		m_teacherEnt.numOfPresetLoc = atoi(paramValue.c_str());
 	}
-	else if(paramName.compare("PRESET_LOC_IDS") == 0)
+	else if(paramName.compare(PRESETLOCIDS) == 0)
 	{
-		int nDelimPos = 0, i = 0;
-		for(i=1; i<m_teacherEnt.numOfPresetLoc; ++i)
-		{
-			if(i!=1)
-			{
-				nDelimPos++;
-			}
-			int nextDelimPos = paramValue.find(',', nDelimPos);
-			std::string id = paramValue.substr(nDelimPos, nextDelimPos-nDelimPos);
-			m_teacherEnt.presetLocIds.push_back(atoi(id.c_str()));
-			nDelimPos = nextDelimPos;
-		}
-		std::string id = paramValue.substr(nDelimPos+1, paramValue.length()-nDelimPos-1);
-		m_teacherEnt.presetLocIds.push_back(atoi(id.c_str()));
+		processArrayParameters(paramName, paramValue, m_teacherEnt.numOfPresetLoc);
 	}
-	else if(paramName.compare("PRESET_LOC_PIX_RANGES") == 0)
+	else if(paramName.compare(PRESETLOCPIXRANGES) == 0)
 	{
 		int nDelimiPos = 0, i = 0;
 		for(i=1; i<m_teacherEnt.numOfPresetLoc; ++i)
@@ -187,9 +245,88 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 		tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
 		m_teacherEnt.presetLocDict[m_teacherEnt.presetLocIds[i-1]] = tmpRange;
 	}
+	else if(paramName.compare(BEGINTRACKINGAREA) == 0)
+	{
+		processArrayParameters(paramName, paramValue, 4);
+	}
+	else if(paramName.compare(STOPTRACKINGAREA) == 0)
+	{
+		processArrayParameters(paramName, paramValue, 4);
+	}
+	else if(paramName.compare(LEASTHUAMNGAP) == 0)
+	{
+		m_teacherEnt.leastHumanGap = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(HUMANWIDTH) == 0)
+	{
+		m_teacherEnt.humanWidth = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(DISAPPEARFRAMETHRESH) == 0)
+	{
+		m_teacherEnt.disappearFrameThresh = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(CENTERWEIGHTTHRESH) == 0)
+	{
+		m_teacherEnt.centerWeightThresh = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(FGLOWTHRESH) == 0)
+	{
+		m_teacherEnt.fgLowThresh = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(FGUPTHRESH) == 0)
+	{
+		m_teacherEnt.fgUpThresh = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(FGHISTTHRESH) == 0)
+	{
+		m_teacherEnt.fgHistThresh = atof(paramValue.c_str());
+	}
+	else if(paramName.compare(GBMLEARNINGRATE) == 0)
+	{
+		m_teacherEnt.gbmLearningRate = atof(paramValue.c_str());
+	}
+	else if(paramName.compare(TRACKINGINTERVAL) == 0)
+	{
+		m_teacherEnt.trackingInterval = atoi(paramValue.c_str());
+	}
 	else // No this parameter
 	{
 		return E_FAIL;
+	}
+	return S_OK;
+}
+
+HRESULT CConfigManager::processArrayParameters( const std::string& paramName, std::string& paramValue, int arrayLen )
+{
+	std::vector<int> *resultArray = NULL;
+	if(paramName.compare(PRESETLOCIDS) == 0)
+	{
+		resultArray = &(m_teacherEnt.presetLocIds);
+	}
+	else if(paramName.compare(BEGINTRACKINGAREA) == 0)
+	{
+		resultArray = &(m_teacherEnt.beginTrackArea);
+	}
+	else if(paramName.compare(STOPTRACKINGAREA) == 0)
+	{
+		resultArray = &(m_teacherEnt.stopTrackArea);
+	}
+	if(resultArray != NULL)
+	{
+		int nDelimPos = 0, i = 0;
+		for(i=1; i<arrayLen; ++i)
+		{
+			if(i!=1)
+			{
+				nDelimPos++;
+			}
+			int nextDelimPos = paramValue.find(',', nDelimPos);
+			std::string arrayElem = paramValue.substr(nDelimPos, nextDelimPos-nDelimPos);
+			resultArray->push_back(atoi(arrayElem.c_str()));
+			nDelimPos = nextDelimPos;
+		}
+		std::string arrayElem = paramValue.substr(nDelimPos+1, paramValue.length()-nDelimPos-1);
+		resultArray->push_back(atoi(arrayElem.c_str()));
 	}
 	return S_OK;
 }

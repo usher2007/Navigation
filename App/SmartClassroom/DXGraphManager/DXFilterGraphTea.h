@@ -52,10 +52,11 @@ public:
 	HRESULT StartTracking(BOOL bShowTrackingRes);
 	HRESULT StopTracking();
 
+private:
 	//
 	// --- Transport the params from Config to Tracking Filter --
 	//
-	HRESULT SyncConfiguration();
+	HRESULT syncConfiguration();
 
 private:
 	CComPtr<ITrackingControl> m_pTrackingControl;

@@ -56,7 +56,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LinkStatus>
       </LinkStatus>
-      <AdditionalDependencies>strmbaseu.lib;ModuleFactory.lib;</AdditionalDependencies>
+      <AdditionalDependencies>strmbaseu.lib;ModuleFactory.lib;ConfigManager.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Debug\;f:\yubo\SDK\dshow\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -76,7 +76,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\Release\;f:\yubo\SDK\dshow\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>strmbaseu.lib;ModuleFactory.lib;</AdditionalDependencies>
+      <AdditionalDependencies>strmbaseu.lib;ModuleFactory.lib;ConfigManager.lib;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

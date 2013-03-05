@@ -223,6 +223,7 @@ HRESULT CDXFilterGraphTea::StartTracking(BOOL bShowTrackingRes)
 	HRESULT hr = E_FAIL;
 	if(m_pTrackingControl)
 	{
+		syncConfiguration();
 		hr = m_pTrackingControl->StartTracking(bShowTrackingRes);
 	}
 	return hr;
@@ -238,14 +239,40 @@ HRESULT CDXFilterGraphTea::StopTracking()
 	return hr;
 }
 
-HRESULT CDXFilterGraphTea::SyncConfiguration()
+HRESULT CDXFilterGraphTea::syncConfiguration()
 {
 	HRESULT hr = E_FAIL;
 	if(m_pTrackingControl)
 	{
 		CConfigManager *pConfigManager = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager();
+
+		int beginX = -1, beginY = -1, beginWidth = -1, beginHeight = -1, stopX = -1, stopY = -1, stopWidth = -1, stopHeight = -1;
+		pConfigManager->GetTeaBeginTrackingArea(beginX, beginY, beginWidth, beginHeight);
+		pConfigManager->GetTeaStopTrackingArea(stopX, stopY, stopWidth, stopHeight);
+		m_pTrackingControl->ConfigTrackingArea(beginX, beginY, beginWidth, beginHeight, stopX, stopY, stopWidth, stopHeight);
+
+		int leastHumanGap = -1, huamnWidth = -1;
+		leastHumanGap = pConfigManager->GetTeaLeastHumanGap();
+		huamnWidth = pConfigManager->GetTeaHumanWidth();
+		m_pTrackingControl->ConfigHuman(leastHumanGap, huamnWidth);
+
+		int disappearFrameThresh = -1, centerWeightThresh = -1, fgLowThresh = -1, fgUpThresh = -1;
+		double fgHistThresh = -1.0;
+		disappearFrameThresh = pConfigManager->GetTeaDisFrameThresh();
+		centerWeightThresh = pConfigManager->GetTeaCenterWeightThresh();
+		fgLowThresh = pConfigManager->GetTeaFgLowThresh();
+		fgUpThresh = pConfigManager->GetTeaFgUpThresh();
+		fgHistThresh = pConfigManager->GetTeaFgHistThresh();
+		m_pTrackingControl->ConfigVariousThresh(disappearFrameThresh, centerWeightThresh, fgLowThresh, fgUpThresh, fgHistThresh);
+
+		double gbmLearningRate = -1.0;
+		int trackingInterval = -1;
+		gbmLearningRate = pConfigManager->GetTeaGBMLearningRate();
+		trackingInterval = pConfigManager->GetTeaTrackingInterval();
+		m_pTrackingControl->ConfigMiscellaneous(gbmLearningRate, trackingInterval);
+		return S_OK;
 	}
-	return S_OK;
+	return E_FAIL;
 }
 
 
