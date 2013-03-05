@@ -31,6 +31,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnClose();
 	DECLARE_MESSAGE_MAP()
 public:
 	CTabSheet m_tabSheet;

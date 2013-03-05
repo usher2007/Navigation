@@ -30,6 +30,16 @@ CAPIController* CAPIController::GetInstance()
 	}
 }
 
+HRESULT CAPIController::DumpConfiguration()
+{
+	if(m_pModuleFactory)
+	{
+		HRESULT hr = m_pModuleFactory->GetConfigManager()->DumpConfigFile();
+		return hr;
+	}
+	return E_FAIL;
+}
+
 HRESULT CAPIController::BuildTeacherGraph( BOOL bDisplay, HWND displayWnd, HWND notifyWnd )
 {
 	if(m_pModuleFactory)

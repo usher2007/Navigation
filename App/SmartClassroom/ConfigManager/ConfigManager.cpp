@@ -15,10 +15,24 @@ CConfigManager::CConfigManager()
 	m_laserPointEnt.id = 1;
 	return;
 }
+CConfigManager::~CConfigManager()
+{
+	dumpTeacherConfig();
+}
 
 HRESULT CConfigManager::LoadConfigFile()
 {
 	HRESULT hr = loadTeacherConfig();
+	if(FAILED(hr))
+	{
+
+	}
+	return S_OK;
+}
+
+HRESULT CConfigManager::DumpConfigFile()
+{
+	HRESULT hr = dumpTeacherConfig();
 	if(FAILED(hr))
 	{
 
@@ -328,5 +342,64 @@ HRESULT CConfigManager::processArrayParameters( const std::string& paramName, st
 		std::string arrayElem = paramValue.substr(nDelimPos+1, paramValue.length()-nDelimPos-1);
 		resultArray->push_back(atoi(arrayElem.c_str()));
 	}
+	return S_OK;
+}
+
+
+HRESULT CConfigManager::dumpTeacherConfig()
+{
+	std::ofstream teacherOut(TeacherConfigFile);
+	if(teacherOut.fail())
+	{
+		return E_FAIL;
+	}
+	teacherOut<<ID<<NAMEVALUEDELIMITER<<m_teacherEnt.id<<'\n';
+	teacherOut<<CLASSROOMWIDTH<<NAMEVALUEDELIMITER<<m_teacherEnt.roomWidth<<'\n';
+	teacherOut<<CAMERADISTANCE<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraDistance<<'\n';
+	teacherOut<<FULLSCREENLOCID<<NAMEVALUEDELIMITER<<m_teacherEnt.fullScreenLocId<<'\n';
+	teacherOut<<PIXOVERLLAP<<NAMEVALUEDELIMITER<<m_teacherEnt.pixRangeOverlap<<'\n';
+	teacherOut<<SHOWTRACKRESULT<<NAMEVALUEDELIMITER<<((int)m_teacherEnt.bShowTracking)<<'\n';
+	teacherOut<<NUMOFPRESETLOC<<NAMEVALUEDELIMITER<<m_teacherEnt.numOfPresetLoc<<'\n';
+
+	teacherOut<<PRESETLOCIDS<<NAMEVALUEDELIMITER;
+	std::vector<int>::iterator intIter;
+	for(intIter = m_teacherEnt.presetLocIds.begin(); intIter != m_teacherEnt.presetLocIds.end(); ++intIter)
+	{
+		if(intIter != m_teacherEnt.presetLocIds.begin())
+		{
+			teacherOut<<ARRAYDELIMITER;
+		}
+		teacherOut<<(*intIter);
+	}
+	teacherOut<<'\n';
+
+	teacherOut<<PRESETLOCPIXRANGES<<NAMEVALUEDELIMITER;
+	PresetLocDictIter locDictIter;
+	for(locDictIter = m_teacherEnt.presetLocDict.begin(); locDictIter != m_teacherEnt.presetLocDict.end(); ++locDictIter)
+	{
+		if(locDictIter != m_teacherEnt.presetLocDict.begin())
+		{
+			teacherOut<<DICTIONARYDELIMITER;
+		}
+		teacherOut<<(*locDictIter).second.left<<ARRAYDELIMITER<<(*locDictIter).second.right;
+	}
+	teacherOut<<'\n';
+
+	teacherOut<<BEGINTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.beginTrackArea[0]<<ARRAYDELIMITER<<
+		m_teacherEnt.beginTrackArea[1]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[2]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[3]<<'\n';
+	teacherOut<<STOPTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.stopTrackArea[0]<<ARRAYDELIMITER<<
+		m_teacherEnt.stopTrackArea[1]<<ARRAYDELIMITER<<m_teacherEnt.stopTrackArea[2]<<ARRAYDELIMITER<<m_teacherEnt.stopTrackArea[3]<<'\n';
+
+	teacherOut<<LEASTHUAMNGAP<<NAMEVALUEDELIMITER<<m_teacherEnt.leastHumanGap<<'\n';
+	teacherOut<<HUMANWIDTH<<NAMEVALUEDELIMITER<<m_teacherEnt.humanWidth<<'\n';
+	teacherOut<<DISAPPEARFRAMETHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.disappearFrameThresh<<'\n';
+	teacherOut<<CENTERWEIGHTTHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.centerWeightThresh<<'\n';
+	teacherOut<<FGLOWTHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.fgLowThresh<<'\n';
+	teacherOut<<FGUPTHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.fgUpThresh<<'\n';
+	teacherOut<<FGHISTTHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.fgHistThresh<<'\n';
+	teacherOut<<GBMLEARNINGRATE<<NAMEVALUEDELIMITER<<m_teacherEnt.gbmLearningRate<<'\n';
+	teacherOut<<TRACKINGINTERVAL<<NAMEVALUEDELIMITER<<m_teacherEnt.trackingInterval<<'\n';
+	teacherOut<<std::endl;
+	teacherOut.close();
 	return S_OK;
 }

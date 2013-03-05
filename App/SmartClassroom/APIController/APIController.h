@@ -16,6 +16,8 @@
 class APICONTROLLER_API CAPIController {
 public:
 	static CAPIController* GetInstance();
+	HRESULT DumpConfiguration();
+
 
 	// Teacher Part
 	HRESULT BuildTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);

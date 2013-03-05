@@ -30,6 +30,7 @@ void CSmartClassroomDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CSmartClassroomDlg, CDialogEx)
+	ON_WM_CLOSE()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 //	ON_WM_LBUTTONDOWN()
@@ -100,4 +101,12 @@ HCURSOR CSmartClassroomDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
+void CSmartClassroomDlg::OnClose()
+{
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->DumpConfiguration();
+	}
+	CDialogEx::OnClose();
+	return;
+}

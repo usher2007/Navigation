@@ -17,6 +17,7 @@
 class CONFIGMANAGER_API CConfigManager {
 public:
 	CConfigManager(void);
+	~CConfigManager();
 	// TODO: add your methods here.
 	HRESULT LoadConfigFile();
 	HRESULT DumpConfigFile();
@@ -46,6 +47,7 @@ private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();
 	HRESULT loadLaserPointConfig();
+	HRESULT dumpTeacherConfig();
 	HRESULT getParamNameAndVal(const std::string& paramLine, std::string& paramName, std::string& paramValue);
 	HRESULT setTeaParametersFromFile(const std::string& paramName, std::string& paramValue);
 	HRESULT processArrayParameters(const std::string& paramName, std::string& paramValue, int arrayLen);
