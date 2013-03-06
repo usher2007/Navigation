@@ -55,16 +55,53 @@ HRESULT CConfigManager::SetTeacherFullScreen( int locId )
 	return S_OK;
 }
 
-HRESULT CConfigManager::SetTeaEnvParams( double roomWidth, double cameraDistance )
-{
-	m_teacherEnt.roomWidth = roomWidth;
-	m_teacherEnt.cameraDistance = cameraDistance;
-	return S_OK;
-}
 
 HRESULT CConfigManager::SetTeaShowTracking(BOOL bShowTracking)
 {
 	m_teacherEnt.bShowTracking = bShowTracking;
+	return S_OK;
+}
+
+HRESULT CConfigManager::SetTeaDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, 
+	int humanWidth, int fgLowThresh, int fgUpThresh, double fgHistThresh)
+{
+	m_teacherEnt.pixRangeOverlap = pixOverlap;
+	m_teacherEnt.roomWidth = classroomWidth;
+	m_teacherEnt.cameraDistance = cameraDistance;
+	m_teacherEnt.leastHumanGap = leastHumanGap;
+	m_teacherEnt.humanWidth = humanWidth;
+	m_teacherEnt.fgLowThresh = fgLowThresh;
+	m_teacherEnt.fgUpThresh = fgUpThresh;
+	m_teacherEnt.fgHistThresh = fgHistThresh;
+	return S_OK;
+}
+
+HRESULT CConfigManager::SetTeaTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH)
+{
+	m_teacherEnt.beginTrackArea.clear();
+	m_teacherEnt.beginTrackArea.reserve(4);
+	m_teacherEnt.beginTrackArea[0] = beginX;
+	m_teacherEnt.beginTrackArea[1] = beginY;
+	m_teacherEnt.beginTrackArea[2] = beginW;
+	m_teacherEnt.beginTrackArea[3] = beginH;
+
+	m_teacherEnt.stopTrackArea.clear();
+	m_teacherEnt.stopTrackArea.reserve(4);
+	m_teacherEnt.stopTrackArea[0] = stopX;
+	m_teacherEnt.stopTrackArea[1] = stopY;
+	m_teacherEnt.stopTrackArea[2] = stopW;
+	m_teacherEnt.stopTrackArea[3] = stopH;
+	
+	return S_OK;
+}
+
+HRESULT CConfigManager::SetTeaCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval)
+{
+	m_teacherEnt.disappearFrameThresh = disappearFrameThresh;
+	m_teacherEnt.centerWeightThresh = centerWeightThresh;
+	m_teacherEnt.gbmLearningRate = gbmLearningRate;
+	m_teacherEnt.trackingInterval = trackingInterval;
+
 	return S_OK;
 }
 

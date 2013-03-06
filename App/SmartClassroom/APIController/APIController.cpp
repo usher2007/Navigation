@@ -267,15 +267,6 @@ HRESULT CAPIController::TeacherTrackingStop()
 	return hr;
 }
 
-HRESULT CAPIController::TeacherSetEnvParams(double roomWidth, double cameraDistance)
-{
-	HRESULT hr = E_FAIL;
-	if(m_pModuleFactory)
-	{
-		hr = m_pModuleFactory->GetConfigManager()->SetTeaEnvParams(roomWidth, cameraDistance);
-	}
-	return hr;
-}
 
 HRESULT CAPIController::TeacherGetEnvParams(double& roomWidth, double& cameraDistance)
 {
@@ -293,6 +284,37 @@ HRESULT CAPIController::TeacherSetShowTracking(BOOL bShowTracking)
 	if(m_pModuleFactory)
 	{
 		hr = m_pModuleFactory->GetConfigManager()->SetTeaShowTracking(bShowTracking);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherSetDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, 
+	                                           int humanWidth, int fgLowThresh, int fgUpThresh, double fgHistThresh)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetTeaDetailParams(pixOverlap, classroomWidth, cameraDistance, leastHumanGap, humanWidth, fgLowThresh, fgUpThresh, fgHistThresh);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetTeaTrackingArea(beginX, beginY, beginW, beginH, stopX, stopY, stopW, stopH);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherSetCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetTeaCommonParams(disappearFrameThresh, centerWeightThresh, gbmLearningRate, trackingInterval);
 	}
 	return hr;
 }

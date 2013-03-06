@@ -23,8 +23,11 @@ public:
 	HRESULT DumpConfigFile();
 	HRESULT SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
 	HRESULT SetTeacherFullScreen(int locId);
-	HRESULT SetTeaEnvParams(double roomWidth, double cameraDistance);
 	HRESULT SetTeaShowTracking(BOOL bShowTracking);
+	HRESULT SetTeaDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, int humanWidth, int fgLowThresh, 
+		int fgUpThresh, double fgHistThresh);
+	HRESULT SetTeaTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
+	HRESULT SetTeaCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
 
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 	HRESULT GetTeaPresetLocDict(PresetLocDict** locDict);

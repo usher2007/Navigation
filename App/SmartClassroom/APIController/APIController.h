@@ -44,11 +44,13 @@ public:
 	HRESULT TeacherTrackingStart();
 	HRESULT TeacherTrackingStop();
 
-	HRESULT TeacherSetEnvParams(double roomWidth, double cameraDistance);
 	HRESULT TeacherGetEnvParams(double& roomWidth, double& cameraDistance);
 
 	HRESULT TeacherSetShowTracking(BOOL bShowTracking);
-
+	HRESULT TeacherSetDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, int humanWidth, int fgLowThresh, 
+		int fgUpThresh, double fgHistThresh);
+	HRESULT TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
+	HRESULT TeacherSetCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
 	// Student Part
 	HRESULT BuildStudentGraph();
 
@@ -61,6 +63,7 @@ private:
 
 	HRESULT addCamera(int cameraId, int comNum, int baudRate);
 	HRESULT restoreCameraPresetLoc(int cameraId);
+
 private:
 	static CAPIController* m_pInstance;
 	CModuleFactory* m_pModuleFactory;

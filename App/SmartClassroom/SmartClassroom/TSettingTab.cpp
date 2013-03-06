@@ -29,6 +29,10 @@ void CTSettingTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDITPosId, m_ctrlEditPosId);
 	DDX_Control(pDX, IDC_EDITTeaLeftBorder, m_ctrlEditTeaLeftBorder);
 	DDX_Control(pDX, IDC_EDITTeaRightBorder, m_ctrlEditTeaRightBorder);
+	DDX_Control(pDX, IDC_EDITDisFrameThresh, m_ctrlEditDisFrameThresh);
+	DDX_Control(pDX, IDC_EDITcenterWeightThresh, m_ctrlEditCenterWeightThresh);
+	DDX_Control(pDX, IDC_EDITLearningRate, m_ctrlEditLearningRate);
+	DDX_Control(pDX, IDC_EDITTrackInterval, m_ctrlEditTrackInterval);
 }
 
 
@@ -45,6 +49,8 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButtonRecall)
 	ON_BN_CLICKED(IDC_BUTTONStartTracking, &CTSettingTab::OnBnClickedButtonstarttracking)
 	ON_BN_CLICKED(IDC_BUTTONStopTracking, &CTSettingTab::OnBnClickedButtonstoptracking)
+	ON_BN_CLICKED(IDC_BUTTONSaveCommonSettings, &CTSettingTab::OnBnClickedButtonsavecommonsettings)
+	ON_BN_CLICKED(IDC_BUTTONAdvSettings, &CTSettingTab::OnBnClickedButtonadvsettings)
 END_MESSAGE_MAP()
 
 
@@ -189,6 +195,24 @@ void CTSettingTab::OnBnClickedButtonRecall()
 	return;
 }
 
+void CTSettingTab::OnBnClickedButtonsavecommonsettings()
+{
+	if(m_pAPIController != NULL)
+	{
+		int disFrameThresh = 25 * getDoubleFromCEdit(&m_ctrlEditDisFrameThresh);
+		int centerWeigthThresh = 5 * getIntFromCEdit(&m_ctrlEditCenterWeightThresh);
+		double gbmLearningRate = 0.005 * getIntFromCEdit(&m_ctrlEditLearningRate);
+		int trackInterval = getIntFromCEdit(&m_ctrlEditTrackInterval);
+
+		m_pAPIController->TeacherSetCommonParams(disFrameThresh, centerWeigthThresh, gbmLearningRate, trackInterval);
+	}
+}
+
+void CTSettingTab::OnBnClickedButtonadvsettings()
+{
+	// TODO: Add your control notification handler code here
+}
+
 int CTSettingTab::getIntFromCEdit( CEdit *ctrlEdit )
 {
 	int num;
@@ -216,5 +240,4 @@ double CTSettingTab::getDoubleFromCEdit(CEdit *ctrlEdit)
 	ret = _ttof(param);
 	return ret;
 }
-
 

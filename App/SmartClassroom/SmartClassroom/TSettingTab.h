@@ -47,4 +47,10 @@ public:
 	afx_msg void OnBnClickedButtonstoptracking();
 	CEdit m_ctrlEditTeaLeftBorder;
 	CEdit m_ctrlEditTeaRightBorder;
+	afx_msg void OnBnClickedButtonsavecommonsettings();
+	CEdit m_ctrlEditDisFrameThresh;
+	CEdit m_ctrlEditCenterWeightThresh;
+	CEdit m_ctrlEditLearningRate;
+	CEdit m_ctrlEditTrackInterval;
+	afx_msg void OnBnClickedButtonadvsettings();
 };
