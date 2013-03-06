@@ -9,7 +9,7 @@
 #else
 #define APICONTROLLER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include "ModuleFactory.h"
 
 // This class is exported from the APIController.dll

@@ -7,6 +7,8 @@
 #include "afxdialogex.h"
 #include "resource.h"
 #include <iostream>
+#include "Utils.h"
+#include "AdvSettingsDialog.h"
 
 
 // CTSettingTab dialog
@@ -210,34 +212,13 @@ void CTSettingTab::OnBnClickedButtonsavecommonsettings()
 
 void CTSettingTab::OnBnClickedButtonadvsettings()
 {
-	// TODO: Add your control notification handler code here
+	CAdvSettingsDialog advSettingsDlg;
+	if(advSettingsDlg.DoModal() == IDOK)
+	{
+		// Popup a message box to indicate that setting success.
+		return;
+	}
 }
 
-int CTSettingTab::getIntFromCEdit( CEdit *ctrlEdit )
-{
-	int num;
-	CString param;
-	param = getCStringFromCEdit(ctrlEdit);
-	num = _ttoi(param);
-	return num;
-}
 
-CString CTSettingTab::getCStringFromCEdit( CEdit *ctrlEdit )
-{
-	int paramLen;
-	CString param;
-	paramLen = ctrlEdit->LineLength(0);
-	ctrlEdit->GetLine(0, param.GetBuffer(paramLen), paramLen);
-	param.ReleaseBuffer(paramLen);
-	return param;
-}
-
-double CTSettingTab::getDoubleFromCEdit(CEdit *ctrlEdit)
-{
-	double ret = 0.0;
-	CString param;
-	param = getCStringFromCEdit(ctrlEdit);
-	ret = _ttof(param);
-	return ret;
-}
 

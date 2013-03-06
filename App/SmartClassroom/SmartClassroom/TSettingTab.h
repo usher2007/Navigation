@@ -14,10 +14,6 @@ class CTSettingTab : public CDialog
 private:
 	CAPIController *m_pAPIController;
 
-private:
-	int getIntFromCEdit( CEdit *ctrlEdit );
-	CString getCStringFromCEdit( CEdit *ctrlEdit );
-	double getDoubleFromCEdit( CEdit *ctrlEdit);
 //System Defined
 public:
 	CTSettingTab(CWnd* pParent = NULL);   // standard constructor

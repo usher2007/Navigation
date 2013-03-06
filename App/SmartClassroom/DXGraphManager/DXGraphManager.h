@@ -9,7 +9,7 @@
 #else
 #define DXGRAPHMANAGER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include "DXFilterGraphTea.h"
 // This class is exported from the DXGraphManager.dll
 class DXGRAPHMANAGER_API CDXGraphManager {
