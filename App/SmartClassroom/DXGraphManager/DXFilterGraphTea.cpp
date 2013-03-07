@@ -249,7 +249,7 @@ HRESULT CDXFilterGraphTea::EraseCachedVertexes()
 	return hr;
 }
 
-HRESULT CDXFilterGraphTea::AddAndShowBZoneVertex(int xPix, int yPix)
+HRESULT CDXFilterGraphTea::CacheAndShowBZoneVertex( int xPix, int yPix )
 {
 	HRESULT hr = E_FAIL;
 	if(m_pTrackingControl)
