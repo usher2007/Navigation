@@ -51,7 +51,7 @@ HRESULT CConfigManager::SetTeacherPresetLoc( int locId, int leftRange, int right
 
 HRESULT CConfigManager::SetTeacherFullScreen( int locId )
 {
-	m_teacherEnt.fullScreenLocId = locId;
+	m_teacherEnt.fullScreenLocId = locId > 0 ? locId : m_teacherEnt.fullScreenLocId;
 	return S_OK;
 }
 
@@ -65,14 +65,14 @@ HRESULT CConfigManager::SetTeaShowTracking(BOOL bShowTracking)
 HRESULT CConfigManager::SetTeaDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, 
 	int humanWidth, int fgLowThresh, int fgUpThresh, double fgHistThresh)
 {
-	m_teacherEnt.pixRangeOverlap = pixOverlap;
-	m_teacherEnt.roomWidth = classroomWidth;
-	m_teacherEnt.cameraDistance = cameraDistance;
-	m_teacherEnt.leastHumanGap = leastHumanGap;
-	m_teacherEnt.humanWidth = humanWidth;
-	m_teacherEnt.fgLowThresh = fgLowThresh;
-	m_teacherEnt.fgUpThresh = fgUpThresh;
-	m_teacherEnt.fgHistThresh = fgHistThresh;
+	m_teacherEnt.pixRangeOverlap = pixOverlap >= 0 ? pixOverlap : m_teacherEnt.pixRangeOverlap;
+	m_teacherEnt.roomWidth = classroomWidth > 0 ? classroomWidth : m_teacherEnt.roomWidth;
+	m_teacherEnt.cameraDistance = cameraDistance > 0 ? cameraDistance : m_teacherEnt.cameraDistance;
+	m_teacherEnt.leastHumanGap = leastHumanGap > 0 ? leastHumanGap : m_teacherEnt.leastHumanGap;
+	m_teacherEnt.humanWidth = humanWidth > 0 ? humanWidth : m_teacherEnt.humanWidth;
+	m_teacherEnt.fgLowThresh = fgLowThresh >= 0 ? fgLowThresh : m_teacherEnt.fgLowThresh;
+	m_teacherEnt.fgUpThresh = fgUpThresh >= 0 ? fgUpThresh : m_teacherEnt.fgUpThresh;
+	m_teacherEnt.fgHistThresh = fgHistThresh > 0 ? fgHistThresh : m_teacherEnt.fgHistThresh;
 	return S_OK;
 }
 
@@ -97,10 +97,10 @@ HRESULT CConfigManager::SetTeaTrackingArea(int beginX, int beginY, int beginW, i
 
 HRESULT CConfigManager::SetTeaCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval)
 {
-	m_teacherEnt.disappearFrameThresh = disappearFrameThresh;
-	m_teacherEnt.centerWeightThresh = centerWeightThresh;
-	m_teacherEnt.gbmLearningRate = gbmLearningRate;
-	m_teacherEnt.trackingInterval = trackingInterval;
+	m_teacherEnt.disappearFrameThresh = disappearFrameThresh > 0 ? disappearFrameThresh : m_teacherEnt.disappearFrameThresh;
+	m_teacherEnt.centerWeightThresh = centerWeightThresh > 0 ? centerWeightThresh : m_teacherEnt.centerWeightThresh;
+	m_teacherEnt.gbmLearningRate = gbmLearningRate > 0 ? gbmLearningRate : m_teacherEnt.gbmLearningRate;
+	m_teacherEnt.trackingInterval = trackingInterval > 0 ? trackingInterval : m_teacherEnt.trackingInterval;
 
 	return S_OK;
 }

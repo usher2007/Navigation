@@ -6,6 +6,10 @@ int getIntFromCEdit( CEdit *ctrlEdit )
 	int num;
 	CString param;
 	param = getCStringFromCEdit(ctrlEdit);
+	if(param.IsEmpty())
+	{
+		return -1;
+	}
 	num = _ttoi(param);
 	return num;
 }
@@ -22,9 +26,13 @@ CString getCStringFromCEdit( CEdit *ctrlEdit )
 
 double getDoubleFromCEdit(CEdit *ctrlEdit)
 {
-	double ret = 0.0;
+	double ret = -1.0;
 	CString param;
 	param = getCStringFromCEdit(ctrlEdit);
 	ret = _ttof(param);
+	if(ret == 0.0)
+	{
+		ret = -1.0;
+	}
 	return ret;
 }
