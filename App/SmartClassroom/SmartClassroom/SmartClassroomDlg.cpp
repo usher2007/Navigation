@@ -34,6 +34,7 @@ BEGIN_MESSAGE_MAP(CSmartClassroomDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 //	ON_WM_LBUTTONDOWN()
+	ON_STN_DBLCLK(IDC_STATICPlayWndTea, &CSmartClassroomDlg::OnStnDblclickStaticplaywndtea)
 END_MESSAGE_MAP()
 
 
@@ -109,4 +110,29 @@ void CSmartClassroomDlg::OnClose()
 	}
 	CDialogEx::OnClose();
 	return;
+}
+
+void CSmartClassroomDlg::OnStnDblclickStaticplaywndtea()
+{
+	if(m_TSettingPage.IsSettingBlindZone())
+	{
+		CPoint pt;
+		GetCursorPos(&pt);
+		CRect rect;
+		GetDlgItem(IDC_STATICPlayWndTea)->GetWindowRect(&rect);
+		int x = pt.x - rect.left;
+		int y = pt.y - rect.top;
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+		int xPix = x*720/width;
+		int yPix = y*576/height;
+		if(m_pAPIController != NULL)
+		{
+			HRESULT hr = m_TSettingPage.CacheBlindZoneVertex(xPix, yPix);
+			if(SUCCEEDED(hr))
+			{
+				m_pAPIController->TeacherCachePointToShow(xPix, yPix);
+			}
+		}
+	}
 }

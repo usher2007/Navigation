@@ -51,6 +51,10 @@ public:
 		int fgUpThresh, double fgHistThresh);
 	HRESULT TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
 	HRESULT TeacherSetCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
+
+	HRESULT TeacherCachePointToShow(int xPix, int yPix);
+	HRESULT TeacherEraseCurrentBlindZone();
+	HRESULT TeacherSaveBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
 	// Student Part
 	HRESULT BuildStudentGraph();
 

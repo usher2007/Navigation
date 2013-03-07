@@ -66,6 +66,10 @@ public:
 		                              int fgHighThresh,  double fgHistThresh);
 	STDMETHODIMP ConfigMiscellaneous( double gbmLearningRate,  int trackInterval);
 
+	STDMETHODIMP CacheAndShowBZoneVertex(int xPix, int yPix);
+	STDMETHODIMP EraseCachedVertexes();
+	STDMETHODIMP AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+
 private:
 
 	CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);

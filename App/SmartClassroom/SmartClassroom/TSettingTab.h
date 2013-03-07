@@ -10,10 +10,14 @@ class CTSettingTab : public CDialog
 	DECLARE_DYNAMIC(CTSettingTab)
 
 // User Defined
-
+public:
+	BOOL IsSettingBlindZone();
+	HRESULT CacheBlindZoneVertex(int x, int y);
 private:
 	CAPIController *m_pAPIController;
-
+	BOOL m_bSettingBlindZone;
+	CPoint m_BlindZoneVertexes[4];
+	int m_nSavedPoints;
 //System Defined
 public:
 	CTSettingTab(CWnd* pParent = NULL);   // standard constructor
@@ -49,4 +53,6 @@ public:
 	CEdit m_ctrlEditLearningRate;
 	CEdit m_ctrlEditTrackInterval;
 	afx_msg void OnBnClickedButtonadvsettings();
+	afx_msg void OnBnClickedButtonsetblindzone();
+	afx_msg void OnBnClickedButtonsaveblindzone();
 };

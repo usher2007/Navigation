@@ -51,7 +51,8 @@ public:
 	//
 	HRESULT StartTracking(BOOL bShowTrackingRes);
 	HRESULT StopTracking();
-
+	HRESULT EraseCachedVertexes();
+	HRESULT AddAndShowBZoneVertex(int xPix, int yPix);
 private:
 	//
 	// --- Transport the params from Config to Tracking Filter --

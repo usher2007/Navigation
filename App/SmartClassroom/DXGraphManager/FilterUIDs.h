@@ -29,5 +29,8 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE ConfigVariousThresh( int disappearFrameThresh,  int centerWeightThresh,  int fgLowThresh, 
 		 int fgHighThresh,  double fgHistThresh)PURE;
 	virtual HRESULT STDMETHODCALLTYPE ConfigMiscellaneous( double gbmLearningRate,  int trackInterval)PURE;
+	virtual HRESULT STDMETHODCALLTYPE CacheAndShowBZoneVertex(int xPix, int yPix)PURE;
+	virtual HRESULT STDMETHODCALLTYPE EraseCachedVertexes()PURE;
+	virtual HRESULT STDMETHODCALLTYPE AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)PURE;
 };
 

@@ -12,6 +12,7 @@ DECLARE_INTERFACE_(ITrackingControl, IUnknown)
 {
 	STDMETHOD(StartTracking)(THIS_ BOOL bShowTrackingRes)PURE;
 	STDMETHOD(StopTracking)(THIS_)PURE;
+
 	STDMETHOD(ConfigTrackingArea)(THIS_ int beginX, THIS_ int beginY, THIS_ int beginWidth, THIS_ int beginHeight,
 		                          THIS_ int stopX, THIS_ int stopY, THIS_ int stopWidth, THIS_ int stopHeight)PURE;
 	STDMETHOD(ConfigHuman)(THIS_ int leastHumanGap, THIS_ int humanWidth)PURE;
@@ -19,4 +20,7 @@ DECLARE_INTERFACE_(ITrackingControl, IUnknown)
 								   THIS_ int fgHighThresh, THIS_ double fgHistThresh)PURE;
 	STDMETHOD(ConfigMiscellaneous)(THIS_ double gbmLearningRate, THIS_ int trackInterval)PURE;
 
+	STDMETHOD(CacheAndShowBZoneVertex)(THIS_ int xPix, THIS_ int yPix)PURE;
+	STDMETHOD(EraseCachedVertexes)(THIS_)PURE;
+	STDMETHOD(AddBZone)(THIS_ int x1, THIS_ int y1, THIS_ int x2, THIS_ int y2, THIS_ int x3, THIS_ int y3, THIS_ int x4, THIS_ int y4);
 };

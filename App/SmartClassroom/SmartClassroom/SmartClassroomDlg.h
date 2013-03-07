@@ -38,4 +38,5 @@ public:
 	CTSettingTab m_TSettingPage;
 	//CSSettingTab m_SSettingPage;
 	//CLSettingTab m_LSettingPage;
+	afx_msg void OnStnDblclickStaticplaywndtea();
 };

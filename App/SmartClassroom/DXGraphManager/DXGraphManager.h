@@ -23,6 +23,8 @@ public:
 	HRESULT StopTeacherPTZGraph();
 	HRESULT StartTeacherTracking(BOOL bShowTrackingRes);
 	HRESULT StopTeacherTracking();
+	HRESULT EraseCachedTeacherBZoneVertex();
+	HRESULT CacheAndShowTeacherBZoneVertex(int xPix, int yPix);
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
 	CDXFilterGraphTeaPTZ *m_pTeacherPTZGraph;

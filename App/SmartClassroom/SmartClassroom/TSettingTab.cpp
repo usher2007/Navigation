@@ -19,7 +19,10 @@ CTSettingTab::CTSettingTab(CWnd* pParent /*=NULL*/)
 	: CDialog(CTSettingTab::IDD, pParent)
 {
 	m_pAPIController = CAPIController::GetInstance();
+	m_bSettingBlindZone = FALSE;
+	m_nSavedPoints = 0;
 }
+
 
 CTSettingTab::~CTSettingTab()
 {
@@ -53,6 +56,8 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONStopTracking, &CTSettingTab::OnBnClickedButtonstoptracking)
 	ON_BN_CLICKED(IDC_BUTTONSaveCommonSettings, &CTSettingTab::OnBnClickedButtonsavecommonsettings)
 	ON_BN_CLICKED(IDC_BUTTONAdvSettings, &CTSettingTab::OnBnClickedButtonadvsettings)
+	ON_BN_CLICKED(IDC_BUTTONSetBlindZone, &CTSettingTab::OnBnClickedButtonsetblindzone)
+	ON_BN_CLICKED(IDC_BUTTONSaveBlindZone, &CTSettingTab::OnBnClickedButtonsaveblindzone)
 END_MESSAGE_MAP()
 
 
@@ -220,5 +225,52 @@ void CTSettingTab::OnBnClickedButtonadvsettings()
 	}
 }
 
+void CTSettingTab::OnBnClickedButtonsetblindzone()
+{
+	if(!m_bSettingBlindZone)
+	{
+		m_bSettingBlindZone = TRUE;
+		GetDlgItem(IDC_BUTTONSetBlindZone)->SetWindowTextW(_T("Çå³ý"));
+	}
+	else
+	{
+		m_bSettingBlindZone = FALSE;
+		if(m_pAPIController != NULL)
+		{
+			m_pAPIController->TeacherEraseCurrentBlindZone();
+		}
+		m_nSavedPoints = 0;
+		GetDlgItem(IDC_BUTTONSetBlindZone)->SetWindowTextW(_T("ÉèÖÃÆÁ±ÎÇø"));
+	}
+}
+
+BOOL CTSettingTab::IsSettingBlindZone()
+{
+	return m_bSettingBlindZone;
+}
 
 
+void CTSettingTab::OnBnClickedButtonsaveblindzone()
+{
+	if(m_nSavedPoints == 4)
+	{
+		m_pAPIController->TeacherSaveBlindZone(m_BlindZoneVertexes[0].x, m_BlindZoneVertexes[0].y,
+			                                   m_BlindZoneVertexes[1].x, m_BlindZoneVertexes[1].y,
+											   m_BlindZoneVertexes[2].x, m_BlindZoneVertexes[2].y,
+											   m_BlindZoneVertexes[3].x, m_BlindZoneVertexes[3].y);
+		m_nSavedPoints = 0;
+	}
+	return;
+}
+
+HRESULT CTSettingTab::CacheBlindZoneVertex(int x, int y)
+{
+	if(m_nSavedPoints >=0 && m_nSavedPoints <=3)
+	{
+		m_BlindZoneVertexes[m_nSavedPoints].x = x;
+		m_BlindZoneVertexes[m_nSavedPoints].y = y;
+		m_nSavedPoints++;
+		return S_OK;
+	}
+	return E_FAIL;
+}

@@ -239,6 +239,27 @@ HRESULT CDXFilterGraphTea::StopTracking()
 	return hr;
 }
 
+HRESULT CDXFilterGraphTea::EraseCachedVertexes()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->EraseCachedVertexes();
+	}
+	return hr;
+}
+
+HRESULT CDXFilterGraphTea::AddAndShowBZoneVertex(int xPix, int yPix)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->CacheAndShowBZoneVertex(xPix, yPix);
+	}
+	return hr;
+}
+
+
 HRESULT CDXFilterGraphTea::syncConfiguration()
 {
 	HRESULT hr = E_FAIL;

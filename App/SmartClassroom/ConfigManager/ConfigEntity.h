@@ -29,6 +29,7 @@ const std::string FGUPTHRESH                          = "FG_UP_THRESH";
 const std::string FGHISTTHRESH                        = "FG_HIST_THRESH";
 const std::string GBMLEARNINGRATE                     = "GBM_LEARNING_RATE";
 const std::string TRACKINGINTERVAL                    = "TRACKING_INTERVAL";
+const std::string BLINKZONE                           = "BLIND_ZONE";
 typedef struct LocRange
 {
 	int left;
@@ -38,6 +39,14 @@ typedef struct LocRange
 typedef std::map<int, LocRange> PresetLocDict;
 typedef std::map<int, LocRange>::iterator PresetLocDictIter;
 
+typedef struct BlindZone
+{
+	int x[4];
+	int y[4];
+} BlindZone;
+
+typedef std::vector<BlindZone> BlindZoneList;
+typedef std::vector<BlindZone>::iterator BlindZoneIter;
 class TeacherEntity
 {
 public:
@@ -62,6 +71,8 @@ public:
 	double fgHistThresh;                       // Foreground hist thresh
 	double gbmLearningRate;                    // GBM's learning rate, used in the GBM training
 	int trackingInterval;                      // every trackingInterval frames do once tracking
+
+	BlindZoneList blindZones;                  // Blind Zone of the teacher view
 };
 
 class StudentEntity

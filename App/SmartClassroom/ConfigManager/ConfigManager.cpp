@@ -105,6 +105,24 @@ HRESULT CConfigManager::SetTeaCommonParams(int disappearFrameThresh, int centerW
 	return S_OK;
 }
 
+HRESULT CConfigManager::SetBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	BlindZone bZone;
+
+	bZone.x[0] = x1;
+	bZone.x[1] = x2;
+	bZone.x[2] = x3;
+	bZone.x[3] = x4;
+
+	bZone.y[0] = y1;
+	bZone.y[1] = y2;
+	bZone.y[2] = y3;
+	bZone.y[3] = y4;
+
+	m_teacherEnt.blindZones.push_back(bZone);
+	return S_OK;
+}
+
 HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistance)
 {
 	roomWidth = m_teacherEnt.roomWidth;
@@ -213,6 +231,12 @@ double CConfigManager::GetTeaGBMLearningRate()
 int CConfigManager::GetTeaTrackingInterval()
 {
 	return m_teacherEnt.trackingInterval;
+}
+
+HRESULT CConfigManager::GetBlindZoneList(BlindZoneList **bZoneList)
+{
+	*bZoneList = &(m_teacherEnt.blindZones);
+	return S_OK;
 }
 
 HRESULT CConfigManager::loadTeacherConfig()
@@ -340,6 +364,33 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	{
 		m_teacherEnt.trackingInterval = atoi(paramValue.c_str());
 	}
+	else if(paramName.compare(BLINKZONE) == 0)
+	{
+		int nDelimiPos = 0, i = 0;
+		BlindZone bZone;
+		for(i=1; i<4; ++i)
+		{
+			if(i != 1)
+			{
+				nDelimiPos++;
+			}
+			int nextDelimPos = paramValue.find(DICTIONARYDELIMITER, nDelimiPos);
+			std::string pointStr = paramValue.substr(nDelimiPos, nextDelimPos-nDelimiPos);
+			int pointDelimPos = pointStr.find(ARRAYDELIMITER);
+			int x = atoi(pointStr.substr(0, pointDelimPos).c_str());
+			int y = atoi(pointStr.substr(pointDelimPos+1, pointStr.length()-pointDelimPos-1).c_str());
+			bZone.x[i-1] = x;
+			bZone.y[i-1] = y;
+			nDelimiPos = nextDelimPos;
+		}
+		std::string pointStr = paramValue.substr(nDelimiPos+1, paramValue.length()-nDelimiPos-1);
+		int pointDelimPos = pointStr.find(ARRAYDELIMITER);
+		int x = atoi(pointStr.substr(0, pointDelimPos).c_str());
+		int y = atoi(pointStr.substr(pointDelimPos+1, pointStr.length()-pointDelimPos-1).c_str());
+		bZone.x[3] = x;
+		bZone.y[3] = y;
+		m_teacherEnt.blindZones.push_back(bZone);
+	}
 	else // No this parameter
 	{
 		return E_FAIL;
@@ -436,6 +487,23 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	teacherOut<<FGHISTTHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.fgHistThresh<<'\n';
 	teacherOut<<GBMLEARNINGRATE<<NAMEVALUEDELIMITER<<m_teacherEnt.gbmLearningRate<<'\n';
 	teacherOut<<TRACKINGINTERVAL<<NAMEVALUEDELIMITER<<m_teacherEnt.trackingInterval<<'\n';
+	if(!(m_teacherEnt.blindZones.empty()))
+	{
+		BlindZoneIter bZoneIter;
+		for(bZoneIter=m_teacherEnt.blindZones.begin(); bZoneIter!=m_teacherEnt.blindZones.end(); ++bZoneIter)
+		{
+			teacherOut<<BLINKZONE<<NAMEVALUEDELIMITER;
+			for(int i=0; i<4; i++)
+			{
+				if(i != 0)
+				{
+					teacherOut<<DICTIONARYDELIMITER;
+				}
+				teacherOut<<(bZoneIter->x[i])<<ARRAYDELIMITER<<(bZoneIter->y[i]);
+			}
+			teacherOut<<'\n';
+		}
+	}
 	teacherOut<<std::endl;
 	teacherOut.close();
 	return S_OK;

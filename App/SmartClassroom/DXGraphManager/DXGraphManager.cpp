@@ -102,3 +102,23 @@ HRESULT CDXGraphManager::StopTeacherPTZGraph()
 	}
 	return hr;
 }
+
+HRESULT CDXGraphManager::EraseCachedTeacherBZoneVertex()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTeacherGraph)
+	{
+		hr = m_pTeacherGraph->EraseCachedVertexes();
+	}
+	return hr;
+}
+
+HRESULT CDXGraphManager::CacheAndShowTeacherBZoneVertex( int xPix, int yPix )
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTeacherGraph)
+	{
+		hr = m_pTeacherGraph->CacheAndShowBZoneVertex(xPix, yPix);
+	}
+	return hr;
+}

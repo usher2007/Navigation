@@ -318,3 +318,33 @@ HRESULT CAPIController::TeacherSetCommonParams(int disappearFrameThresh, int cen
 	}
 	return hr;
 }
+
+HRESULT CAPIController::TeacherCachePointToShow(int xPix, int yPix)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->CacheAndShowTeacherBZoneVertex(xPix, yPix);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherEraseCurrentBlindZone()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->EraseCachedTeacherBZoneVertex();
+	}
+	return hr;
+}
+
+HRESULT CAPIController::TeacherSaveBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetBlindZone(x1, y1, x2, y2, x3, y3, x4, y4);
+	}
+	return hr;
+}
