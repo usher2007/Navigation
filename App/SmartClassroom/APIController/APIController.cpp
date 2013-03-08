@@ -345,6 +345,9 @@ HRESULT CAPIController::TeacherSaveBlindZone(int x1, int y1, int x2, int y2, int
 	if(m_pModuleFactory)
 	{
 		hr = m_pModuleFactory->GetConfigManager()->SetBlindZone(x1, y1, x2, y2, x3, y3, x4, y4);
+		if(FAILED(hr))
+			return hr;
+		hr = m_pModuleFactory->GetGraphManager()->AddTeacherBlindZone(x1, y1, x2, y2, x3, y3, x4, y4);
 	}
 	return hr;
 }

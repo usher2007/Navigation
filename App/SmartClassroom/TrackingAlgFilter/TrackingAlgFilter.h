@@ -89,6 +89,7 @@ private:
 	BOOL m_bTracking;
 
 	void *m_pPosAnalyzer;
+
 };
 
 
