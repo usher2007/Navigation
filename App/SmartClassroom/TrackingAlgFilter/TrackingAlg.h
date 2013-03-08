@@ -33,6 +33,7 @@ public:
 	HRESULT CacheAndShowBZoneVertex(int xPix, int yPix);
 	HRESULT EraseCachedVertexes();
 	HRESULT AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+	HRESULT ClearBZones();
 	HRESULT DrawBZoneVertexes(cv::Mat &frame);
 	HRESULT DrawBZones(cv::Mat &frame);
 private:
@@ -47,6 +48,7 @@ private:
 	BZoneShapeList m_bZoneShapeList;
 	CCritSec m_vertexMutex;
 	CCritSec m_bzoneMutex;
+	CCritSec m_bzoneShapeMutex;
 
 private:
 	int CalcImageBaryCenters(const cv::Mat& img, std::vector<cv::Point2f>& baryCenters);

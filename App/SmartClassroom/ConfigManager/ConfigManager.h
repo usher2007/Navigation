@@ -30,6 +30,7 @@ public:
 	HRESULT SetTeaTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
 	HRESULT SetTeaCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
 	HRESULT SetBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+	HRESULT ClearBlindZones();
 	// Get Parameters
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 	HRESULT GetTeaPresetLocDict(PresetLocDict** locDict);

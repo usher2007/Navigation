@@ -132,3 +132,13 @@ HRESULT CDXGraphManager::AddTeacherBlindZone(int x1, int y1, int x2, int y2, int
 	}
 	return hr;
 }
+
+HRESULT CDXGraphManager::ClearBlindZones()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTeacherGraph)
+	{
+		hr = m_pTeacherGraph->ClearBlindZones();
+	}
+	return hr;
+}

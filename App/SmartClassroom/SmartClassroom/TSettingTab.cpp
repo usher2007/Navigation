@@ -58,6 +58,7 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONAdvSettings, &CTSettingTab::OnBnClickedButtonadvsettings)
 	ON_BN_CLICKED(IDC_BUTTONSetBlindZone, &CTSettingTab::OnBnClickedButtonsetblindzone)
 	ON_BN_CLICKED(IDC_BUTTONSaveBlindZone, &CTSettingTab::OnBnClickedButtonsaveblindzone)
+	ON_BN_CLICKED(IDC_BUTTONClearBlindZone2, &CTSettingTab::OnBnClickedButtonclearblindzone2)
 END_MESSAGE_MAP()
 
 
@@ -252,12 +253,14 @@ BOOL CTSettingTab::IsSettingBlindZone()
 
 void CTSettingTab::OnBnClickedButtonsaveblindzone()
 {
-	if(m_nSavedPoints == 4)
+	if(m_nSavedPoints == 4 && m_pAPIController)
 	{
 		m_pAPIController->TeacherSaveBlindZone(m_BlindZoneVertexes[0].x, m_BlindZoneVertexes[0].y,
 			                                   m_BlindZoneVertexes[1].x, m_BlindZoneVertexes[1].y,
 											   m_BlindZoneVertexes[2].x, m_BlindZoneVertexes[2].y,
 											   m_BlindZoneVertexes[3].x, m_BlindZoneVertexes[3].y);
+		m_bSettingBlindZone = FALSE;
+		GetDlgItem(IDC_BUTTONSetBlindZone)->SetWindowTextW(_T("ÉèÖÃÆÁ±ÎÇø"));
 		m_nSavedPoints = 0;
 	}
 	return;
@@ -273,4 +276,13 @@ HRESULT CTSettingTab::CacheBlindZoneVertex(int x, int y)
 		return S_OK;
 	}
 	return E_FAIL;
+}
+
+
+void CTSettingTab::OnBnClickedButtonclearblindzone2()
+{
+	if(m_pAPIController)
+	{
+		m_pAPIController->TeacherClearBlindZones();
+	}
 }

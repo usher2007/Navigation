@@ -176,6 +176,7 @@ HRESULT TrackingAlg::AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, in
 		bZoneShape.y[2] = y3;
 		bZoneShape.y[3] = y4;
 
+		m_bzoneShapeMutex.Lock();
 		if(containSameBZoneShape(bZoneShape))
 		{
 			return S_OK;
@@ -184,11 +185,7 @@ HRESULT TrackingAlg::AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, in
 		{
 			m_bZoneShapeList.push_back(bZoneShape);
 		}
-
-		/*cv::Point2f vertex1(x1, y1);
-		cv::Point2f vertex2(x2, y2);
-		cv::Point2f vertex3(x3, y3);
-		cv::Point2f vertex4(x4, y4);*/
+		m_bzoneShapeMutex.Unlock();
 
 		cv::Point2f vertex1(y1, x1);
 		cv::Point2f vertex2(y2, x2);
@@ -228,6 +225,19 @@ HRESULT TrackingAlg::AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, in
 		return S_OK;
 	}
 	return E_INVALIDARG;
+}
+
+HRESULT TrackingAlg::ClearBZones()
+{
+	m_bzoneMutex.Lock();
+	m_blindZoneList.clear();
+	m_bzoneMutex.Unlock();
+
+	m_bzoneShapeMutex.Lock();
+	m_bZoneShapeList.clear();
+	m_bzoneShapeMutex.Unlock();
+
+	return S_OK;
 }
 
 HRESULT TrackingAlg::DrawBZoneVertexes(cv::Mat &frame)

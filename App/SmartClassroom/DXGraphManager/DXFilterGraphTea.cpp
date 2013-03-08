@@ -269,6 +269,16 @@ HRESULT CDXFilterGraphTea::AddBlindZone(int x1, int y1, int x2, int y2, int x3, 
 	return hr;
 }
 
+HRESULT CDXFilterGraphTea::ClearBlindZones()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->ClearBlindZones();
+	}
+	return hr;
+}
+
 
 HRESULT CDXFilterGraphTea::syncConfiguration()
 {

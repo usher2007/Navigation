@@ -16,6 +16,7 @@
 class APICONTROLLER_API CAPIController {
 public:
 	static CAPIController* GetInstance();
+	
 	HRESULT DumpConfiguration();
 
 
@@ -55,6 +56,7 @@ public:
 	HRESULT TeacherCachePointToShow(int xPix, int yPix);
 	HRESULT TeacherEraseCurrentBlindZone();
 	HRESULT TeacherSaveBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+	HRESULT TeacherClearBlindZones();
 	// Student Part
 	HRESULT BuildStudentGraph();
 
@@ -63,7 +65,6 @@ public:
 
 private:
 	CAPIController(void);
-	~CAPIController();
 
 	HRESULT addCamera(int cameraId, int comNum, int baudRate);
 	HRESULT restoreCameraPresetLoc(int cameraId);
