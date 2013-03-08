@@ -212,7 +212,8 @@ HRESULT CDXFilterGraphTea::BuildGraph(BOOL bDisplay)
 		hr = CUtils::ConnectFilters(m_pGraphBuilder, pTrackingAlgFilter, pRenderer, MEDIATYPE_NULL);
 		if(FAILED(hr)) return hr;
 
-		hr = CUtils::SaveGraphFile(m_pGraphBuilder, L"F:\\TMReceiver.grf");
+		//hr = CUtils::SaveGraphFile(m_pGraphBuilder, L"F:\\TMReceiver.grf");
+		syncConfiguration();
 		return S_OK;
 	}
 }
