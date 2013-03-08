@@ -107,6 +107,7 @@ void CSmartClassroomDlg::OnClose()
 	if(m_pAPIController != NULL)
 	{
 		m_pAPIController->DumpConfiguration();
+		delete m_pAPIController;
 	}
 	CDialogEx::OnClose();
 	return;

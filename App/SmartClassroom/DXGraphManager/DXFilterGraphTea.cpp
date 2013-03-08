@@ -249,12 +249,32 @@ HRESULT CDXFilterGraphTea::EraseCachedVertexes()
 	return hr;
 }
 
-HRESULT CDXFilterGraphTea::AddAndShowBZoneVertex(int xPix, int yPix)
+HRESULT CDXFilterGraphTea::CacheAndShowBZoneVertex( int xPix, int yPix )
 {
 	HRESULT hr = E_FAIL;
 	if(m_pTrackingControl)
 	{
 		hr = m_pTrackingControl->CacheAndShowBZoneVertex(xPix, yPix);
+	}
+	return hr;
+}
+
+HRESULT CDXFilterGraphTea::AddBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->AddBZone(x1, y1, x2, y2, x3, y3, x4, y4);
+	}
+	return hr;
+}
+
+HRESULT CDXFilterGraphTea::ClearBlindZones()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->ClearBlindZones();
 	}
 	return hr;
 }
@@ -266,6 +286,7 @@ HRESULT CDXFilterGraphTea::syncConfiguration()
 	if(m_pTrackingControl)
 	{
 		CConfigManager *pConfigManager = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager();
+		CDXGraphManager *pDXGraphManager = ((CModuleFactory *)m_pModuleFactory)->GetGraphManager();
 
 		int beginX = -1, beginY = -1, beginWidth = -1, beginHeight = -1, stopX = -1, stopY = -1, stopWidth = -1, stopHeight = -1;
 		pConfigManager->GetTeaBeginTrackingArea(beginX, beginY, beginWidth, beginHeight);
@@ -291,6 +312,20 @@ HRESULT CDXFilterGraphTea::syncConfiguration()
 		gbmLearningRate = pConfigManager->GetTeaGBMLearningRate();
 		trackingInterval = pConfigManager->GetTeaTrackingInterval();
 		m_pTrackingControl->ConfigMiscellaneous(gbmLearningRate, trackingInterval);
+
+		BlindZoneList *pBZoneList = NULL;
+		pConfigManager->GetBlindZoneList(&pBZoneList);
+		if(pBZoneList != NULL)
+		{
+			BlindZoneIter bzoneIter;
+			for(bzoneIter=pBZoneList->begin(); bzoneIter!=pBZoneList->end(); ++bzoneIter)
+			{
+				AddBlindZone(bzoneIter->x[0], bzoneIter->y[0],
+					         bzoneIter->x[1], bzoneIter->y[1],
+							 bzoneIter->x[2], bzoneIter->y[2],
+							 bzoneIter->x[3], bzoneIter->y[3]);
+			}
+		}
 		return S_OK;
 	}
 	return E_FAIL;

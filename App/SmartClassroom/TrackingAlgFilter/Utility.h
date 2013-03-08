@@ -10,8 +10,8 @@ class TrackingConfig
 public:
 static string VIDEO_FILE_NAME;
 static string RESULT_FILE_NAME;
-static Rect BEGIN_TRACKING_AREA;
-static Rect STOP_TRACKING_AREA;
+static cv::Rect BEGIN_TRACKING_AREA;
+static cv::Rect STOP_TRACKING_AREA;
 static int LEAST_HUMAN_GAP;
 static int HUMAN_WIDTH;
 static int DISAPPEAR_FRAME_THRESH;
@@ -23,8 +23,8 @@ static double GBM_LEARNING_RATE;
 static int TRACK_INTERVAL;
 static double PI;
 //For Debug
-static Rect PAD_AREA_1;
-static Rect PAD_AREA_2;
-static Rect PAD_AREA_3;
-static Rect PAD_AREA_4;
+static cv::Rect PAD_AREA_1;
+static cv::Rect PAD_AREA_2;
+static cv::Rect PAD_AREA_3;
+static cv::Rect PAD_AREA_4;
 };

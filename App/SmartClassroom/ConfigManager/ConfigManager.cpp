@@ -123,6 +123,15 @@ HRESULT CConfigManager::SetBlindZone(int x1, int y1, int x2, int y2, int x3, int
 	return S_OK;
 }
 
+HRESULT CConfigManager::ClearBlindZones()
+{
+	if(m_teacherEnt.blindZones.empty())
+	{
+		return S_OK;
+	}
+	m_teacherEnt.blindZones.clear();
+}
+
 HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistance)
 {
 	roomWidth = m_teacherEnt.roomWidth;

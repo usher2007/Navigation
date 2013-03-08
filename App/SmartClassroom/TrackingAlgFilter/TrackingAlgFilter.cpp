@@ -237,15 +237,17 @@ STDMETHODIMP CTrackingAlgFilter::NonDelegatingQueryInterface(REFIID riid, void *
 
 HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 {
+	PBYTE p;
+	pSample->GetPointer(&p);
+
+	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
+	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
+	m_pTrackingAlg->DrawBZoneVertexes(img);
+	m_pTrackingAlg->DrawBZones(img);
 	if(m_bTracking)
 	{
 		QueryPerformanceCounter((LARGE_INTEGER *)&T1);
 
-		PBYTE p;
-		pSample->GetPointer(&p);
-
-		int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
-		cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
 		m_pTrackingAlg->Update(img);
 
 		QueryPerformanceCounter((LARGE_INTEGER *)&T2);
@@ -361,4 +363,24 @@ STDMETHODIMP CTrackingAlgFilter::ConfigMiscellaneous(double gbmLearningRate, int
 	}
 
 	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::CacheAndShowBZoneVertex(int xPix, int yPix)
+{
+	return m_pTrackingAlg->CacheAndShowBZoneVertex(xPix, yPix);
+}
+
+STDMETHODIMP CTrackingAlgFilter::EraseCachedVertexes()
+{
+	return m_pTrackingAlg->EraseCachedVertexes();
+}
+
+STDMETHODIMP CTrackingAlgFilter::AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	return m_pTrackingAlg->AddBZone(x1, y1, x2, y2, x3, y3, x4, y4);
+}
+
+STDMETHODIMP CTrackingAlgFilter::ClearBlindZones()
+{
+	return m_pTrackingAlg->ClearBZones();
 }

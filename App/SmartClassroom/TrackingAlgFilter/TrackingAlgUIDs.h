@@ -22,5 +22,6 @@ DECLARE_INTERFACE_(ITrackingControl, IUnknown)
 
 	STDMETHOD(CacheAndShowBZoneVertex)(THIS_ int xPix, THIS_ int yPix)PURE;
 	STDMETHOD(EraseCachedVertexes)(THIS_)PURE;
-	STDMETHOD(AddBZone)(THIS_ int x1, THIS_ int y1, THIS_ int x2, THIS_ int y2, THIS_ int x3, THIS_ int y3, THIS_ int x4, THIS_ int y4);
+	STDMETHOD(AddBZone)(THIS_ int x1, THIS_ int y1, THIS_ int x2, THIS_ int y2, THIS_ int x3, THIS_ int y3, THIS_ int x4, THIS_ int y4)PURE;
+	STDMETHOD(ClearBlindZones)(THIS_)PURE;
 };
