@@ -19,6 +19,13 @@ hog_bin_size = 5;
 hog_n_orient = 9;
 hog_index = 1;
 
+particle_num = 200;
+particles = zeros(particle_num, 4);
+sigma_px = 2;
+sigma_py = 2;
+sigma_pw = 1;
+sigma_ph = 1;
+
 s_frames = cell(nframes, 1);
 for i=1:nframes
     image_no = start_frame + i - 1;
@@ -36,6 +43,8 @@ end
 [image_h image_w] = size(image_gray);
 col_begin = first_loc(1);
 row_begin = first_loc(2);
+col_width = first_loc(3);
+row_height = first_loc(4);
 col_end = col_begin + first_loc(3);
 row_end = row_begin + first_loc(4);
 object = image_gray(row_begin:row_end, col_begin:col_end);
@@ -53,7 +62,28 @@ for i=1:n_row*n_col
     HT(i, 12:end, :) = eye(hog_feature_len);
 end
 
+State = [col_begin, row_begin, col_width, row_height];
+particles(:,1) = State(1) + fix(sigma_px*randn(1,particle_num));
+particles(:,2) = State(2) + fix(sigma_py*randn(1,particle_num));
+particles(:,3) = State(3) + fix(sigma_pw*randn(1,particle_num));
+particles(:,4) = State(4) + fix(sigma_ph*randn(1,particle_num));
+
 for i=2:nframes
     image_gray = imread(s_frames{i});
-    image_patches = im2col(image_gray, [n_row n_col], 'distinct');
+    if(size(image_gray,3) ~= 1)
+        image_gray = rgb2gray(image_gray);
+    end
+    for j=1:particle_num
+        pcol_begin = particles(j,1);
+        pcol_end = pcol_begin + particles(j,3);
+        prow_begin = particles(j,2);
+        prow_begin = prow_begin + particles(j,4);
+        object_candidate = image_gray(prow_begin:prow_end, pcol_begin:pcol_end);
+        object_candidate = imresize(object_candidate, [t_row t_col]);
+        candidate_patches =  im_get_patches(object_candidate, n_row, n_col);
+        for k=1:n_row*n_col
+            candidate_feature = my_hog(candidate_patches(k,:,:),hog_bin_size, hog_n_orient, hog_index);
+            
+        end
+    end
 end
