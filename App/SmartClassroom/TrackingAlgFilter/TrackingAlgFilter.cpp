@@ -260,6 +260,10 @@ HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 		((CPositionAnalyzer *)m_pPosAnalyzer)->AnalyzeTeacherPositions(m_pTrackingAlg->GetTrackedPerson());
 		cv::waitKey(1);
 	}
+	else
+	{
+		((CPositionAnalyzer *)m_pPosAnalyzer)->ResetParameters();
+	}
 	return NOERROR;
 }
 

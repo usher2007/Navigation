@@ -12,7 +12,8 @@
 CPositionAnalyzer::CPositionAnalyzer()
 {
 	m_pModuleFactory = CModuleFactory::GetInstance();
-	m_nPrevLocId = 0;
+	m_nPrevLocId = -1;
+	m_nFullScrDuration = 0;
 	return;
 }
 
@@ -21,6 +22,16 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 {
 	int teaId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaId();
 	int teaFullScreenId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaFullScreenLocId();
+	if(m_nPrevLocId == teaFullScreenId)
+	{
+		if(m_nFullScrDuration < 250)
+		{
+			m_nFullScrDuration++;
+			return S_OK;
+		}
+		m_nFullScrDuration = 0;
+		m_nPrevLocId = -1;
+	}
 	if(trackedPersons.empty())
 	{
 		return S_FALSE;
@@ -29,6 +40,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 	{
 		((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
 		m_nPrevLocId = teaFullScreenId;
+		m_nFullScrDuration = 1;
 		return S_OK;
 	}
 	else
@@ -78,4 +90,11 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 		}
 		return S_FALSE;
 	}
+}
+
+HRESULT CPositionAnalyzer::ResetParameters()
+{
+	m_nPrevLocId = -1;
+	m_nFullScrDuration = 0;
+	return S_OK;
 }
