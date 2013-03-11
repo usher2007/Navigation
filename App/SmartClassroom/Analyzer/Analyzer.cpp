@@ -28,6 +28,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 	else if(trackedPersons.size() > 1)
 	{
 		((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
+		m_nPrevLocId = teaFullScreenId;
 		return S_OK;
 	}
 	else
