@@ -77,6 +77,8 @@ particles(:,3) = State(3) + fix(sigma_pw*randn(1,particle_num));
 particles(:,4) = State(4) + fix(sigma_ph*randn(1,particle_num));
 
 particle_features = zeros(n_row*n_col, particle_num, hog_feature_len);
+particle_alpha = zeros(n_row*n_col, 1+template_num+hog_feature_len, particle_num);
+particle_sim = zeros(n_row*n_col, particle_num);
 for i=2:nframes
     image_gray = imread(s_frames{i});
     if(size(image_gray,3) ~= 1)
@@ -87,7 +89,7 @@ for i=2:nframes
         pcol_begin = particles(j,1);
         pcol_end = pcol_begin + particles(j,3);
         prow_begin = particles(j,2);
-        prow_begin = prow_begin + particles(j,4);
+        prow_end = prow_begin + particles(j,4);
         object_candidate = image_gray(prow_begin:prow_end, pcol_begin:pcol_end);
         object_candidate = imresize(object_candidate, [t_row t_col]);
         candidate_patches =  im_get_patches(object_candidate, n_row, n_col);
@@ -97,8 +99,9 @@ for i=2:nframes
     end
     
     for j=1:n_row*n_col
-        patch_particle_feas = reshape(particle_features, particle_num, hog_feature_len);
-        patch_HT = reshape(HT, 1+template_num+hog_feature_len, hog_feature_len);
-        alpha = my_lasso(particle_features(k,:,:), HT(j,:,:), param);
-    end
+        patch_particle_feas = reshape(particle_features(j,:,:), particle_num, hog_feature_len);
+        patch_HT = reshape(HT(j,:,:), 1+template_num+hog_feature_len, hog_feature_len);
+        particle_alpha(j,:,:) = my_lasso(patch_particle_feas', patch_HT', param);
+        particle_sim(j,:) = reshape((sum(particle_alpha(j,1:1+template_num,:))+0.01)./(sum(particle_alpha(j,2+template_num:end,:))+0.01), 1, particle_num);
+    end   
 end
