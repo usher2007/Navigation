@@ -26,6 +26,14 @@ sigma_py = 2;
 sigma_pw = 1;
 sigma_ph = 1;
 
+param.lambda=0.5;
+param.numThreads=-1; % number of threads
+
+param.mode=0;
+param.approx=0;
+param.pos = true;
+
+template_num = 10;
 s_frames = cell(nframes, 1);
 for i=1:nframes
     image_no = start_frame + i - 1;
@@ -53,7 +61,7 @@ object_patches = im_get_patches(object, n_row, n_col);
 hog_row = ceil(t_row/n_row)/hog_bin_size;
 hog_col = ceil(t_col/n_col)/hog_bin_size;
 hog_feature_len = hog_row*hog_col*hog_n_orient;
-HT = zeros(n_row*n_col, 11+hog_feature_len, hog_feature_len);
+HT = zeros(n_row*n_col, 1+template_num+hog_feature_len, hog_feature_len);
 for i=1:n_row*n_col
     HT(i, 1, :) = my_hog(object_patches(i, :, :), hog_bin_size, hog_n_orient, hog_index);
 end
@@ -68,11 +76,13 @@ particles(:,2) = State(2) + fix(sigma_py*randn(1,particle_num));
 particles(:,3) = State(3) + fix(sigma_pw*randn(1,particle_num));
 particles(:,4) = State(4) + fix(sigma_ph*randn(1,particle_num));
 
+particle_features = zeros(n_row*n_col, particle_num, hog_feature_len);
 for i=2:nframes
     image_gray = imread(s_frames{i});
     if(size(image_gray,3) ~= 1)
         image_gray = rgb2gray(image_gray);
     end
+   
     for j=1:particle_num
         pcol_begin = particles(j,1);
         pcol_end = pcol_begin + particles(j,3);
@@ -82,8 +92,13 @@ for i=2:nframes
         object_candidate = imresize(object_candidate, [t_row t_col]);
         candidate_patches =  im_get_patches(object_candidate, n_row, n_col);
         for k=1:n_row*n_col
-            candidate_feature = my_hog(candidate_patches(k,:,:),hog_bin_size, hog_n_orient, hog_index);
-            
+            particle_features(k,j,:) = my_hog(candidate_patches(k,:,:),hog_bin_size, hog_n_orient, hog_index);
         end
+    end
+    
+    for j=1:n_row*n_col
+        patch_particle_feas = reshape(particle_features, particle_num, hog_feature_len);
+        patch_HT = reshape(HT, 1+template_num+hog_feature_len, hog_feature_len);
+        alpha = my_lasso(particle_features(k,:,:), HT(j,:,:), param);
     end
 end
