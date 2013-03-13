@@ -1,10 +1,10 @@
 close all, clear all;
-fprefix = 'data\car4\';
-fannote = 'car4.txt';
-fext = 'bmp';
+fprefix = 'data\faceocc2\';
+fannote = 'faceocc2.txt';
+fext = 'png';
 s_annotation = strcat(fprefix, fannote);
-start_frame = 20;
-nframes = 600;
+start_frame = 4;
+nframes = 100;
 
 n_row = 3;
 n_col = 3;
@@ -34,12 +34,12 @@ param.approx=0;
 param.pos = true;
 
 template_num = 10;
-sim_thresh = 3;
+sim_thresh = 0;
 s_frames = cell(nframes, 1);
 for i=1:nframes
     image_no = start_frame + i - 1;
-    fid = sprintf('%d', image_no);
-    s_frames{i} = strcat(fprefix, fid, '.', fext);
+    fid = sprintf('%05d', image_no);
+    s_frames{i} = strcat(fprefix,'img', fid, '.', fext);
 end
 
 %for the 1st frame, get the true object
@@ -83,6 +83,15 @@ particle_alpha = zeros(n_row*n_col, 1+template_num+hog_feature_len*2, particle_n
 patch_particle_sim = zeros(n_row*n_col, particle_num);
 particle_sim = zeros(1,particle_num);
 particle_reind = zeros(1,particle_num);
+sigma_weight = 0.05;
+fig = figure(1);
+imshow(image_gray);
+hold on
+x = [State(1) State(1)+State(3) State(1)+State(3) State(1) State(1)];
+y = [State(2) State(2) State(2)+State(4) State(2)+State(4) State(2)];
+    
+plot(x,y,'r-');
+hold off
 for i=2:nframes
     image_gray = imread(s_frames{i});
     if(size(image_gray,3) ~= 1)
@@ -94,6 +103,12 @@ for i=2:nframes
         pcol_end = pcol_begin + particles(j,3);
         prow_begin = particles(j,2);
         prow_end = prow_begin + particles(j,4);
+        if  pcol_begin <= 0
+            pcol = 1;
+        end
+        if prow_begin <= 0
+            prow = 1;
+        end
         object_candidate = image_gray(prow_begin:prow_end, pcol_begin:pcol_end);
         object_candidate = imresize(object_candidate, [t_row t_col]);
         candidate_patches =  im_get_patches(object_candidate, n_row, n_col);
@@ -107,13 +122,33 @@ for i=2:nframes
         patch_HT = reshape(HT(j,:,:), 1+template_num+hog_feature_len*2, hog_feature_len);
         particle_alpha(j,:,:) = my_lasso(patch_particle_feas', patch_HT', param);
         patch_particle_sim(j,:) = reshape((sum(particle_alpha(j,1:1+template_num,:))+0.01)./(sum(particle_alpha(j,2+template_num:end,:))+0.01), 1, particle_num);
+        patch_particle_sim(j,:) = patch_particle_sim(j,:)/sum(patch_particle_sim(j,:));
+        for k=1:particle_num
+           patch_particle_sim(j,k) = 1/sqrt(2*pi)/sigma_weight*exp(-(1-patch_particle_sim(j,k))/2/sigma_weight^2);
+        end
+        patch_particle_sim(j,:) = patch_particle_sim(j,:)/sum(patch_particle_sim(j,:));
     end
     big_sim_index = patch_particle_sim > sim_thresh;
     particle_sim = sum(big_sim_index.*patch_particle_sim);
     particle_sim = particle_sim / sum(particle_sim);
     best_index = find(particle_sim == max(particle_sim));
-    State = round(mean(particles(best_index, :), 1));
+    particle_sim_matrix = repmat(particle_sim',1,4); 
+    particles_temp = particles.*particle_sim_matrix;
+    State = round(sum(particles_temp(:, :), 1));
     State
+    
+    % display
+    imshow(image_gray);
+    title(sprintf('Frame = %d',i+start_frame-1));
+    hold on
+    x = [State(1) State(1)+State(3) State(1)+State(3) State(1) State(1)];
+    y = [State(2) State(2) State(2)+State(4) State(2)+State(4) State(2)];
+    
+    plot(x,y,'r-');
+    hold off
+    filename = sprintf('%d.bmp',i+start_frame-1);
+    saveas(fig,filename,'bmp');
+    
     %max(particle_sim)
     % Generate the new particles
     cdf_sim = cumsum(particle_sim);
@@ -132,5 +167,11 @@ for i=2:nframes
     if index == 0
         index = 10;
     end
-    HT(:,index+1,:) = mean(particle_features(:, best_index, :), 2);
+    %HT(:,index+1,:) = mean(particle_features(:, best_index, :), 2);
+    template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
+    template = imresize(template,[t_row t_col]);
+    template_patches = im_get_patches(template, n_row, n_col);
+    for j=1:n_row*n_col
+        HT(j,index+1,:) = my_hog(template_patches(j,:,:),hog_bin_size, hog_n_orient, hog_index);
+    end
 end
