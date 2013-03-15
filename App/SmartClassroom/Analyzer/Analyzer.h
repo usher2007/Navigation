@@ -18,7 +18,11 @@ using namespace cv;
 class ANALYZER_API CPositionAnalyzer {
 public:
 	CPositionAnalyzer(void);
-	int AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons);
-	// TODO: add your methods here.
+	HRESULT AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons);
+	HRESULT ResetParameters();
+private:
+	void * m_pModuleFactory;
+	int m_nPrevLocId;
+	int m_nFullScrDuration;
 };
 

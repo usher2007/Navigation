@@ -9,24 +9,58 @@
 #else
 #define CONFIGMANAGER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include <vector>
+#include "ConfigEntity.h"
 
 // This class is exported from the ConfigManager.dll
 class CONFIGMANAGER_API CConfigManager {
 public:
 	CConfigManager(void);
+	~CConfigManager();
 	// TODO: add your methods here.
-	int SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
-	int SetTeacherFullScreen(int locId);
+	HRESULT LoadConfigFile();
+	HRESULT DumpConfigFile();
+	// Set Parameters
+	HRESULT SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
+	HRESULT SetTeacherFullScreen(int locId);
+	HRESULT SetTeaShowTracking(BOOL bShowTracking);
+	HRESULT SetTeaDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, int humanWidth, int fgLowThresh, 
+		int fgUpThresh, double fgHistThresh);
+	HRESULT SetTeaTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
+	HRESULT SetTeaCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
+	HRESULT SetBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+	HRESULT ClearBlindZones();
+	// Get Parameters
+	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
+	HRESULT GetTeaPresetLocDict(PresetLocDict** locDict);
+	int GetTeaId();
+	int GetTeaFullScreenLocId();
+	int GetTeaPixRangeOverlap();
+	BOOL IsTeaShowTracking();
+	HRESULT GetTeaBeginTrackingArea(int& x, int& y, int& width, int& height);
+	HRESULT GetTeaStopTrackingArea(int& x, int& y, int& width, int& height);
+	int GetTeaLeastHumanGap();
+	int GetTeaHumanWidth();
+	int GetTeaDisFrameThresh();
+	int GetTeaCenterWeightThresh();
+	int GetTeaFgLowThresh();
+	int GetTeaFgUpThresh();
+	double GetTeaFgHistThresh();
+	double GetTeaGBMLearningRate();
+	int GetTeaTrackingInterval();
+	HRESULT GetBlindZoneList(BlindZoneList **bZoneList);
 private:
-	typedef struct LocRange
-	{
-		int left;
-		int right;
-	} LocRange;
-	int m_fullScreenLocId;
-	std::vector<int> presetLocIds; // must be orderer
-	std::vector<LocRange> presetLocRanges; // correspond to the LocId one to one
+	HRESULT loadTeacherConfig();
+	HRESULT loadStudentConfig();
+	HRESULT loadLaserPointConfig();
+	HRESULT dumpTeacherConfig();
+	HRESULT getParamNameAndVal(const std::string& paramLine, std::string& paramName, std::string& paramValue);
+	HRESULT setTeaParametersFromFile(const std::string& paramName, std::string& paramValue);
+	HRESULT processArrayParameters(const std::string& paramName, std::string& paramValue, int arrayLen);
+private:
+	TeacherEntity m_teacherEnt;
+	StudentEntity m_studentEnt;
+	LaserPointEntity m_laserPointEnt;
 };
 

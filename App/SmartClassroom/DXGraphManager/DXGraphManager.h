@@ -9,18 +9,26 @@
 #else
 #define DXGRAPHMANAGER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include "DXFilterGraphTea.h"
 // This class is exported from the DXGraphManager.dll
 class DXGRAPHMANAGER_API CDXGraphManager {
 public:
 	CDXGraphManager(void);
 	HRESULT CreateTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
+	HRESULT CreateTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 	HRESULT RunTeacherGraph();
+	HRESULT RunTeacherPTZGraph();
 	HRESULT StopTeacherGraph();
-	HRESULT StartTeacherTracking();
+	HRESULT StopTeacherPTZGraph();
+	HRESULT StartTeacherTracking(BOOL bShowTrackingRes);
 	HRESULT StopTeacherTracking();
+	HRESULT EraseCachedTeacherBZoneVertex();
+	HRESULT CacheAndShowTeacherBZoneVertex(int xPix, int yPix);
+	HRESULT AddTeacherBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4); 
+	HRESULT ClearBlindZones();
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
+	CDXFilterGraphTeaPTZ *m_pTeacherPTZGraph;
 };
 

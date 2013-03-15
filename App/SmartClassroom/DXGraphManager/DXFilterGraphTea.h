@@ -8,40 +8,67 @@
 #define WM_GRAPHNOTIFY (WM_APP + 100)
 #endif
 
-class CDXFilterGraphTea
+class CDXFilterGraph
 {
 public:
-	CDXFilterGraphTea();
+	CDXFilterGraph();
 
-	HRESULT Create();
-	HRESULT BuildGraph(BOOL bDisplay);
-	HRESULT SetDisplayWindow(HWND windowHandle);
-	HRESULT SetNotifyWindow(HWND windowHandle);
-	
+	virtual HRESULT Create();
+	virtual HRESULT BuildGraph(BOOL display)=0;
+	virtual HRESULT SetDisplayWindow(HWND windowHandle);
+	virtual HRESULT SetNotifyWindow(HWND windowHandle);
 
-	HRESULT Run();
-	HRESULT Stop();
+	virtual HRESULT Run();
+	virtual HRESULT Stop();
 
-	IMediaEventEx * GetEventHandle();
+	virtual IMediaEventEx * GetEventHandle();
 
-	HRESULT Destroy();
-
-	//
-	// --- ITrackingControl Interface --
-	//
-	HRESULT StartTracking();
-	HRESULT StopTracking();
-
-private:
+	virtual HRESULT Destroy();
+protected:
 	HRESULT init();
 
+protected:
 	CComPtr<IGraphBuilder> m_pGraphBuilder;
 	CComPtr<IMediaControl> m_pMediaControl;
 	CComPtr<IMediaEventEx> m_pMediaEvent;
 	CComPtr<IVideoWindow> m_pVideoWindow;
 	CComPtr<IBasicVideo> m_pBasicVideo;
-	CComPtr<ITrackingControl> m_pTrackingControl;
 
 	HWND m_hDisplayWnd;
 	BOOL m_bDisplay;
+	void *m_pModuleFactory;
+};
+
+class CDXFilterGraphTea : public CDXFilterGraph
+{
+public:
+	CDXFilterGraphTea();
+
+	HRESULT BuildGraph(BOOL bDisplay);
+
+	//
+	// --- ITrackingControl Interface --
+	//
+	HRESULT StartTracking(BOOL bShowTrackingRes);
+	HRESULT StopTracking();
+	HRESULT EraseCachedVertexes();
+	HRESULT CacheAndShowBZoneVertex(int xPix, int yPix);
+	HRESULT AddBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+	HRESULT ClearBlindZones();
+private:
+	//
+	// --- Transport the params from Config to Tracking Filter --
+	//
+	HRESULT syncConfiguration();
+
+private:
+	CComPtr<ITrackingControl> m_pTrackingControl;
+};
+
+class CDXFilterGraphTeaPTZ : public CDXFilterGraph
+{
+public:
+	CDXFilterGraphTeaPTZ();
+
+	HRESULT BuildGraph(BOOL bDisplay);
 };

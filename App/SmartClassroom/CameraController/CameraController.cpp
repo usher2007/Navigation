@@ -98,12 +98,12 @@ int CCameraController::Stop(int cameraId)
 	return E_FAIL;
 }
 
-int CCameraController::SetPreSetPos(int cameraId, int locId)
+int CCameraController::SetPreSetPos( int cameraId, int locId, BOOL bNotSendCmd )
 {
 	Location loc(locId);
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
-		cameraList[cameraId].AddPreSetLocation(loc);
+		cameraList[cameraId].AddPreSetLocation(loc, bNotSendCmd);
 		return S_OK;
 	}
 	return E_FAIL;

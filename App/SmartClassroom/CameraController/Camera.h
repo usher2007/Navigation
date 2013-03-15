@@ -51,7 +51,7 @@ public:
 	Camera(int commNum, int baudRate);
 
 	int Open();
-	int AddPreSetLocation(Location& loc);
+	int AddPreSetLocation(Location& loc, BOOL bNotSendCmd);
 	// Control
 	int RecallSpecificLocation(int locId);
 	int TurnLeft();

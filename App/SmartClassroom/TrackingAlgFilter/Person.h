@@ -4,15 +4,13 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/video/background_segm.hpp"
 
-using namespace cv;
-
 class Person
 {
 public:
-	Person(const Point2f& initialCenter);
-	Point2f GetBaryCenter();
-	int GetCenterDistance(const Point2f& newCenter);
-	int UpdateBaryCenter(const Point2f& newCenter);
+	Person(const cv::Point2f& initialCenter);
+	cv::Point2f GetBaryCenter();
+	int GetCenterDistance(const cv::Point2f& newCenter);
+	int UpdateBaryCenter(const cv::Point2f& newCenter);
 	bool Disappeared();
 	bool IsNoise();
 	int SetCurrentStatus(bool detectedOrTracked);
@@ -20,7 +18,7 @@ public:
 	int UpdateDetectAndDisappearTimes();
 private:
 	bool detectedOrTracked;
-	Point2f baryCenter;
+	cv::Point2f baryCenter;
 	int detectedTimes;
 	int disappearTimes;
 };
@@ -30,12 +28,13 @@ class PersonManager
 public:
 	PersonManager();
 	int ResetAllPersonStatus();
-	int ProcessBaryCenter(const Point2f& baryCenter);
+	int ProcessBaryCenter(const cv::Point2f& baryCenter);
 	int Update();
-	int DrawPersons(Mat& image);
+	int DrawPersons(cv::Mat& image);
+	std::vector<cv::Point2f> GetTrackedPersons();
 private:
-	vector<Person> detectedPersons;
-	vector<Person> trackedPersons;
+	std::vector<Person> detectedPersons;
+	std::vector<Person> trackedPersons;
 private:
 	int updateDetectedPersons();
 	int updateTrackedPersons();

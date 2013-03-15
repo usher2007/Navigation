@@ -57,8 +57,19 @@ public:
 	//
 	// --- ITrackingControl Implement --
 	//
-	STDMETHODIMP StartTracking();
+	STDMETHODIMP StartTracking(BOOL bShowTrackingRes);
 	STDMETHODIMP StopTracking();
+	STDMETHODIMP ConfigTrackingArea(int beginX, int beginY, int beginWidth,  int beginHeight,
+		                            int stopX,  int stopY,  int stopWidth,  int stopHeight);
+	STDMETHODIMP ConfigHuman( int leastHumanGap,  int humanWidth);
+	STDMETHODIMP ConfigVariousThresh( int disappearFrameThresh,  int centerWeightThresh,  int fgLowThresh, 
+		                              int fgHighThresh,  double fgHistThresh);
+	STDMETHODIMP ConfigMiscellaneous( double gbmLearningRate,  int trackInterval);
+
+	STDMETHODIMP CacheAndShowBZoneVertex(int xPix, int yPix);
+	STDMETHODIMP EraseCachedVertexes();
+	STDMETHODIMP AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
+	STDMETHODIMP ClearBlindZones();
 
 private:
 
@@ -77,6 +88,9 @@ private:
 
 	TrackingAlg *m_pTrackingAlg;
 	BOOL m_bTracking;
+
+	void *m_pPosAnalyzer;
+
 };
 
 

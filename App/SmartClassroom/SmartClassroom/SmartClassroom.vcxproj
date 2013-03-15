@@ -78,12 +78,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\APIController\;..\DXGraphManager\;..\ConfigManager\;..\ModuleFactory\;..\CameraController\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\Release\;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>APIController.lib;</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -102,6 +105,7 @@
     <None Include="res\SmartClassroom.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdvSettingsDialog.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SmartClassroom.h" />
     <ClInclude Include="SmartClassroomDlg.h" />
@@ -109,8 +113,10 @@
     <ClInclude Include="TabSheet.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TSettingTab.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AdvSettingsDialog.cpp" />
     <ClCompile Include="SmartClassroom.cpp" />
     <ClCompile Include="SmartClassroomDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -119,6 +125,7 @@
     </ClCompile>
     <ClCompile Include="TabSheet.cpp" />
     <ClCompile Include="TSettingTab.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SmartClassroom.rc" />

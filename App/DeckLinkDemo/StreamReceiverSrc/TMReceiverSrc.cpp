@@ -6,6 +6,8 @@ static const LONGLONG ONESEC = 10000000;
 static const int FPS = 25;
 static const int DEFAULT_WIDTH = 720;
 static const int DEFAULT_HEIGHT = 576;
+
+static const CRefTime Offset = ONESEC/FPS;
 DWORD ReaderProc(LPVOID pParam);
 const AMOVIESETUP_MEDIATYPE sudOpVideoPinTypes =
 {
@@ -401,6 +403,9 @@ CTMReceiverVideoOutputPin::CTMReceiverVideoOutputPin(HRESULT *phr, CTMReceiverSr
 	m_pinIntialized = FALSE;
 	m_pDecoder = NULL;
 	m_bFPSGuessed = FALSE;
+	m_rtStartForAudio = 0;
+	m_rtStopForAudio = 0;
+	m_bDecodeSuccess = FALSE;
 }
 
 CTMReceiverVideoOutputPin::~CTMReceiverVideoOutputPin()
@@ -569,7 +574,10 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 			m_rtFirstFrameTime = pkt.pts ;
 		}
 		rtStart = (pkt.pts  - m_rtFirstFrameTime)*100/9*10;
-		rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
+		//rtStart = rtStart < m_rtPosition ? rtStart : m_rtPosition;
+		rtStart = m_rtPosition;
+// FOR DEBUG
+//rtStart += Offset;
 		rtStop  = rtStart + static_cast<int>(m_rtAvgTimePerFrame );
 		rtMediaStart = static_cast<REFERENCE_TIME>(m_rtPosition);
 		rtMediaStop  = rtMediaStart + static_cast<int>(m_rtAvgTimePerFrame );
@@ -580,6 +588,12 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 		char tmp[1024];
 		sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Video! Start %lld - Stop:%lld\n", rtStart, rtStop);
 		OutputDebugStringA(tmp);
+
+		if(m_rtStartForAudio == 0)
+		{
+			m_rtStartForAudio = rtStart;
+		}
+		m_rtStopForAudio = rtStop;
 	}
 	pms->SetSyncPoint(TRUE);
 
@@ -598,6 +612,7 @@ HRESULT CTMReceiverVideoOutputPin::FillBuffer(IMediaSample *pms)
 	//{
 	//	decodeCB(m_pData, lDataLen, pCBParam);
 	//}
+	m_bDecodeSuccess = TRUE;
 	return S_OK;
 	return S_OK;
 }
@@ -761,12 +776,15 @@ HRESULT CTMReceiverVideoOutputPin::GetMediaType(CMediaType *pmt){
 STDMETHODIMP CTMReceiverVideoOutputPin::Run()
 {
 	m_rtFirstFrameTime = 0;
+	m_rtPosition = 0;
+	m_bDecodeSuccess = FALSE;
 	return CSourceStream::Run();
 }
 
 STDMETHODIMP CTMReceiverVideoOutputPin::Stop()
 {
 	m_rtFirstFrameTime = 0;
+	m_rtPosition = 0;
 	return CSourceStream::Stop();
 }
 
@@ -877,6 +895,8 @@ CTMReceiverAudioOutputPin::CTMReceiverAudioOutputPin(HRESULT *phr, CTMReceiverSr
 	m_remainData = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
 	m_remainDataSize = 0;
 	m_rtFirstFrameTime = 0;
+	m_nDiffOrigin = 0;
+	m_rtOffset = 10000;
 }
 
 CTMReceiverAudioOutputPin::~CTMReceiverAudioOutputPin()
@@ -947,13 +967,13 @@ HRESULT CTMReceiverAudioOutputPin::CheckMediaType(const CMediaType *pMediaType)
 	{
 		return E_INVALIDARG;
 	}
-
+	
 	return S_OK;
 }
 
 HRESULT CTMReceiverAudioOutputPin::GetMediaType(int iPosition, CMediaType *pMediaType)
 {
-	if   (iPosition   <   0   ||   iPosition   >=   25)
+	if   (iPosition   <   0   ||   iPosition   >=   1)
 	{
 		return   E_FAIL;
 	}
@@ -967,135 +987,136 @@ HRESULT CTMReceiverAudioOutputPin::GetMediaType(int iPosition, CMediaType *pMedi
 	format.wFormatTag             =   WAVE_FORMAT_PCM;
 	switch   (iPosition)
 	{
+	//case   0:
+	//	format.nSamplesPerSec     =   44100;   //   44.1k,   stereo,   16-bit
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   1:
+	//	format.nSamplesPerSec     =   44100;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   2:
+	//	format.nSamplesPerSec     =   44100;
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   3:
+	//	format.nSamplesPerSec     =   44100;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   4:
+	//	format.nSamplesPerSec     =   22050;   //   22.050k,   stereo,   16-bit
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   5:
+	//	format.nSamplesPerSec     =   22050;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   6:
+	//	format.nSamplesPerSec     =   22050;
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   7:
+	//	format.nSamplesPerSec     =   22050;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   8:
+	//	format.nSamplesPerSec     =   11025;   //   11.025k,   stereo,   16-bit
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   9:
+	//	format.nSamplesPerSec     =   11025;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   10:
+	//	format.nSamplesPerSec     =   11025;
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   11:
+	//	format.nSamplesPerSec     =   11025;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   8;
+	//	break;
 	case   0:
-		format.nSamplesPerSec     =   44100;   //   44.1k,   stereo,   16-bit
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   16;
-		break;
-	case   1:
-		format.nSamplesPerSec     =   44100;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   16;
-		break;
-	case   2:
-		format.nSamplesPerSec     =   44100;
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   8;
-		break;
-	case   3:
-		format.nSamplesPerSec     =   44100;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   8;
-		break;
-	case   4:
-		format.nSamplesPerSec     =   22050;   //   22.050k,   stereo,   16-bit
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   16;
-		break;
-	case   5:
-		format.nSamplesPerSec     =   22050;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   16;
-		break;
-	case   6:
-		format.nSamplesPerSec     =   22050;
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   8;
-		break;
-	case   7:
-		format.nSamplesPerSec     =   22050;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   8;
-		break;
-	case   8:
-		format.nSamplesPerSec     =   11025;   //   11.025k,   stereo,   16-bit
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   16;
-		break;
-	case   9:
-		format.nSamplesPerSec     =   11025;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   16;
-		break;
-	case   10:
-		format.nSamplesPerSec     =   11025;
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   8;
-		break;
-	case   11:
-		format.nSamplesPerSec     =   11025;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   8;
-		break;
-	case   12:
 		format.nSamplesPerSec     =   48000;   //   48k,   stereo,   16-bit
 		format.nChannels               =   2;
 		format.wBitsPerSample     =   16;
 		break;
-	case   13:
-		format.nSamplesPerSec     =   48000;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   16;
-		break;
-	case   14:
-		format.nSamplesPerSec     =   48000;
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   8;
-		break;
-	case   15:
-		format.nSamplesPerSec     =   48000;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   8;
-		break;
-	case   16:
-		format.nSamplesPerSec     =   32000;   //   32k,   stereo,   16-bit
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   16;
-		break;
-	case   17:
-		format.nSamplesPerSec     =   32000;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   16;
-		break;
-	case   18:
-		format.nSamplesPerSec     =   32000;
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   8;
-		break;
-	case   19:
-		format.nSamplesPerSec     =   32000;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   8;
-		break;
-	case   20:
-		format.nSamplesPerSec     =   8000;   //   8k,   stereo,   16-bit
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   16;
-		break;
-	case   21:
-		format.nSamplesPerSec     =   8000;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   16;
-		break;
-	case   22:
-		format.nSamplesPerSec     =   8000;
-		format.nChannels               =   2;
-		format.wBitsPerSample     =   8;
-		break;
-	case   23:
-		format.nSamplesPerSec     =   8000;
-		format.nChannels               =   1;
-		format.wBitsPerSample     =   8;
-		break;
-	case 24:
-		format.nSamplesPerSec     =   16000;     // for rtmp streams
-		format.nChannels          =   2;
-		format.wBitsPerSample     =   16;
+	//case   13:
+	//	format.nSamplesPerSec     =   48000;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   14:
+	//	format.nSamplesPerSec     =   48000;
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   15:
+	//	format.nSamplesPerSec     =   48000;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   16:
+	//	format.nSamplesPerSec     =   32000;   //   32k,   stereo,   16-bit
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   17:
+	//	format.nSamplesPerSec     =   32000;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   18:
+	//	format.nSamplesPerSec     =   32000;
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   19:
+	//	format.nSamplesPerSec     =   32000;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   20:
+	//	format.nSamplesPerSec     =   8000;   //   8k,   stereo,   16-bit
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   21:
+	//	format.nSamplesPerSec     =   8000;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   16;
+	//	break;
+	//case   22:
+	//	format.nSamplesPerSec     =   8000;
+	//	format.nChannels               =   2;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case   23:
+	//	format.nSamplesPerSec     =   8000;
+	//	format.nChannels               =   1;
+	//	format.wBitsPerSample     =   8;
+	//	break;
+	//case 24:
+	//	format.nSamplesPerSec     =   16000;     // for rtmp streams
+	//	format.nChannels          =   2;
+	//	format.wBitsPerSample     =   16;
 	}
 
 	format.nBlockAlign           =   format.nChannels   *   format.wBitsPerSample   /   8;
 	format.nAvgBytesPerSec   =   format.nSamplesPerSec   *   format.nBlockAlign;
 	pMediaType-> SetFormat(PBYTE(&format),   sizeof(WAVEFORMATEX));
+	m_nBytePerSec = format.nAvgBytesPerSec;
 	return   NOERROR; 
 }
 
@@ -1141,12 +1162,13 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 	pDataOrigin = pData;
 
 	BYTE *outBuffer = new BYTE[AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2];
+	BYTE *outBufferOrigin = outBuffer;
 	int outBufferSize = AVCODEC_MAX_AUDIO_FRAME_SIZE*3/2;
 	int curDataLength = 0;
 
 	av_init_packet(&pkt);
-	int maxPktNum1 = 25;
-	int maxPktNum2 = 5;
+	int maxPktNum1 = 5;
+	int maxPktNum2 = 2;
 	while (m_queueBuffer.nb_packets > maxPktNum1)
 	{
 		while(m_queueBuffer.nb_packets > maxPktNum2)
@@ -1190,6 +1212,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 			{
 				sprintf(tmp," Audio Decode Bad!\n");
 				OutputDebugStringA(tmp);
+				av_free_packet(&pkt);
 				continue;
 			}
 			if(!setStart)
@@ -1217,6 +1240,7 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 				curDataLength = lDataLen;
 			}
 		}
+		av_free_packet(&pkt);
 	}
 
 	pms->GetPointer(&pActualPMSData);
@@ -1226,41 +1250,63 @@ HRESULT CTMReceiverAudioOutputPin::FillBuffer(IMediaSample *pms)
 		memcpy(pActualPMSData, pDataOrigin, lDataLen);
 	}
 
-	while(true)
+	// Sync With Video
+	int nMediaSamplePerSec = m_nBytePerSec / lDataLen;
+	rtStart = m_pRelatedVideoPin->m_rtStartForAudio;
+	rtStop = m_pRelatedVideoPin->m_rtStopForAudio;
+	/*if(rtStart == 0 && rtStop == 0)
 	{
-		av_init_packet(&nextPkt);
-		int pktQueueRet = m_queueBuffer.QueryFirst(&nextPkt, 1);
-		if(pktQueueRet == 0)
-		{
-			continue;
-		}
-		if(pktQueueRet < 0)
-		{
-			return S_FALSE;
-		}
-		if(pkt.data == NULL)
-		{
-			return S_OK;
-		}
-		break;
+		rtStart = 0;
 	}
-
-	rtStop = (nextPkt.pts - m_rtFirstFrameTime) * m_rtAvgTimePerPts;
-	HRESULT hr = pms->SetTime(&rtStart, &rtStop);
-
+	else
+	{
+		rtStart = (rtStart / (ONESEC / nMediaSamplePerSec) + 1) * (ONESEC / nMediaSamplePerSec);
+	}*/
+	if(rtStop != 0 && m_nDiffOrigin == 0)
+	{
+		m_nDiffOrigin = m_rtSampleTime - rtStart;
+	}
+	/*if(m_rtSampleTime - rtStart > ONESEC/nMediaSamplePerSec*2 + m_nDiffOrigin)
+	{
+	rtStart = m_rtSampleTime - ONESEC/nMediaSamplePerSec*2;
+	}
+	else*/
+	{
+		rtStart = m_rtSampleTime;
+	}
+	//rtStart += m_rtOffset;
+	rtStop = rtStart + ONESEC/nMediaSamplePerSec + m_rtOffset;
+	m_rtSampleTime = rtStop;
+	HRESULT hr = E_FAIL;
+	//rtStop = rtStop - rtStart;
+	//rtStart = 0;
+	hr = pms->SetTime(&rtStart, &rtStop);
+	//hr = pms->SetTime(NULL,NULL);
 	hr = pms->SetSyncPoint(TRUE);
-	// TODO:Discontinuity?
 	hr = pms->SetPreroll(FALSE);
 	hr = pms->SetActualDataLength(pms->GetSize());
 
+	hr = pms->GetTime(&rtStart, &rtStop);
+
 	sprintf(tmp," %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Good Audio! Start %lld - Stop:%lld\n", rtStart, rtStop);
 	OutputDebugStringA(tmp);
+
+	m_pRelatedVideoPin->m_rtStartForAudio = 0;
+	delete[] outBufferOrigin;
+	delete[] pDataOrigin;
 	return NOERROR;
 }
+
+STDMETHODIMP CTMReceiverAudioOutputPin::Notify(IBaseFilter * pSender, Quality q)
+{
+	return S_OK;
+}  
 
 STDMETHODIMP CTMReceiverAudioOutputPin::Run()
 {
 	m_rtFirstFrameTime = 0;
+	m_rtSampleTime = 0;
+	m_rtOffset = 0;
 	return CSourceStream::Run();
 }
 

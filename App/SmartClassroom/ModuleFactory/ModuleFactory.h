@@ -9,7 +9,7 @@
 #else
 #define MODULEFACTORY_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include "CameraController.h"
 #include "ConfigManager.h"
 #include "DXGraphManager.h"

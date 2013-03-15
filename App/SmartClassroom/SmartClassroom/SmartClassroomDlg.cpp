@@ -30,9 +30,11 @@ void CSmartClassroomDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CSmartClassroomDlg, CDialogEx)
+	ON_WM_CLOSE()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 //	ON_WM_LBUTTONDOWN()
+	ON_STN_DBLCLK(IDC_STATICPlayWndTea, &CSmartClassroomDlg::OnStnDblclickStaticplaywndtea)
 END_MESSAGE_MAP()
 
 
@@ -54,9 +56,11 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	m_tabSheet.AddPage(L"¼¤¹â±Ê", &m_LSettingPage, IDD_DIALOGLSetting);*/
 	m_tabSheet.Show();
 
-	m_pAPIController->AddCamera(0, 1, 9600);
+	m_pAPIController->AddTeaCamera();
 	m_pAPIController->BuildTeacherGraph(TRUE, GetDlgItem(IDC_STATICPlayWndTea)->GetSafeHwnd(), this->GetSafeHwnd());
+	m_pAPIController->BuildTeacherPTZGraph(TRUE, GetDlgItem(IDC_STATICPlayWndTeaPTZ)->GetSafeHwnd(), this->GetSafeHwnd());
 	m_pAPIController->TeacherGraphRun();
+	m_pAPIController->TeacherPTZGraphRun();
 	
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -98,4 +102,38 @@ HCURSOR CSmartClassroomDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CSmartClassroomDlg::OnClose()
+{
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->DumpConfiguration();
+		delete m_pAPIController;
+	}
+	CDialogEx::OnClose();
+	return;
+}
 
+void CSmartClassroomDlg::OnStnDblclickStaticplaywndtea()
+{
+	if(m_TSettingPage.IsSettingBlindZone())
+	{
+		CPoint pt;
+		GetCursorPos(&pt);
+		CRect rect;
+		GetDlgItem(IDC_STATICPlayWndTea)->GetWindowRect(&rect);
+		int x = pt.x - rect.left;
+		int y = pt.y - rect.top;
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+		int xPix = x*720/width;
+		int yPix = y*576/height;
+		if(m_pAPIController != NULL)
+		{
+			HRESULT hr = m_TSettingPage.CacheBlindZoneVertex(xPix, yPix);
+			if(SUCCEEDED(hr))
+			{
+				m_pAPIController->TeacherCachePointToShow(xPix, yPix);
+			}
+		}
+	}
+}

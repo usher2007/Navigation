@@ -9,7 +9,7 @@
 #else
 #define CAMERACONTROLLER_API __declspec(dllimport)
 #endif
-
+#pragma once
 #include <iostream>
 #include <hash_map>
 
@@ -32,7 +32,7 @@ public:
 	int ZoomOut(int cameraId);
 	int Stop(int cameraId);
 
-	int SetPreSetPos(int cameraId, int locId);
+	int SetPreSetPos(int cameraId, int locId, BOOL bNotSendCmd);
 	int RecallPreSetPos(int cameraId, int locId);
 	int TurnToSpecificLocation(int cameraId, const Location& loc);
 	int GetSpecificCameraLocation(int cameraId, Location& loc);

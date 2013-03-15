@@ -120,7 +120,7 @@ int Camera::Open()
 	return 0;
 }
 
-int Camera::AddPreSetLocation(Location& loc)
+int Camera::AddPreSetLocation( Location& loc, BOOL bNotSendCmd )
 {
 	// TODO: 
 	// 1.SET PRE SET POSITION 
@@ -134,7 +134,10 @@ int Camera::AddPreSetLocation(Location& loc)
 	memcpy(SetPrePosCmd, PrefixOfSetPrePos, 1024);
 	SetPrePosCmd[5] = (unsigned char)(locId);
 	SetPrePosCmd[6] = (unsigned char)(SetPrePosCmd[1]+SetPrePosCmd[2]+SetPrePosCmd[3]+SetPrePosCmd[4]+SetPrePosCmd[5]);
-	sendCommand(SetPrePosCmd, RegularCmdLength);
+	if(!bNotSendCmd)
+	{
+		sendCommand(SetPrePosCmd, RegularCmdLength);
+	}
 
 	memcpy(RecallPrePosCmd, PrefixOfRecallPrePos, 1024);
 	RecallPrePosCmd[5] = (unsigned char)(locId);

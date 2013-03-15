@@ -169,6 +169,14 @@ void CDeckLinkDemoDlg::OnBnClickedButtonstart()
 	{
 		pGraph->Run();
 	}
+	else
+	{
+		createGraph(this->GetSafeHwnd());
+		if(pGraph != NULL)
+		{
+			pGraph->Run();
+		}
+	}
 }
 
 
@@ -179,6 +187,8 @@ void CDeckLinkDemoDlg::OnBnClickedButtonstop()
 	{
 		pGraph->Stop();
 	}
+	pGraph->Destroy();
+	pGraph = NULL;
 }
 
 CString CDeckLinkDemoDlg::getCStringFromCEdit(CEdit *pCEdit)
@@ -217,19 +227,22 @@ HRESULT CDeckLinkDemoDlg::createGraph(HWND graphOwner)
 	{
 		hr = pGraph->Destroy();
 		if(FAILED(hr)) return hr;
-		TCHAR* tmpUrl = url.GetBuffer();
-		char ctrTmpUrl[256];
-		WideCharToMultiByte(0, 0, tmpUrl, -1, ctrTmpUrl, 100, NULL, NULL);
-		hr = pGraph->Create();
-		if(FAILED(hr)) return hr;
-		hr = pGraph->BuildFilterGraph(ctrTmpUrl, bDisplay);
-		if(FAILED(hr)) return hr;
-		hr = pGraph->SetNotifyWindow(graphOwner);
-		if(FAILED(hr)) return hr;
-		resizePlayWindow();
-		return S_OK;
 	}
-	return E_FAIL;
+	else
+	{
+		pGraph = new CTMGraph;
+	}
+	TCHAR* tmpUrl = url.GetBuffer();
+	char ctrTmpUrl[256];
+	WideCharToMultiByte(0, 0, tmpUrl, -1, ctrTmpUrl, 100, NULL, NULL);
+	hr = pGraph->Create();
+	if(FAILED(hr)) return hr;
+	hr = pGraph->BuildFilterGraph(ctrTmpUrl, bDisplay);
+	if(FAILED(hr)) return hr;
+	hr = pGraph->SetNotifyWindow(graphOwner);
+	if(FAILED(hr)) return hr;
+	resizePlayWindow();
+	return S_OK;
 }
 
 void CDeckLinkDemoDlg::resizePlayWindow()

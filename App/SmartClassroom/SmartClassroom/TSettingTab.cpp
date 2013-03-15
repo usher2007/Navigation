@@ -5,6 +5,10 @@
 #include "SmartClassroom.h"
 #include "TSettingTab.h"
 #include "afxdialogex.h"
+#include "resource.h"
+#include <iostream>
+#include "Utils.h"
+#include "AdvSettingsDialog.h"
 
 
 // CTSettingTab dialog
@@ -15,7 +19,10 @@ CTSettingTab::CTSettingTab(CWnd* pParent /*=NULL*/)
 	: CDialog(CTSettingTab::IDD, pParent)
 {
 	m_pAPIController = CAPIController::GetInstance();
+	m_bSettingBlindZone = FALSE;
+	m_nSavedPoints = 0;
 }
+
 
 CTSettingTab::~CTSettingTab()
 {
@@ -25,6 +32,12 @@ void CTSettingTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDITPosId, m_ctrlEditPosId);
+	DDX_Control(pDX, IDC_EDITTeaLeftBorder, m_ctrlEditTeaLeftBorder);
+	DDX_Control(pDX, IDC_EDITTeaRightBorder, m_ctrlEditTeaRightBorder);
+	DDX_Control(pDX, IDC_EDITDisFrameThresh, m_ctrlEditDisFrameThresh);
+	DDX_Control(pDX, IDC_EDITcenterWeightThresh, m_ctrlEditCenterWeightThresh);
+	DDX_Control(pDX, IDC_EDITLearningRate, m_ctrlEditLearningRate);
+	DDX_Control(pDX, IDC_EDITTrackInterval, m_ctrlEditTrackInterval);
 }
 
 
@@ -38,13 +51,33 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONTZoomIn, &CTSettingTab::OnBnClickedButtontzoomin)
 	ON_BN_CLICKED(IDC_BUTTONTZoomOut, &CTSettingTab::OnBnClickedButtontzoomout)
 	ON_BN_CLICKED(IDC_BUTTONSavePreSetPos, &CTSettingTab::OnBnClickedButtonsavepresetpos)
-	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTONRecall, &CTSettingTab::OnBnClickedButtonRecall)
+	ON_BN_CLICKED(IDC_BUTTONStartTracking, &CTSettingTab::OnBnClickedButtonstarttracking)
+	ON_BN_CLICKED(IDC_BUTTONStopTracking, &CTSettingTab::OnBnClickedButtonstoptracking)
+	ON_BN_CLICKED(IDC_BUTTONSaveCommonSettings, &CTSettingTab::OnBnClickedButtonsavecommonsettings)
+	ON_BN_CLICKED(IDC_BUTTONAdvSettings, &CTSettingTab::OnBnClickedButtonadvsettings)
+	ON_BN_CLICKED(IDC_BUTTONSetBlindZone, &CTSettingTab::OnBnClickedButtonsetblindzone)
+	ON_BN_CLICKED(IDC_BUTTONSaveBlindZone, &CTSettingTab::OnBnClickedButtonsaveblindzone)
+	ON_BN_CLICKED(IDC_BUTTONClearBlindZone2, &CTSettingTab::OnBnClickedButtonclearblindzone2)
 END_MESSAGE_MAP()
 
 
 // CTSettingTab message handlers
 
+BOOL CTSettingTab::OnInitDialog()
+{
+	CDialog::OnInitDialog();
 
+	// Set the icon for this dialog.  The framework does this automatically
+	//  when the application's main window is not a dialog
+	SetIcon(m_hIcon, TRUE);			// Set big icon
+	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	// TODO: Add extra initialization here
+	((CButton *)GetDlgItem(IDC_CHECKShowTracking))->SetCheck(BST_CHECKED);
+
+	return TRUE;  // return TRUE  unless you set the focus to a control
+}
 void CTSettingTab::OnBnClickedButtontup()
 {
 	// TODO: Add your control notification handler code here
@@ -124,16 +157,44 @@ void CTSettingTab::OnBnClickedButtonsavepresetpos()
 {
 	// TODO: Add your control notification handler code here
 	int locId = getIntFromCEdit(&m_ctrlEditPosId);
+	double leftBorder = getDoubleFromCEdit(&m_ctrlEditTeaLeftBorder);
+	double rightBorder = getDoubleFromCEdit(&m_ctrlEditTeaRightBorder);
+	double roomWidth = 0.0, cameraDistance = 0.0;
 	if(m_pAPIController != NULL)
 	{
-		m_pAPIController->TeacherPTZSetPrePos(locId, 0, 0, 0, 0);
+		m_pAPIController->TeacherGetEnvParams(roomWidth, cameraDistance);
+		int pixLeftBorder = 0, pixRightBorder = 0;
+		if(roomWidth != 0)
+		{
+			pixLeftBorder = leftBorder / roomWidth * 720;
+			pixRightBorder = rightBorder /  roomWidth * 720;
+		}
+		m_pAPIController->TeacherPTZSetPrePos(locId, pixLeftBorder, pixRightBorder, leftBorder, rightBorder);
 	}
 	return;
 }
 
-void CTSettingTab::OnBnClickedButton1()
+void CTSettingTab::OnBnClickedButtonstarttracking()
 {
-	// TODO: Add your control notification handler code here
+	if(m_pAPIController != NULL)
+	{
+		BOOL bShowTracking = (BST_CHECKED == IsDlgButtonChecked(IDC_CHECKShowTracking));
+		m_pAPIController->TeacherSetShowTracking(bShowTracking);
+		m_pAPIController->TeacherTrackingStart();
+	}
+}
+
+void CTSettingTab::OnBnClickedButtonstoptracking()
+{
+	if(m_pAPIController != NULL)
+	{
+		m_pAPIController->TeacherTrackingStop();
+	}
+}
+
+void CTSettingTab::OnBnClickedButtonRecall()
+{
+	// TODO: Remove this function
 	int locId = getIntFromCEdit(&m_ctrlEditPosId);
 	if(m_pAPIController != NULL)
 	{
@@ -142,21 +203,86 @@ void CTSettingTab::OnBnClickedButton1()
 	return;
 }
 
-int CTSettingTab::getIntFromCEdit( CEdit *ctrlEdit )
+void CTSettingTab::OnBnClickedButtonsavecommonsettings()
 {
-	int num;
-	CString param;
-	param = getCStringFromCEdit(ctrlEdit);
-	num = _ttoi(param);
-	return num;
+	if(m_pAPIController != NULL)
+	{
+		int disFrameThresh = 25 * getDoubleFromCEdit(&m_ctrlEditDisFrameThresh);
+		int centerWeigthThresh = 5 * getIntFromCEdit(&m_ctrlEditCenterWeightThresh);
+		double gbmLearningRate = 0.005 * getIntFromCEdit(&m_ctrlEditLearningRate);
+		int trackInterval = getIntFromCEdit(&m_ctrlEditTrackInterval);
+
+		m_pAPIController->TeacherSetCommonParams(disFrameThresh, centerWeigthThresh, gbmLearningRate, trackInterval);
+	}
 }
 
-CString CTSettingTab::getCStringFromCEdit( CEdit *ctrlEdit )
+void CTSettingTab::OnBnClickedButtonadvsettings()
 {
-	int paramLen;
-	CString param;
-	paramLen = ctrlEdit->LineLength(0);
-	ctrlEdit->GetLine(0, param.GetBuffer(paramLen), paramLen);
-	param.ReleaseBuffer(paramLen);
-	return param;
+	CAdvSettingsDialog advSettingsDlg;
+	if(advSettingsDlg.DoModal() == IDOK)
+	{
+		// Popup a message box to indicate that setting success.
+		return;
+	}
+}
+
+void CTSettingTab::OnBnClickedButtonsetblindzone()
+{
+	if(!m_bSettingBlindZone)
+	{
+		m_bSettingBlindZone = TRUE;
+		GetDlgItem(IDC_BUTTONSetBlindZone)->SetWindowTextW(_T("清除"));
+	}
+	else
+	{
+		m_bSettingBlindZone = FALSE;
+		if(m_pAPIController != NULL)
+		{
+			m_pAPIController->TeacherEraseCurrentBlindZone();
+		}
+		m_nSavedPoints = 0;
+		GetDlgItem(IDC_BUTTONSetBlindZone)->SetWindowTextW(_T("设置屏蔽区"));
+	}
+}
+
+BOOL CTSettingTab::IsSettingBlindZone()
+{
+	return m_bSettingBlindZone;
+}
+
+
+void CTSettingTab::OnBnClickedButtonsaveblindzone()
+{
+	if(m_nSavedPoints == 4 && m_pAPIController)
+	{
+		m_pAPIController->TeacherSaveBlindZone(m_BlindZoneVertexes[0].x, m_BlindZoneVertexes[0].y,
+			                                   m_BlindZoneVertexes[1].x, m_BlindZoneVertexes[1].y,
+											   m_BlindZoneVertexes[2].x, m_BlindZoneVertexes[2].y,
+											   m_BlindZoneVertexes[3].x, m_BlindZoneVertexes[3].y);
+		m_bSettingBlindZone = FALSE;
+		GetDlgItem(IDC_BUTTONSetBlindZone)->SetWindowTextW(_T("设置屏蔽区"));
+		m_nSavedPoints = 0;
+	}
+	return;
+}
+
+HRESULT CTSettingTab::CacheBlindZoneVertex(int x, int y)
+{
+	if(m_nSavedPoints >=0 && m_nSavedPoints <=3)
+	{
+		m_BlindZoneVertexes[m_nSavedPoints].x = x;
+		m_BlindZoneVertexes[m_nSavedPoints].y = y;
+		m_nSavedPoints++;
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+
+void CTSettingTab::OnBnClickedButtonclearblindzone2()
+{
+	if(m_pAPIController)
+	{
+		m_pAPIController->TeacherClearBlindZones();
+	}
 }

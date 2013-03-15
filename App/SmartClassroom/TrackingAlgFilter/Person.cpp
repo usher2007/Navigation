@@ -1,19 +1,39 @@
 #include "stdafx.h"
 #include "Person.h"
 #include "Utility.h"
+//Utility Init
+std::string TrackingConfig::VIDEO_FILE_NAME = "H:\\GitHubCode\\Navigation\\Research\\TrackingTeacher\\Data\\T_WALK4.mp4";
+std::string TrackingConfig::RESULT_FILE_NAME = "H:\\GitHubCode\\Navigation\\Research\\TrackingByGBM\\Data\\12.12\\T_WALK4.avi";
+cv::Rect TrackingConfig::BEGIN_TRACKING_AREA(120, 115, 480, 346);
+cv::Rect TrackingConfig::STOP_TRACKING_AREA(90, 72, 540, 432);
+int TrackingConfig::DISAPPEAR_FRAME_THRESH = 10;
+int TrackingConfig::LEAST_HUMAN_GAP = 50;
+int TrackingConfig::HUMAN_WIDTH = 30;
+int TrackingConfig::CENTER_WEIGHT_THRESH = 25;
+int TrackingConfig::TRACK_INTERVAL = 2;
+int TrackingConfig::FG_LOW_THRESH = 128;
+int TrackingConfig::FG_UP_THRESH = 255;
+double TrackingConfig::GBM_LEARNING_RATE = 0.01;
+double TrackingConfig::FG_HIST_THRESH = 2;
+double TrackingConfig::PI = 3.1415926;
+//For Debug
+cv::Rect TrackingConfig::PAD_AREA_1(190, 120, 20, 300);
+cv::Rect TrackingConfig::PAD_AREA_2(232, 120, 20, 300);
+cv::Rect TrackingConfig::PAD_AREA_3(365, 120, 20, 300);
+cv::Rect TrackingConfig::PAD_AREA_4(408, 120, 20, 300);
 // Person
-Person::Person(const Point2f& initialCenter) : baryCenter(initialCenter), detectedTimes(0), disappearTimes(0), detectedOrTracked(true)
+Person::Person(const cv::Point2f& initialCenter) : baryCenter(initialCenter), detectedTimes(0), disappearTimes(0), detectedOrTracked(true)
 {
 }
 
-Point2f Person::GetBaryCenter()
+cv::Point2f Person::GetBaryCenter()
 {
 	return baryCenter;
 }
 
-int Person::GetCenterDistance(const Point2f& newCenter)
+int Person::GetCenterDistance(const cv::Point2f& newCenter)
 {
-	Point2f dist = newCenter - baryCenter;
+	cv::Point2f dist = newCenter - baryCenter;
 	int result = dist.x*dist.x + dist.y*dist.y;
 	if(result < 2500)
 	{
@@ -22,7 +42,7 @@ int Person::GetCenterDistance(const Point2f& newCenter)
 	return -1;
 }
 
-int Person::UpdateBaryCenter(const Point2f& newCenter)
+int Person::UpdateBaryCenter(const cv::Point2f& newCenter)
 {
 	baryCenter = newCenter;
 	return 0;
@@ -30,7 +50,7 @@ int Person::UpdateBaryCenter(const Point2f& newCenter)
 
 bool Person::Disappeared()
 {
-	return disappearTimes > Utility::DISAPPEAR_FRAME_THRESH;
+	return disappearTimes > TrackingConfig::DISAPPEAR_FRAME_THRESH;
 }
 
 bool Person::IsNoise()
@@ -78,7 +98,7 @@ PersonManager::PersonManager()
 
 int PersonManager::ResetAllPersonStatus()
 {
-	vector<Person>::iterator personIter;
+	std::vector<Person>::iterator personIter;
 	for(personIter=detectedPersons.begin(); personIter!=detectedPersons.end(); ++personIter)
 	{
 		personIter->SetCurrentStatus(false);
@@ -90,9 +110,9 @@ int PersonManager::ResetAllPersonStatus()
 	return 0;
 }
 
-int PersonManager::ProcessBaryCenter(const Point2f& baryCenter)
+int PersonManager::ProcessBaryCenter(const cv::Point2f& baryCenter)
 {
-	vector<Person>::iterator personIter, specialTrackIter, specialDetectIter;
+	std::vector<Person>::iterator personIter, specialTrackIter, specialDetectIter;
 	int dist = 0;
 	int smallestTrackDist = INT_MAX;
 	// First update the tracked person.
@@ -160,16 +180,16 @@ int PersonManager::Update()
 	return 0;
 }
 
-int PersonManager::DrawPersons(Mat& image)
+int PersonManager::DrawPersons(cv::Mat& image)
 {
-	vector<Person>::iterator personIter;
+	std::vector<Person>::iterator personIter;
 	/*for(personIter=detectedPersons.begin(); personIter!=detectedPersons.end(); ++personIter)
 	{
 		circle(image, personIter->GetBaryCenter(), 4, Scalar(0, 255, 0), 2);
 	}*/
 	for(personIter=trackedPersons.begin(); personIter!=trackedPersons.end(); ++personIter)
 	{
-		circle(image, personIter->GetBaryCenter(), 4, Scalar(0,255, 255), 2);
+		cv::circle(image, personIter->GetBaryCenter(), 4, cv::Scalar(0,255, 255), 2);
 	}
 	return 0;
 }
@@ -180,11 +200,11 @@ int PersonManager::updateDetectedPersons()
 	{
 		return -1;
 	}
-	vector<Person>::iterator personIter = detectedPersons.begin();
+	std::vector<Person>::iterator personIter = detectedPersons.begin();
 	while(personIter!=detectedPersons.end())
 	{
 		personIter->UpdateDetectAndDisappearTimes();
-		if(personIter->GetBaryCenter().inside(Utility::BEGIN_TRACKING_AREA))
+		if(personIter->GetBaryCenter().inside(TrackingConfig::BEGIN_TRACKING_AREA))
 		{
 			Person p(*personIter);
 			trackedPersons.push_back(p);
@@ -204,11 +224,11 @@ int PersonManager::updateTrackedPersons()
 	{
 		return -1;
 	}
-	vector<Person>::iterator personIter = trackedPersons.begin();
+	std::vector<Person>::iterator personIter = trackedPersons.begin();
 	while(personIter!=trackedPersons.end())
 	{
 		personIter->UpdateDetectAndDisappearTimes();
-		if(personIter->IsNoise() || (personIter->Disappeared() && !(personIter->GetBaryCenter().inside(Utility::STOP_TRACKING_AREA))))
+		if(personIter->IsNoise() || (personIter->Disappeared() && !(personIter->GetBaryCenter().inside(TrackingConfig::STOP_TRACKING_AREA))))
 		{
 			personIter = trackedPersons.erase(personIter);
 		}
@@ -218,5 +238,17 @@ int PersonManager::updateTrackedPersons()
 		}
 	}
 	return 0;
+}
+
+std::vector<cv::Point2f> PersonManager::GetTrackedPersons()
+{
+	std::vector<cv::Point2f> trackedPersonCenters;
+	std::vector<Person>::iterator personIter;
+	for(personIter=trackedPersons.begin(); personIter!=trackedPersons.end(); ++personIter)
+	{
+		trackedPersonCenters.push_back(personIter->GetBaryCenter());
+	}
+	
+	return trackedPersonCenters;
 }
 

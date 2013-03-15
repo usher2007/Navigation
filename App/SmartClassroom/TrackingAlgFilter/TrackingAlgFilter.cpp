@@ -6,6 +6,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
+#include "Analyzer.h"
+
 const LONG DEFAULT_WIDTH = 720;
 const LONG DEFUALT_HEIGHT = 576;
 
@@ -161,7 +163,7 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	m_pTrackingAlg = new TrackingAlg;
 	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
 	m_bTracking = FALSE;
-	namedWindow("Debug");
+	m_pPosAnalyzer = (void *)(new CPositionAnalyzer);
 }
 
 CUnknown * WINAPI CTrackingAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -235,16 +237,17 @@ STDMETHODIMP CTrackingAlgFilter::NonDelegatingQueryInterface(REFIID riid, void *
 
 HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 {
+	PBYTE p;
+	pSample->GetPointer(&p);
+
+	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
+	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
+	m_pTrackingAlg->DrawBZoneVertexes(img);
+	m_pTrackingAlg->DrawBZones(img);
 	if(m_bTracking)
 	{
 		QueryPerformanceCounter((LARGE_INTEGER *)&T1);
 
-		PBYTE p;
-		pSample->GetPointer(&p);
-
-		int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
-		cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
-		imshow("Debug", img);
 		m_pTrackingAlg->Update(img);
 
 		QueryPerformanceCounter((LARGE_INTEGER *)&T2);
@@ -254,7 +257,12 @@ HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 		sprintf(tmp, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Time Performance: %f!\n", dfTime);
 		OutputDebugStringA(tmp);
 
+		((CPositionAnalyzer *)m_pPosAnalyzer)->AnalyzeTeacherPositions(m_pTrackingAlg->GetTrackedPerson());
 		cv::waitKey(1);
+	}
+	else
+	{
+		((CPositionAnalyzer *)m_pPosAnalyzer)->ResetParameters();
 	}
 	return NOERROR;
 }
@@ -280,8 +288,9 @@ LONG CTrackingAlgFilter::GetHeight()
 	return m_biHeight > 0 ? m_biHeight : DEFUALT_HEIGHT;
 }
 
-STDMETHODIMP CTrackingAlgFilter::StartTracking()
+STDMETHODIMP CTrackingAlgFilter::StartTracking(BOOL bShowTrackingRes)
 {
+	m_pTrackingAlg->SetShowTracking(bShowTrackingRes);
 	m_bTracking = TRUE;
 	return S_OK;
 }
@@ -290,4 +299,92 @@ STDMETHODIMP CTrackingAlgFilter::StopTracking()
 {
 	m_bTracking = FALSE;
 	return S_FALSE;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigTrackingArea(int beginX, int beginY, int beginWidth, int beginHeight, 
+	                                                int stopX, int stopY, int stopWidth, int stopHeight)
+{
+	if(beginX >= 0 && beginY >= 0 && beginWidth > 0 && stopHeight > 0)
+	{
+		TrackingConfig::BEGIN_TRACKING_AREA = Rect(beginX, beginY, beginWidth, beginHeight);
+	}
+	if(stopX >= 0 && stopY >= 0 && stopWidth > 0 && stopHeight > 0)
+	{
+		TrackingConfig::STOP_TRACKING_AREA = Rect(stopX, stopY, stopWidth, stopHeight);
+	}
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigHuman(int leastHumanGap, int humanWidth)
+{
+	if(leastHumanGap > 0)
+	{
+		TrackingConfig::LEAST_HUMAN_GAP = leastHumanGap;
+	}
+	if(humanWidth > 0)
+	{
+		TrackingConfig::HUMAN_WIDTH = humanWidth;
+	}
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigVariousThresh(int disappearFrameThresh, int centerWeightThresh, 
+	                                                 int fgLowThresh, int fgHighThresh, double fgHistThresh)
+{
+	if(disappearFrameThresh > 0)
+	{
+		TrackingConfig::DISAPPEAR_FRAME_THRESH = disappearFrameThresh;
+	}
+	if(centerWeightThresh > 0)
+	{
+		TrackingConfig::CENTER_WEIGHT_THRESH = centerWeightThresh;
+	}
+	if(fgLowThresh > 0)
+	{
+		TrackingConfig::FG_LOW_THRESH = fgLowThresh;
+	}
+	if(fgHighThresh > 0)
+	{
+		TrackingConfig::FG_UP_THRESH = fgHighThresh;
+	}
+	if(fgHistThresh > 0)
+	{
+		TrackingConfig::FG_HIST_THRESH = fgHistThresh;
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::ConfigMiscellaneous(double gbmLearningRate, int trackInterval)
+{
+	if(gbmLearningRate > 0)
+	{
+		TrackingConfig::GBM_LEARNING_RATE = gbmLearningRate;
+	}
+	if(trackInterval > 0)
+	{
+		TrackingConfig::TRACK_INTERVAL = trackInterval;
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP CTrackingAlgFilter::CacheAndShowBZoneVertex(int xPix, int yPix)
+{
+	return m_pTrackingAlg->CacheAndShowBZoneVertex(xPix, yPix);
+}
+
+STDMETHODIMP CTrackingAlgFilter::EraseCachedVertexes()
+{
+	return m_pTrackingAlg->EraseCachedVertexes();
+}
+
+STDMETHODIMP CTrackingAlgFilter::AddBZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	return m_pTrackingAlg->AddBZone(x1, y1, x2, y2, x3, y3, x4, y4);
+}
+
+STDMETHODIMP CTrackingAlgFilter::ClearBlindZones()
+{
+	return m_pTrackingAlg->ClearBZones();
 }

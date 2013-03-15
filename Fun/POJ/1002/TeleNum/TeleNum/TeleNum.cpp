@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <set>
 #include <string>
 
@@ -10,6 +11,7 @@ int main(void)
 {
 	int numOfLines, tmpTeleNum;
 	int *TeleNumbers = new int[10000000]();
+	memset(TeleNumbers, 0x00, 10000000*sizeof(int));
 
 	set<int> dupTeleNumbers;
 	string s;
@@ -28,16 +30,21 @@ int main(void)
 		{
 			dupTeleNumbers.insert(tmpTeleNum);
 		}
-		cout<<"============"<<tmpTeleNum<<"============="<<TeleNumbers[tmpTeleNum]<<endl;
 	}
-
+	if(dupTeleNumbers.empty())
+	{
+		cout<<"No duplicates.\r\n";
+		return 0;
+	}
 	set<int>::iterator it;
+	int firstThree = 0, lastFour = 0;
 	for(it=dupTeleNumbers.begin(); it!=dupTeleNumbers.end(); ++it)
 	{
 		tmpTeleNum = *it;
-		cout<<tmpTeleNum<<" "<<TeleNumbers[tmpTeleNum]<<"\n";
+		firstThree = tmpTeleNum /10000;
+		lastFour = tmpTeleNum - firstThree*10000;
+		cout<<setfill('0')<<setw(3)<<firstThree<<setw(1)<<"-"<<setw(4)<<lastFour<<setw(1)<<" "<<TeleNumbers[tmpTeleNum]<<"\r\n";
 	}
-	cout<<endl;
 	return 0;
 }
 
