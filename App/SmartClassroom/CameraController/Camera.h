@@ -74,7 +74,7 @@ public:
 
 	int SetProtocol(int protocol);
 	int Open();
-	int AddPreSetLocation(Location& loc, BOOL bRestoreFromConfig, unsigned char *posCode, unsigned char *focalCode);
+	int AddPreSetLocation(Location& loc, BOOL bRestoreFromConfig, const unsigned char *posCode, const unsigned char *focalCode);
 	// Control
 	int RecallSpecificLocation(int locId);
 	int TurnLeft();

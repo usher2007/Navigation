@@ -149,7 +149,7 @@ int Camera::Open()
 	return 0;
 }
 
-int Camera::AddPreSetLocation( Location& loc, BOOL bRestoreFromConfig, unsigned char *posCode, unsigned char *focalCode )
+int Camera::AddPreSetLocation( Location& loc, BOOL bRestoreFromConfig, const unsigned char *posCode, const unsigned char *focalCode )
 {
 	// TODO: 
 	// 1.SET PRE SET POSITION 
@@ -222,7 +222,7 @@ int Camera::AddPreSetLocation( Location& loc, BOOL bRestoreFromConfig, unsigned 
 			memcpy(RecallPreFocalCmd, VPrefixOfTurnToAbsoluteFocal, 1024);
 			if(focalCode != NULL)
 			{
-				for(int i=0; i<8; ++i)
+				for(int i=0; i<4; ++i)
 				{
 					RecallPreFocalCmd[i+4] = focalCode[i];
 				}
