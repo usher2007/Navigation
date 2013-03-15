@@ -182,8 +182,9 @@ int Camera::AddPreSetLocation( Location& loc, BOOL bRestoreFromConfig, const uns
 		if(!bRestoreFromConfig)
 		{
 			memset(returnInfo, 0x00, sizeof(returnInfo));
+			PurgeComm(m_hSeries, PURGE_RXCLEAR);
 			sendCommand(VQueryPosCmd, VQueryCmdLength);
-			ReadFile(m_hSeries, returnInfo, sizeof(returnInfo), &readn, NULL);
+			ReadFile(m_hSeries, returnInfo, 11, &readn, NULL);
 			memcpy(RecallPrePosCmd, VPrefixOfTurnToAbsolutePos, 1024);
 			if(readn == 11)
 			{
@@ -195,8 +196,9 @@ int Camera::AddPreSetLocation( Location& loc, BOOL bRestoreFromConfig, const uns
 			loc.SetCommand(RecallPrePosCmd, VRecallPosCmdLength);
 
 			memset(returnInfo, 0x00, sizeof(returnInfo));
+			PurgeComm(m_hSeries, PURGE_RXCLEAR);
 			sendCommand(VQueryFocalCmd, VQueryCmdLength);
-			ReadFile(m_hSeries, returnInfo, sizeof(returnInfo), &readn, NULL);
+			ReadFile(m_hSeries, returnInfo, 7, &readn, NULL);
 			memcpy(RecallPreFocalCmd, VPrefixOfTurnToAbsoluteFocal, 1024);
 			if(readn == 7)
 			{
@@ -259,6 +261,7 @@ int Camera::RecallSpecificLocation(int locId)
 	}
 	else if(m_nProtocol == VISCA)
 	{
+		memset(currentCommand, 0x00, 1024);
 		if(specificLoc.GetCommand(currentCommand, cmdLength) < 0)
 		{
 			return -1;
