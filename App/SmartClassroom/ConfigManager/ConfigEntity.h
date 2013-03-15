@@ -9,7 +9,8 @@ const std::string TeacherConfigFile                   = "..\\Config\\Teacher.con
 const char ARRAYDELIMITER                             = ',';
 const char DICTIONARYDELIMITER                        = ';';
 const char NAMEVALUEDELIMITER                         = '=';
-const std::string ID = "ID";
+const std::string ID                                  = "ID";
+const std::string PROTOCOL                            = "PROTOCOL";
 const std::string CLASSROOMWIDTH                      = "CLS_RM_WIDTH";
 const std::string CAMERADISTANCE                      = "CAM_DIST";
 const std::string FULLSCREENLOCID                     = "FULL_SCR_LOC_ID";
@@ -18,6 +19,8 @@ const std::string SHOWTRACKRESULT                     = "SHOW_TRACK_RES";
 const std::string NUMOFPRESETLOC                      = "PRESET_LOC_NUM";
 const std::string PRESETLOCIDS                        = "PRESET_LOC_IDS";
 const std::string PRESETLOCPIXRANGES                  = "PRESET_LOC_PIX_RANGES";
+const std::string PRESETVLOC                          = "PRESET_VLOC";
+const std::string PRESETFSCRVLOC                      = "PRESET_FULL_SCR_VLOC"
 const std::string BEGINTRACKINGAREA                   = "BEGIN_TRACKING_AREA";
 const std::string STOPTRACKINGAREA                    = "STOP_TRACKING_AREA";
 const std::string LEASTHUAMNGAP                       = "LEAST_HUMAN_GAP";
@@ -47,16 +50,27 @@ typedef struct BlindZone
 
 typedef std::vector<BlindZone> BlindZoneList;
 typedef std::vector<BlindZone>::iterator BlindZoneIter;
+
+typedef struct LocationCode
+{
+	unsigned char Pos[8];
+	unsigned char Focal[4];
+} LocationCode;
+typedef std::map<int, LocationCode> VLocCodeDict;
+
 class TeacherEntity
 {
 public:
 	int id;                                    // Global Uinque ID
+	int cameraProtocol;                        // Pelco-D(0) or VISCA(1)
 	int fullScreenLocId;                       // Location ID represent full-screen, usually 0
 	double roomWidth;                          // The Room's width, in meters
 	double cameraDistance;                     // The distance between camera and rostrum
 	int numOfPresetLoc;                        // Count of preset locations
 	std::vector<int> presetLocIds;             // Array of preset location ids, max 10
 	PresetLocDict presetLocDict;               // The preseted camera locations
+	VLocCodeDict viscaPresetLocDict;           // The location code array used for protocol VISCA
+	LocationCode viscaFullScreen;              // The full screen code for protocol VISCA
 	int pixRangeOverlap;                       // The overlap width between two locations, in pixels
 	BOOL bShowTracking;                        // Flag denote showing tracking result or not
 

@@ -25,6 +25,7 @@ public:
 	HRESULT BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
 	HRESULT AddTeaCamera();
+	HRESULT SetTeaCameraProtocol(int nProtocol);
 	HRESULT TeacherPTZUp();
 	HRESULT TeacherPTZDown();
 	HRESULT TeacherPTZLeft();
@@ -66,7 +67,7 @@ public:
 private:
 	CAPIController(void);
 
-	HRESULT addCamera(int cameraId, int comNum, int baudRate);
+	HRESULT addCamera(int cameraId, int comNum, int baudRate, int protocol);
 	HRESULT restoreCameraPresetLoc(int cameraId);
 
 private:

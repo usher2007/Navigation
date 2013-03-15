@@ -34,6 +34,8 @@ public:
 	// Get Parameters
 	HRESULT GetTeaEnvParams(double& roomWidth, double& cameraDistance);
 	HRESULT GetTeaPresetLocDict(PresetLocDict** locDict);
+	HRESULT GetTeaVLocCodes(VLocCodeDict** vLocCodeList);
+	HRESULT GetTeaFullScreenVLocCode(LocationCode **vLocFullScreen);
 	int GetTeaId();
 	int GetTeaFullScreenLocId();
 	int GetTeaPixRangeOverlap();
@@ -50,6 +52,7 @@ public:
 	double GetTeaGBMLearningRate();
 	int GetTeaTrackingInterval();
 	HRESULT GetBlindZoneList(BlindZoneList **bZoneList);
+	int GetTeaCameraProtocol();
 private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();

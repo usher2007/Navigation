@@ -28,6 +28,16 @@ int CCameraController::deleteCamera(int cameraId, Camera& camera)
 	return S_OK;
 }
 
+int CCameraController::SetCameraProtocol(int cameraId, int protocol)
+{
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].SetProtocol(protocol);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 int CCameraController::TurnLeft(int cameraId)
 {
 	if(cameraList.find(cameraId) != cameraList.end())
@@ -98,12 +108,23 @@ int CCameraController::Stop(int cameraId)
 	return E_FAIL;
 }
 
-int CCameraController::SetPreSetPos( int cameraId, int locId, BOOL bNotSendCmd )
+int CCameraController::SetPreSetPos( int cameraId, int locId)
 {
 	Location loc(locId);
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
-		cameraList[cameraId].AddPreSetLocation(loc, bNotSendCmd);
+		cameraList[cameraId].AddPreSetLocation(loc, FALSE, NULL, NULL);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+int CCameraController::RestorePreSetPos( int cameraId, int locId, const unsigned char *posCode, const unsigned char *focalCode )
+{
+	Location loc(locId);
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].AddPreSetLocation(loc, TRUE, posCode, focalCode);
 		return S_OK;
 	}
 	return E_FAIL;

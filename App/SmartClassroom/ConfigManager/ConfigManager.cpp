@@ -139,6 +139,7 @@ HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistanc
 	return S_OK;
 }
 
+
 HRESULT CConfigManager::GetTeaPresetLocDict( PresetLocDict** locDict )
 {
 	//locDict.clear();
@@ -148,6 +149,18 @@ HRESULT CConfigManager::GetTeaPresetLocDict( PresetLocDict** locDict )
 		locDict[pIter->first] = pIter->second;
 	}*/
 	*locDict = &m_teacherEnt.presetLocDict;
+	return S_OK;
+}
+
+HRESULT CConfigManager::GetTeaVLocCodes(VLocCodeDict** vLocCodeList)
+{
+	*vLocCodeList = &m_teacherEnt.viscaPresetLocDict;
+	return S_OK;
+}
+
+HRESULT CConfigManager::GetTeaFullScreenVLocCode(LocationCode **vLocFullScreen)
+{
+	*vLocFullScreen = &m_teacherEnt.viscaFullScreen;
 	return S_OK;
 }
 
@@ -242,6 +255,11 @@ int CConfigManager::GetTeaTrackingInterval()
 	return m_teacherEnt.trackingInterval;
 }
 
+int CConfigManager::GetTeaCameraProtocol()
+{
+	return m_teacherEnt.cameraProtocol;
+}
+
 HRESULT CConfigManager::GetBlindZoneList(BlindZoneList **bZoneList)
 {
 	*bZoneList = &(m_teacherEnt.blindZones);
@@ -275,6 +293,10 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	if(paramName.compare(ID) == 0)
 	{
 		m_teacherEnt.id = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(PROTOCOL) == 0)
+	{
+		m_teacherEnt.cameraProtocol = atoi(paramValue.c_str());
 	}
 	else if(paramName.compare(CLASSROOMWIDTH) == 0)
 	{
@@ -328,6 +350,71 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 		tmpRange.left = atoi(ranges.substr(0, rangeDelimPos).c_str());
 		tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
 		m_teacherEnt.presetLocDict[m_teacherEnt.presetLocIds[i-1]] = tmpRange;
+	}
+	else if(paramName.compare(PRESETVLOC) == 0)
+	{
+		int nDelimPos = 0, i = 0;
+		for(i=1; i<m_teacherEnt.numOfPresetLoc; ++i)
+		{
+			if(i!=1)
+			{
+				nDelimPos++;
+			}
+			int nextDelimPos = paramValue.find(ARRAYDELIMITER, nDelimPos);
+			std::string arrayElem = paramValue.substr(nDelimPos, nextDelimPos-nDelimPos);
+			// TODO: PROCESS THE ELEMENTS
+			LocationCode vLocCode;
+			for(int j=0; j<12; j++)
+			{
+				std::string code = arrayElem.substr(j, 1);
+				char *stopstring;
+				unsigned char vcode = (unsigned char)strtol(code.c_str(), &stopstring, 16);
+				if(j<8)
+				{
+					vLocCode.Pos[j] = vcode;
+				}
+				else
+				{
+					vLocCode.Focal[j%8] = vcode;
+				}
+			}
+			m_teacherEnt.viscaPresetLocDict[m_teacherEnt.presetLocIds[i-1]] = vLocCode;
+			nDelimPos = nextDelimPos;
+		}
+		std::string arrayElem = paramValue.substr(nDelimPos+1, paramValue.length()-nDelimPos-1);
+		LocationCode vLocCode;
+		for(int j=0; j<12; j++)
+		{
+			std::string code = arrayElem.substr(j, 1);
+			char *stopstring;
+			unsigned char vcode = (unsigned char)strtol(code.c_str(), &stopstring, 16);
+			if(j<8)
+			{
+				vLocCode.Pos[j] = vcode;
+			}
+			else
+			{
+				vLocCode.Focal[j%8] = vcode;
+			}
+		}
+		m_teacherEnt.viscaPresetLocDict[m_teacherEnt.presetLocIds[i-1]] = vLocCode;
+	}
+	else if(paramName.compare(PRESETFSCRVLOC) == 0)
+	{
+		for(int i=0; i<12; ++i)
+		{
+			std::string code = paramValue.substr(i,1);
+			char* stopString;
+			unsigned char vcode = (unsigned char)strtol(code.c_str(), &stopString, 16);
+			if(i<8)
+			{
+				m_teacherEnt.viscaFullScreen.Pos[i] = vcode;
+			}
+			else
+			{
+				m_teacherEnt.viscaFullScreen.Focal[i%8] = vcode;
+			}
+		}
 	}
 	else if(paramName.compare(BEGINTRACKINGAREA) == 0)
 	{

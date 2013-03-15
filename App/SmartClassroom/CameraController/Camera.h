@@ -22,6 +22,24 @@ const static unsigned char PrefixOfSetPrePos[1024] = {(unsigned char)0xFF, (unsi
 const static unsigned char PrefixOfRecallPrePos[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x07, (unsigned char)0x00};
 
 const static int RegularCmdLength = 7;
+
+
+// 
+// --- VISCA Protocol --
+//
+// 81 09 06 12 FF
+const static unsigned char VQueryPosCmd[1024] = {(unsigned char)0x81, (unsigned char)0x09, (unsigned char)0x06, (unsigned char)0x12, (unsigned char)0xFF};
+// 81 09 04 47 FF
+const static unsigned char VQueryFocalCmd[1024] = {(unsigned char)0x81, (unsigned char)0x09, (unsigned char)0x04, (unsigned char)0x47, (unsigned char)0xFF};
+// 81 01 06 02 05 05 0F 06 0A 00 00 00 00 00 FF -> Move to absolute position F6A0(Horizon) and 0000(Vertical).
+const static unsigned char VPrefixOfTurnToAbsolutePos[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x02, (unsigned char)0x05, (unsigned char)0x05, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0xFF};
+// 81 01 04 47 03 00 00 00 FF -> Move to absolute focal 3000.
+const static unsigned char VPrefixOfTurnToAbsoluteFocal[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x47, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0xFF};
+const static int VQueryCmdLength = 5;
+const static int VRecallPosCmdLength = 15;
+const static int VRecallFocalCmdLength = 9;
+const static int Pelco_D = 0;
+const static int VISCA = 1;
 //Need to be detailing
 class Location
 {
@@ -34,11 +52,15 @@ public:
 	int SetPosition(double hPos, double vPos, double zm);
 	int GetPosition(double& hPos, double& vPos, double& zm);
 	int GetCommand(unsigned char* cmd, int& cmdLen);
+	int GetFocalCommand(unsigned char* cmd, int& cmdLen);
 	int SetCommand(unsigned char* cmd, const int cmdLen);
+	int SetFocalCommand(unsigned char* cmd, const int cmdLen);
 private:
 	int m_nLocId;
 	unsigned char command[1024];
+	unsigned char focalCmd[1024];
 	int commandLength;
+	int focalCmdLength;
 	double horizontalPos;
 	double verticalPos;
 	double zoom;
@@ -50,8 +72,9 @@ public:
 	Camera();
 	Camera(int commNum, int baudRate);
 
+	int SetProtocol(int protocol);
 	int Open();
-	int AddPreSetLocation(Location& loc, BOOL bNotSendCmd);
+	int AddPreSetLocation(Location& loc, BOOL bRestoreFromConfig, unsigned char *posCode, unsigned char *focalCode);
 	// Control
 	int RecallSpecificLocation(int locId);
 	int TurnLeft();
@@ -71,6 +94,7 @@ private:
 	std::hash_map<int, Location> presetLocations;
 	//std::vector<Location> presetLocations;
 	int m_nPreLocNum;
+	int m_nProtocol;              // 0-PelcoD 1-VISCA
 
 private:
 	//int findLocById(int locId, Location& loc);

@@ -60,11 +60,12 @@ HRESULT CAPIController::BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWN
 	return E_FAIL;
 }
 
-HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate )
+HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate, int protocol )
 {
 	if(m_pModuleFactory)
 	{
 		m_pModuleFactory->GetCameraController()->addCamera(cameraId, comNum, baudRate);
+		m_pModuleFactory->GetCameraController()->SetCameraProtocol(cameraId, protocol);
 		restoreCameraPresetLoc(cameraId);
 		return S_OK;
 	}
@@ -77,24 +78,56 @@ HRESULT CAPIController::restoreCameraPresetLoc(int cameraId)
 	{
 		PresetLocDict *pLocDict = NULL;
 		m_pModuleFactory->GetConfigManager()->GetTeaPresetLocDict(&pLocDict);
+		VLocCodeDict *pVLocCodeDict = NULL;
+		m_pModuleFactory->GetConfigManager()->GetTeaVLocCodes(&pVLocCodeDict);
+		int protocol = m_pModuleFactory->GetConfigManager()->GetTeaCameraProtocol();
 		PresetLocDictIter locIter;
 		for(locIter=pLocDict->begin(); locIter!=pLocDict->end(); ++locIter)
 		{
-			m_pModuleFactory->GetCameraController()->SetPreSetPos(cameraId, locIter->first, TRUE);
+			if(protocol == Pelco_D)
+			{
+				m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, locIter->first, NULL, NULL);
+			}
+			else if(protocol == VISCA)
+			{
+				LocationCode code = (*pVLocCodeDict)[locIter->first];
+				m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, locIter->first,code.Pos, code.Focal);
+			}
 		}
 		int fullScreenLocId = m_pModuleFactory->GetConfigManager()->GetTeaFullScreenLocId();
-		m_pModuleFactory->GetCameraController()->SetPreSetPos(cameraId, fullScreenLocId, TRUE);
+		if(protocol == Pelco_D)
+		{
+			m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, fullScreenLocId, NULL, NULL);
+		}
+		else if(protocol == VISCA)
+		{
+			LocationCode *vFullScreen = NULL;
+			m_pModuleFactory->GetConfigManager()->GetTeaFullScreenVLocCode(&vFullScreen);
+			m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, fullScreenLocId, vFullScreen->Pos, vFullScreen->Focal);
+		}
 		return S_OK;
 	}
 	return E_FAIL;
 }
 
-HRESULT CAPIController::AddTeaCamera()
+HRESULT CAPIController::AddTeaCamera( )
 {
 	if(m_pModuleFactory)
 	{
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
-		return addCamera(teaId, 1, 9600);
+		int protocol = m_pModuleFactory->GetConfigManager()->GetTeaCameraProtocol();
+		return addCamera(teaId, 1, 9600, protocol);
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::SetTeaCameraProtocol(int nProtocol)
+{
+	if(m_pModuleFactory)
+	{
+		int teadId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->SetCameraProtocol(teadId, nProtocol);
+		return S_OK;
 	}
 	return E_FAIL;
 }
@@ -189,7 +222,7 @@ HRESULT CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRigh
 			m_pModuleFactory->GetConfigManager()->SetTeacherPresetLoc(locId, pixLeft, pixRight);
 		}
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
-		m_pModuleFactory->GetCameraController()->SetPreSetPos(teaId, locId, FALSE);
+		m_pModuleFactory->GetCameraController()->SetPreSetPos(teaId, locId);
 		return S_OK;
 	}
 	return E_FAIL;
