@@ -79,7 +79,7 @@ void main_accept()
 
 void main_connect()
 {
-	ACE_INET_Addr addr(PORT_NO, "192.168.0.56");
+	ACE_INET_Addr addr(PORT_NO, "127.0.0.1");
 	Connector myconnector;
 	My_Svc_Handler *my_svc_handler = new My_Svc_Handler;
 	myconnector.connect(my_svc_handler, addr);

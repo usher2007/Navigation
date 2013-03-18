@@ -10,7 +10,7 @@
 #include <iostream>
 using namespace cv;
 
-const string videoFileName = "D:\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Video\\MVI_2132.avi";
+const string videoFileName = "C:\\Users\\doba\\Desktop\\Downloads\\T_WALK1.mp4";
 bool selectObject = false;
 Rect selection;
 Point origin;
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 		{
 			imshow("Select Object", image);
 		}
-		waitKey(10);
+		waitKey(100);
 	}
 
 	ParticleTrackingAlg particleTrackingAlg(Utility::particleNum);

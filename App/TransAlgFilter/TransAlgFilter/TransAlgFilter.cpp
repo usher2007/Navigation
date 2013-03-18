@@ -45,15 +45,6 @@ const AMOVIESETUP_FILTER
 	, 2                               // nPins
 	, psudPins };                     // lpPin
 
-CFactoryTemplate g_Templates[]=
-{   {L"Trans-Alg"
-, &CLSID_TransAlg
-,   CTransAlgFilter::CreateInstance
-, NULL
-, &sudNullIP }
-};
-int g_cTemplates = sizeof(g_Templates)/sizeof(g_Templates[0]);
-
 
 //
 // initialise the static instance count.

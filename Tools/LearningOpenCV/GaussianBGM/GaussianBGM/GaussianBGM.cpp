@@ -3,7 +3,7 @@
 #include "opencv2/video/background_segm.hpp"
 using namespace cv;
 
-const string videoFileName = "G:\\Users\\Usher\\Desktop\\学生起立检测数据\\MVI_3395_Compress.AVI";
+const string videoFileName = "C:\\Users\\doba\\Desktop\\Downloads\\T_WALK1.mp4";
 int main(void)
 {
 	VideoCapture cap;

@@ -9,8 +9,13 @@ nframes = 100;
 n_row = 3;
 n_col = 3;
 
+<<<<<<< Updated upstream
 t_row = 60;
 t_col = 75;
+=======
+t_row = 75;
+t_col = 60;
+>>>>>>> Stashed changes
 
 patch_row = ceil(t_row / n_row);
 patch_col = ceil(t_col / n_col);
@@ -165,7 +170,11 @@ for i=2:nframes
     % Update the template
     index = mod(i-1, template_num);
     if index == 0
+<<<<<<< Updated upstream
         index = 10;
+=======
+        index = template_num;
+>>>>>>> Stashed changes
     end
     %HT(:,index+1,:) = mean(particle_features(:, best_index, :), 2);
     template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));

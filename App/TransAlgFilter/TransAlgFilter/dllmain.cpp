@@ -3,8 +3,18 @@
 #include <tchar.h>
 #include <streams.h>
 #include <initguid.h>
+#include "TransAlgFilter.h"
 
 #pragma warning(disable:4710)
+
+CFactoryTemplate g_Templates[]=
+{   {L"Trans Alg"
+, &CLSID_TransAlg
+,   CTransAlgFilter::CreateInstance
+, NULL
+, &sudNullIP }
+};
+int g_cTemplates = sizeof(g_Templates)/sizeof(g_Templates[0]);
 
 STDAPI DllRegisterServer()
 {

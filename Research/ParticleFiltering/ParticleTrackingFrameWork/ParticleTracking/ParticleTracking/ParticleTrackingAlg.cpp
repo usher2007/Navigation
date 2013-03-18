@@ -1,5 +1,7 @@
 #include "ParticleTrackingAlg.h"
 
+const char *resultDir = "D:\\Navigation\\Research\\ParticleFiltering\\FromShunli\\Result\\";
+
 ParticleTrackingAlg::ParticleTrackingAlg(int particleNum)
 {
 	this->particleNum = particleNum;
@@ -29,6 +31,8 @@ int ParticleTrackingAlg::Tracking(VideoCapture cap)
 	namedWindow( "Tracking Result", CV_WINDOW_AUTOSIZE );
 	generateParticleList();
 	double sumPdf;
+	int i=0; 
+	char* resultFile = new char[1024];
 	for(;;)
 	{
 		cap >> frame;
@@ -70,7 +74,9 @@ int ParticleTrackingAlg::Tracking(VideoCapture cap)
 		rectangle(image,resultObject, Scalar(0,0,0));
 		imshow("Tracking Result", image);
 		waitKey(2);
-
+		memset(resultFile, 0x00, 1024);
+		sprintf(resultFile, "%s%d.bmp", resultDir, i++);
+		imwrite(resultFile, image);
 		resampleParticleList();
 	}
 	return 0;

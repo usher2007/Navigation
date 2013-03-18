@@ -4,6 +4,8 @@
 #include "TransAlgUIDs.h"
 #include "TrackingAlg.h"
 
+extern const AMOVIESETUP_FILTER sudNullIP;
+
 class CTransAlgInputPin : public CTransInPlaceInputPin
 {
 public:
