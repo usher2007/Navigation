@@ -29,6 +29,10 @@ double getDoubleFromCEdit(CEdit *ctrlEdit)
 	double ret = -1.0;
 	CString param;
 	param = getCStringFromCEdit(ctrlEdit);
+	if(param.Compare(_T("0")) == 0 || param.Compare(_T("0.0")) == 0)
+	{
+		return 0.0;
+	}
 	ret = _ttof(param);
 	if(ret == 0.0)
 	{

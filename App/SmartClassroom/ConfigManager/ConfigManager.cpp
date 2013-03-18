@@ -42,6 +42,11 @@ HRESULT CConfigManager::DumpConfigFile()
 
 HRESULT CConfigManager::SetTeacherPresetLoc( int locId, int leftRange, int rightRange )
 {
+	if(m_teacherEnt.presetLocDict.find(locId) == m_teacherEnt.presetLocDict.end())
+	{
+		m_teacherEnt.presetLocIds.push_back(locId);
+		m_teacherEnt.numOfPresetLoc++;
+	}
 	LocRange tmpLoc;
 	tmpLoc.left = leftRange;
 	tmpLoc.right = rightRange;
