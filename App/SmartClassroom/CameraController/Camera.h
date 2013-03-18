@@ -40,6 +40,7 @@ const static int VRecallPosCmdLength = 15;
 const static int VRecallFocalCmdLength = 9;
 const static int Pelco_D = 0;
 const static int VISCA = 1;
+
 //Need to be detailing
 class Location
 {
@@ -65,6 +66,9 @@ private:
 	double verticalPos;
 	double zoom;
 };
+
+typedef std::hash_map<int, Location> CameraLocDict;
+typedef std::hash_map<int, Location>::iterator CameraLocIter;
 //Need to be detailing
 class Camera
 {
@@ -86,12 +90,13 @@ public:
 	int Stop();
 
 	const Location& getCurrentLocation();
+	int GetLocationDict(CameraLocDict **locDict);
 private:
 	Location currentLocation;
 	HANDLE m_hSeries;
 	int m_nComNum;
 	int m_nBaudRate;
-	std::hash_map<int, Location> presetLocations;
+	CameraLocDict presetLocations;
 	//std::vector<Location> presetLocations;
 	int m_nPreLocNum;
 	int m_nProtocol;              // 0-PelcoD 1-VISCA

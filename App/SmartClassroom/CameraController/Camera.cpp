@@ -319,6 +319,12 @@ int Camera::Stop()
 	return sendCommand(StopCmd, RegularCmdLength);
 }
 
+int Camera::GetLocationDict(CameraLocDict **locDict)
+{
+	*locDict = &presetLocations;
+	return 0;
+}
+
 // Private Methods
 //int Camera::findLocById(int locId, Location& loc)
 //{

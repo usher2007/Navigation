@@ -57,6 +57,7 @@ typedef struct LocationCode
 	unsigned char Focal[4];
 } LocationCode;
 typedef std::map<int, LocationCode> VLocCodeDict;
+typedef std::map<int, LocationCode>::iterator VLocCodeIter;
 
 class TeacherEntity
 {

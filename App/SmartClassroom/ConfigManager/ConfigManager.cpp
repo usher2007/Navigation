@@ -266,6 +266,26 @@ HRESULT CConfigManager::GetBlindZoneList(BlindZoneList **bZoneList)
 	return S_OK;
 }
 
+HRESULT CConfigManager::SyncViscaCode( int locId, unsigned char *pos, unsigned char *focal )
+{
+	if(locId == 0)
+	{
+		memcpy(m_teacherEnt.viscaFullScreen.Pos, pos, 8);
+		memcpy(m_teacherEnt.viscaFullScreen.Focal, focal, 4);
+		return S_OK;
+	}
+	else if(locId > 0)
+	{
+		LocationCode locCode;
+		memcpy(locCode.Pos, pos+6, 8);
+		memcpy(locCode.Focal, focal+4, 4);
+		m_teacherEnt.viscaPresetLocDict[locId] = locCode;
+		return S_OK;
+	}
+	return E_FAIL;
+
+}
+
 HRESULT CConfigManager::loadTeacherConfig()
 {
 	std::ifstream teacherIn(TeacherConfigFile);
@@ -538,6 +558,7 @@ HRESULT CConfigManager::dumpTeacherConfig()
 		return E_FAIL;
 	}
 	teacherOut<<ID<<NAMEVALUEDELIMITER<<m_teacherEnt.id<<'\n';
+	teacherOut<<PROTOCOL<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraProtocol<<'\n';
 	teacherOut<<CLASSROOMWIDTH<<NAMEVALUEDELIMITER<<m_teacherEnt.roomWidth<<'\n';
 	teacherOut<<CAMERADISTANCE<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraDistance<<'\n';
 	teacherOut<<FULLSCREENLOCID<<NAMEVALUEDELIMITER<<m_teacherEnt.fullScreenLocId<<'\n';
@@ -569,6 +590,48 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	}
 	teacherOut<<'\n';
 
+	teacherOut<<PRESETVLOC<<NAMEVALUEDELIMITER;
+	VLocCodeIter vLocDictIter;
+	for(vLocDictIter=m_teacherEnt.viscaPresetLocDict.begin(); vLocDictIter!=m_teacherEnt.viscaPresetLocDict.end(); ++vLocDictIter)
+	{
+		if(vLocDictIter != m_teacherEnt.viscaPresetLocDict.begin())
+		{
+			teacherOut<<ARRAYDELIMITER;
+		}
+		for(int i=0; i<12; ++i)
+		{
+			int code = 0;
+			if(i >= 8)
+			{
+				int j = i % 8;
+				code = (*vLocDictIter).second.Focal[j];
+			}
+			else
+			{
+				code = (*vLocDictIter).second.Pos[i];
+			}
+			teacherOut<<int2char(code, 16);
+		}
+	}
+	teacherOut<<'\n';
+
+	teacherOut<<PRESETFSCRVLOC<<NAMEVALUEDELIMITER;
+	LocationCode fullScrCode = m_teacherEnt.viscaFullScreen;
+	for(int i=0; i<12; ++i)
+	{
+		int code = 0;
+		if(i >= 8)
+		{
+			int j = i % 8;
+			code = fullScrCode.Focal[j];
+		}
+		else
+		{
+			code = fullScrCode.Pos[i];
+		}
+		teacherOut<<int2char(code, 16);
+	}
+	teacherOut<<'\n';
 	teacherOut<<BEGINTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.beginTrackArea[0]<<ARRAYDELIMITER<<
 		m_teacherEnt.beginTrackArea[1]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[2]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[3]<<'\n';
 	teacherOut<<STOPTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.stopTrackArea[0]<<ARRAYDELIMITER<<
@@ -603,4 +666,45 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	teacherOut<<std::endl;
 	teacherOut.close();
 	return S_OK;
+}
+
+char CConfigManager::int2char(int code, int scale)
+{
+	char res = '0';
+	if(scale == 16)
+	{
+		if(code < 0 || code > 15)
+		{
+			return res;
+		}
+		switch (code)
+		{
+		case 10:
+			res = 'A';
+			break;
+		case 11:
+			res = 'B';
+			break;
+		case 12:
+			res = 'C';
+			break;
+		case 13:
+			res = 'D';
+			break;
+		case 14:
+			res = 'E';
+			break;
+		case 15:
+			res = 'F';
+			break;
+		default:
+			res = '0' + code;
+		}
+		return res;
+	}
+	else if(scale == 10)
+	{
+		return ('0' + code);
+	}
+	return res;
 }

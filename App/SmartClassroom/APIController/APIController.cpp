@@ -34,6 +34,17 @@ HRESULT CAPIController::DumpConfiguration()
 {
 	if(m_pModuleFactory)
 	{
+		CameraLocDict *cameraLocDict = NULL;
+		int teaID = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->GetSpecificCameraLocations(teaID, &cameraLocDict);
+		CameraLocIter camLocIter;
+		for(camLocIter=cameraLocDict->begin(); camLocIter!=cameraLocDict->end(); ++camLocIter)
+		{
+			unsigned char posCmd[1024];
+			unsigned char focalCmd[1024];
+			m_pModuleFactory->GetCameraController()->GetSpecificCameraLocCode(cameraLocDict, camLocIter->first, posCmd, focalCmd);
+			m_pModuleFactory->GetConfigManager()->SyncViscaCode(camLocIter->first, posCmd, focalCmd);
+		}
 		HRESULT hr = m_pModuleFactory->GetConfigManager()->DumpConfigFile();
 		return hr;
 	}

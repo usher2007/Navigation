@@ -53,6 +53,8 @@ public:
 	int GetTeaTrackingInterval();
 	HRESULT GetBlindZoneList(BlindZoneList **bZoneList);
 	int GetTeaCameraProtocol();
+	// Sync VISCA code from camera
+	HRESULT SyncViscaCode(int locId, unsigned char *pos, unsigned char *focal);
 private:
 	HRESULT loadTeacherConfig();
 	HRESULT loadStudentConfig();
@@ -61,6 +63,7 @@ private:
 	HRESULT getParamNameAndVal(const std::string& paramLine, std::string& paramName, std::string& paramValue);
 	HRESULT setTeaParametersFromFile(const std::string& paramName, std::string& paramValue);
 	HRESULT processArrayParameters(const std::string& paramName, std::string& paramValue, int arrayLen);
+	char int2char(int code, int scale);
 private:
 	TeacherEntity m_teacherEnt;
 	StudentEntity m_studentEnt;

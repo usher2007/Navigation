@@ -37,7 +37,8 @@ public:
 	int RestorePreSetPos(int cameraId, int locId, const unsigned char *posCode, const unsigned char *focalCode);
 	int RecallPreSetPos(int cameraId, int locId);
 	int TurnToSpecificLocation(int cameraId, const Location& loc);
-	int GetSpecificCameraLocation(int cameraId, Location& loc);
+	int GetSpecificCameraLocations(int cameraId, CameraLocDict **locDict);
+	int GetSpecificCameraLocCode(CameraLocDict *locDict, int locId, unsigned char *pos, unsigned char *focal);
 private:
 	std::hash_map<int, Camera> cameraList;
 };
