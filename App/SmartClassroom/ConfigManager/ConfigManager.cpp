@@ -286,8 +286,8 @@ HRESULT CConfigManager::SyncViscaCode( int locId, unsigned char *pos, unsigned c
 {
 	if(locId == 0)
 	{
-		memcpy(m_teacherEnt.viscaFullScreen.Pos, pos, 8);
-		memcpy(m_teacherEnt.viscaFullScreen.Focal, focal, 4);
+		memcpy(m_teacherEnt.viscaFullScreen.Pos, pos+6, 8);
+		memcpy(m_teacherEnt.viscaFullScreen.Focal, focal+4, 4);
 		return S_OK;
 	}
 	else if(locId > 0)
