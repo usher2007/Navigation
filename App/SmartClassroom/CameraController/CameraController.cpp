@@ -28,6 +28,26 @@ int CCameraController::deleteCamera(int cameraId, Camera& camera)
 	return S_OK;
 }
 
+int CCameraController::SetCameraProtocol(int cameraId, int protocol)
+{
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].SetProtocol(protocol);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+int CCameraController::SetCameraVelocity(int cameraId, int velocity)
+{
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].SetVelocity(velocity);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 int CCameraController::TurnLeft(int cameraId)
 {
 	if(cameraList.find(cameraId) != cameraList.end())
@@ -98,12 +118,23 @@ int CCameraController::Stop(int cameraId)
 	return E_FAIL;
 }
 
-int CCameraController::SetPreSetPos( int cameraId, int locId, BOOL bNotSendCmd )
+int CCameraController::SetPreSetPos( int cameraId, int locId)
 {
 	Location loc(locId);
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
-		cameraList[cameraId].AddPreSetLocation(loc, bNotSendCmd);
+		cameraList[cameraId].AddPreSetLocation(loc, FALSE, NULL, NULL);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+int CCameraController::RestorePreSetPos( int cameraId, int locId, const unsigned char *posCode, const unsigned char *focalCode )
+{
+	Location loc(locId);
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].AddPreSetLocation(loc, TRUE, posCode, focalCode);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -119,9 +150,22 @@ int CCameraController::RecallPreSetPos(int cameraId, int locId)
 	return E_FAIL;
 }
 
-int CCameraController::GetSpecificCameraLocation(int cameraId, Location& loc)
+int CCameraController::GetSpecificCameraLocations(int cameraId, CameraLocDict **locDict)
 {
-	return -1; //NO IMP
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		return cameraList[cameraId].GetLocationDict(locDict);
+	}
+	return E_FAIL;
+}
+
+int CCameraController::GetSpecificCameraLocCode( CameraLocDict *locDict, int locId, unsigned char *pos, unsigned char *focal )
+{
+	Location loc = (*locDict)[locId];
+	int cmdLen = 0;
+	loc.GetCommand(pos, cmdLen);
+	loc.GetFocalCommand(focal, cmdLen);
+	return 0;
 }
 
 int CCameraController::TurnToSpecificLocation(int cameraId, const Location& loc)

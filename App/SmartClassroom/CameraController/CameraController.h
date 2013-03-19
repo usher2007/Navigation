@@ -23,6 +23,8 @@ public:
 	CCameraController(void);
 	int addCamera(int cameraId, int comNum, int baudRate);
 	int deleteCamera(int cameraId, Camera& camera);
+	int SetCameraProtocol(int cameraId, int protocol);
+	int SetCameraVelocity(int cameraId, int velocity);
 
 	int TurnLeft(int cameraId);
 	int TurnRight(int cameraId);
@@ -32,10 +34,12 @@ public:
 	int ZoomOut(int cameraId);
 	int Stop(int cameraId);
 
-	int SetPreSetPos(int cameraId, int locId, BOOL bNotSendCmd);
+	int SetPreSetPos(int cameraId, int locId);
+	int RestorePreSetPos(int cameraId, int locId, const unsigned char *posCode, const unsigned char *focalCode);
 	int RecallPreSetPos(int cameraId, int locId);
 	int TurnToSpecificLocation(int cameraId, const Location& loc);
-	int GetSpecificCameraLocation(int cameraId, Location& loc);
+	int GetSpecificCameraLocations(int cameraId, CameraLocDict **locDict);
+	int GetSpecificCameraLocCode(CameraLocDict *locDict, int locId, unsigned char *pos, unsigned char *focal);
 private:
 	std::hash_map<int, Camera> cameraList;
 };
