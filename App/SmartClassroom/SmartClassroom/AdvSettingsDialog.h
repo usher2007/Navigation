@@ -16,8 +16,9 @@ public:
 	enum { IDD = IDD_DIALOGAdvSettings };
 
 protected:
+	HICON m_hIcon;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
+	virtual BOOL OnInitDialog();
 	DECLARE_MESSAGE_MAP()
 public:
 	CEdit m_ctrlEditRoomWidth;
@@ -37,4 +38,5 @@ private:
 
 public:
 	afx_msg void OnBnClickedButtoncanceladvsettings();
+	CComboBox m_ctrlComboProtocol;
 };
