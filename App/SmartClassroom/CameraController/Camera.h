@@ -77,6 +77,7 @@ public:
 	Camera(int commNum, int baudRate);
 
 	int SetProtocol(int protocol);
+	int SetVelocity(int velocity);
 	int Open();
 	int AddPreSetLocation(Location& loc, BOOL bRestoreFromConfig, const unsigned char *posCode, const unsigned char *focalCode);
 	// Control
@@ -100,6 +101,7 @@ private:
 	//std::vector<Location> presetLocations;
 	int m_nPreLocNum;
 	int m_nProtocol;              // 0-PelcoD 1-VISCA
+	int m_nVelocity;              // 1-15,01-0F
 
 private:
 	//int findLocById(int locId, Location& loc);

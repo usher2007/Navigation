@@ -77,6 +77,7 @@ HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate, int p
 	{
 		m_pModuleFactory->GetCameraController()->addCamera(cameraId, comNum, baudRate);
 		m_pModuleFactory->GetCameraController()->SetCameraProtocol(cameraId, protocol);
+		m_pModuleFactory->GetCameraController()->SetCameraVelocity(cameraId, m_pModuleFactory->GetConfigManager()->GetTeaCameraVelocity());
 		restoreCameraPresetLoc(cameraId);
 		return S_OK;
 	}
@@ -138,6 +139,18 @@ HRESULT CAPIController::SetTeaCameraProtocol(int nProtocol)
 	{
 		int teadId = m_pModuleFactory->GetConfigManager()->GetTeaId();
 		m_pModuleFactory->GetCameraController()->SetCameraProtocol(teadId, nProtocol);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::SetTeaCameraVelocity(int velocity)
+{
+	if(m_pModuleFactory)
+	{
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->SetCameraVelocity(teaId, velocity);
+		m_pModuleFactory->GetConfigManager()->SetTeaCameraVelocity(velocity);
 		return S_OK;
 	}
 	return E_FAIL;

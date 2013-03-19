@@ -128,6 +128,12 @@ HRESULT CConfigManager::SetBlindZone(int x1, int y1, int x2, int y2, int x3, int
 	return S_OK;
 }
 
+HRESULT CConfigManager::SetTeaCameraVelocity(int velocity)
+{
+	m_teacherEnt.cameraVelocity = velocity;
+	return S_OK;
+}
+
 HRESULT CConfigManager::ClearBlindZones()
 {
 	if(m_teacherEnt.blindZones.empty())
@@ -263,6 +269,11 @@ int CConfigManager::GetTeaTrackingInterval()
 int CConfigManager::GetTeaCameraProtocol()
 {
 	return m_teacherEnt.cameraProtocol;
+}
+
+int CConfigManager::GetTeaCameraVelocity()
+{
+	return m_teacherEnt.cameraVelocity;
 }
 
 HRESULT CConfigManager::GetBlindZoneList(BlindZoneList **bZoneList)
@@ -440,6 +451,10 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 				m_teacherEnt.viscaFullScreen.Focal[i%8] = vcode;
 			}
 		}
+	}
+	else if(paramName.compare(CAMERAVELOCITY) == 0)
+	{
+		m_teacherEnt.cameraVelocity = atoi(paramValue.c_str());
 	}
 	else if(paramName.compare(BEGINTRACKINGAREA) == 0)
 	{
@@ -637,6 +652,7 @@ HRESULT CConfigManager::dumpTeacherConfig()
 		teacherOut<<int2char(code, 16);
 	}
 	teacherOut<<'\n';
+	teacherOut<<CAMERAVELOCITY<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraVelocity<<'\n';
 	teacherOut<<BEGINTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.beginTrackArea[0]<<ARRAYDELIMITER<<
 		m_teacherEnt.beginTrackArea[1]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[2]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[3]<<'\n';
 	teacherOut<<STOPTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.stopTrackArea[0]<<ARRAYDELIMITER<<

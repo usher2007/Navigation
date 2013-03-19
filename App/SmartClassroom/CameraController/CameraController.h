@@ -24,6 +24,7 @@ public:
 	int addCamera(int cameraId, int comNum, int baudRate);
 	int deleteCamera(int cameraId, Camera& camera);
 	int SetCameraProtocol(int cameraId, int protocol);
+	int SetCameraVelocity(int cameraId, int velocity);
 
 	int TurnLeft(int cameraId);
 	int TurnRight(int cameraId);

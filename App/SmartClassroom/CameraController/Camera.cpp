@@ -101,6 +101,16 @@ int Camera::SetProtocol(int protocol)
 	return 0;
 }
 
+int Camera::SetVelocity(int velocity)
+{
+	if(velocity > 0 && velocity < 16)
+	{
+		m_nVelocity = velocity;
+		return 0;
+	}
+	return -1;
+}
+
 int Camera::Open()
 {
 	CString com;
@@ -266,6 +276,8 @@ int Camera::RecallSpecificLocation(int locId)
 		{
 			return -1;
 		}
+		currentCommand[4] = (unsigned char)m_nVelocity;
+		currentCommand[5] = (unsigned char)m_nVelocity;
 		if(sendCommand(currentCommand, cmdLength) < 0)
 		{
 			return -1;

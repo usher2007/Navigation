@@ -39,4 +39,5 @@ private:
 public:
 	afx_msg void OnBnClickedButtoncanceladvsettings();
 	CComboBox m_ctrlComboProtocol;
+	CEdit m_ctrlEditVelocity;
 };

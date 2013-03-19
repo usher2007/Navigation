@@ -21,6 +21,7 @@ const std::string PRESETLOCIDS                        = "PRESET_LOC_IDS";
 const std::string PRESETLOCPIXRANGES                  = "PRESET_LOC_PIX_RANGES";
 const std::string PRESETVLOC                          = "PRESET_VLOC";
 const std::string PRESETFSCRVLOC                      = "PRESET_FULL_SCR_VLOC";
+const std::string CAMERAVELOCITY                      = "CAMERA_VELOCITY";
 const std::string BEGINTRACKINGAREA                   = "BEGIN_TRACKING_AREA";
 const std::string STOPTRACKINGAREA                    = "STOP_TRACKING_AREA";
 const std::string LEASTHUAMNGAP                       = "LEAST_HUMAN_GAP";
@@ -72,6 +73,7 @@ public:
 	PresetLocDict presetLocDict;               // The preseted camera locations
 	VLocCodeDict viscaPresetLocDict;           // The location code array used for protocol VISCA
 	LocationCode viscaFullScreen;              // The full screen code for protocol VISCA
+	int cameraVelocity;
 	int pixRangeOverlap;                       // The overlap width between two locations, in pixels
 	BOOL bShowTracking;                        // Flag denote showing tracking result or not
 

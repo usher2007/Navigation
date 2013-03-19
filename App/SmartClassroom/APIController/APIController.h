@@ -26,6 +26,7 @@ public:
 
 	HRESULT AddTeaCamera();
 	HRESULT SetTeaCameraProtocol(int nProtocol);
+	HRESULT SetTeaCameraVelocity(int velocity);
 	HRESULT TeacherPTZUp();
 	HRESULT TeacherPTZDown();
 	HRESULT TeacherPTZLeft();

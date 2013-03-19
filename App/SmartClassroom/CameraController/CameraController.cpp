@@ -38,6 +38,16 @@ int CCameraController::SetCameraProtocol(int cameraId, int protocol)
 	return E_FAIL;
 }
 
+int CCameraController::SetCameraVelocity(int cameraId, int velocity)
+{
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].SetVelocity(velocity);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 int CCameraController::TurnLeft(int cameraId)
 {
 	if(cameraList.find(cameraId) != cameraList.end())

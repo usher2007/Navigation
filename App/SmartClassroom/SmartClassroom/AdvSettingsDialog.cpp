@@ -80,6 +80,7 @@ void CAdvSettingsDialog::OnBnClickedButtonsaveadvsettings()
 
 		m_pAPIController->TeacherSetDetailParams(presetLocOverlap, roomWidth, camDist, leastHumanGap, humanWidth, fgLowThresh, fgUpThresh, fgHistThresh);
 		m_pAPIController->SetTeaCameraProtocol(protocol);
+		m_pAPIController->SetTeaCameraVelocity(velocity);
 	}
 
 	CDialogEx::OnOK();
