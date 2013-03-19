@@ -31,8 +31,8 @@ const static int RegularCmdLength = 7;
 const static unsigned char VQueryPosCmd[1024] = {(unsigned char)0x81, (unsigned char)0x09, (unsigned char)0x06, (unsigned char)0x12, (unsigned char)0xFF};
 // 81 09 04 47 FF
 const static unsigned char VQueryFocalCmd[1024] = {(unsigned char)0x81, (unsigned char)0x09, (unsigned char)0x04, (unsigned char)0x47, (unsigned char)0xFF};
-// 81 01 06 02 08 08 0F 06 0A 00 00 00 00 00 FF -> Move to absolute position F6A0(Horizon) and 0000(Vertical).
-const static unsigned char VPrefixOfTurnToAbsolutePos[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x02, (unsigned char)0x08, (unsigned char)0x08, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0xFF};
+// 81 01 06 02 08 02 0F 06 0A 00 00 00 00 00 FF -> Move to absolute position F6A0(Horizon) and 0000(Vertical).
+const static unsigned char VPrefixOfTurnToAbsolutePos[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x02, (unsigned char)0x08, (unsigned char)0x02, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0xFF};
 // 81 01 04 47 03 00 00 00 FF -> Move to absolute focal 3000.
 const static unsigned char VPrefixOfTurnToAbsoluteFocal[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x47, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0xFF};
 const static int VQueryCmdLength = 5;

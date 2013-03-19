@@ -277,7 +277,6 @@ int Camera::RecallSpecificLocation(int locId)
 			return -1;
 		}
 		currentCommand[4] = (unsigned char)m_nVelocity;
-		currentCommand[5] = (unsigned char)m_nVelocity;
 		if(sendCommand(currentCommand, cmdLength) < 0)
 		{
 			return -1;
