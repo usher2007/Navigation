@@ -135,7 +135,7 @@ HRESULT CAPIController::AddTeaCamera( )
 
 HRESULT CAPIController::SetTeaCameraProtocol(int nProtocol)
 {
-	if(m_pModuleFactory)
+	if(m_pModuleFactory && nProtocol >= 0)
 	{
 		int teadId = m_pModuleFactory->GetConfigManager()->GetTeaId();
 		m_pModuleFactory->GetCameraController()->SetCameraProtocol(teadId, nProtocol);
@@ -146,7 +146,7 @@ HRESULT CAPIController::SetTeaCameraProtocol(int nProtocol)
 
 HRESULT CAPIController::SetTeaCameraVelocity(int velocity)
 {
-	if(m_pModuleFactory)
+	if(m_pModuleFactory && velocity > 0 && velocity < 16)
 	{
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
 		m_pModuleFactory->GetCameraController()->SetCameraVelocity(teaId, velocity);
