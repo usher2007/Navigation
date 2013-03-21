@@ -356,6 +356,26 @@ HRESULT CAPIController::TeacherSetDetailParams(int pixOverlap, double classroomW
 	return hr;
 }
 
+HRESULT CAPIController::TeacherGetDetailParams( int &pixOverlap, double &classroomWidth, double &cameraDistance, int &leastHumanGap, int &humanWidth, int &fgLowThresh, int &fgUpThresh, double &fgHistThresh, int &protocol, int &velocity )
+{
+	if(m_pModuleFactory)
+	{
+		CConfigManager *pConfigManager = m_pModuleFactory->GetConfigManager();
+		pixOverlap = pConfigManager->GetTeaPixRangeOverlap();
+		pConfigManager->GetTeaEnvParams(classroomWidth, cameraDistance);
+		leastHumanGap = pConfigManager->GetTeaLeastHumanGap();
+		humanWidth = pConfigManager->GetTeaHumanWidth();
+		fgLowThresh = pConfigManager->GetTeaFgLowThresh();
+		fgUpThresh = pConfigManager->GetTeaFgUpThresh();
+		fgHistThresh = pConfigManager->GetTeaFgHistThresh();
+		protocol = pConfigManager->GetTeaCameraProtocol();
+		velocity = pConfigManager->GetTeaCameraVelocity();
+
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 HRESULT CAPIController::TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH)
 {
 	HRESULT hr = E_FAIL;
@@ -374,6 +394,21 @@ HRESULT CAPIController::TeacherSetCommonParams(int disappearFrameThresh, int cen
 		hr = m_pModuleFactory->GetConfigManager()->SetTeaCommonParams(disappearFrameThresh, centerWeightThresh, gbmLearningRate, trackingInterval);
 	}
 	return hr;
+}
+
+HRESULT CAPIController::TeacherGetCommonParams(int &disappearFrameThresh, int &centerWeightThresh, double &gbmLearningRate, int &trackingInterval)
+{
+	if(m_pModuleFactory)
+	{
+		CConfigManager *pConfigManager = m_pModuleFactory->GetConfigManager();
+		disappearFrameThresh = pConfigManager->GetTeaDisFrameThresh();
+		centerWeightThresh = pConfigManager->GetTeaCenterWeightThresh();
+		gbmLearningRate = pConfigManager->GetTeaGBMLearningRate();
+		trackingInterval = pConfigManager->GetTeaTrackingInterval();
+
+		return S_OK;
+	}
+	return E_FAIL;
 }
 
 HRESULT CAPIController::TeacherCachePointToShow(int xPix, int yPix)

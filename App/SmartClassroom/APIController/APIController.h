@@ -52,8 +52,10 @@ public:
 	HRESULT TeacherSetShowTracking(BOOL bShowTracking);
 	HRESULT TeacherSetDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, int humanWidth, int fgLowThresh, 
 		int fgUpThresh, double fgHistThresh);
+	HRESULT TeacherGetDetailParams(int &pixOverlap, double &classroomWidth, double &cameraDistance, int &leastHumanGap, int &humanWidth, int &fgLowThresh, int &fgUpThresh, double &fgHistThresh, int &protocol, int &velocity);
 	HRESULT TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
 	HRESULT TeacherSetCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
+	HRESULT TeacherGetCommonParams(int &disappearFrameThresh, int &centerWeightThresh, double &gbmLearningRate, int &trackingInterval);
 
 	HRESULT TeacherCachePointToShow(int xPix, int yPix);
 	HRESULT TeacherEraseCurrentBlindZone();

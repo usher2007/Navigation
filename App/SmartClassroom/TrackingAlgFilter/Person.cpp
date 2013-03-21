@@ -17,12 +17,12 @@ double TrackingConfig::GBM_LEARNING_RATE = 0.01;
 double TrackingConfig::FG_HIST_THRESH = 2;
 double TrackingConfig::PI = 3.1415926;
 //For Debug
-cv::Rect TrackingConfig::PAD_AREA_1(150, 120, 25, 300);
-cv::Rect TrackingConfig::PAD_AREA_2(203, 120, 25, 300);
-cv::Rect TrackingConfig::PAD_AREA_3(324, 120, 25, 300);
-cv::Rect TrackingConfig::PAD_AREA_4(359, 120, 25, 300);
-cv::Rect TrackingConfig::PAD_AREA_5(491, 120, 25, 300);
-cv::Rect TrackingConfig::PAD_AREA_6(539, 120, 25, 300);
+cv::Rect TrackingConfig::PAD_AREA_1(150, 120, 35, 300);
+cv::Rect TrackingConfig::PAD_AREA_2(193, 120, 35, 300);
+cv::Rect TrackingConfig::PAD_AREA_3(324, 120, 35, 300);
+cv::Rect TrackingConfig::PAD_AREA_4(364, 120, 35, 300);
+cv::Rect TrackingConfig::PAD_AREA_5(491, 120, 35, 300);
+cv::Rect TrackingConfig::PAD_AREA_6(539, 120, 35, 300);
 // Person
 Person::Person(const cv::Point2f& initialCenter) : baryCenter(initialCenter), detectedTimes(0), disappearTimes(0), detectedOrTracked(true)
 {

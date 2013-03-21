@@ -75,6 +75,35 @@ BOOL CTSettingTab::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	((CButton *)GetDlgItem(IDC_CHECKShowTracking))->SetCheck(BST_CHECKED);
+	int disappearFrameThresh = 0, centerWeightThresh = 0, trackingInterval = 0;
+	double gbmLearningRate = 0.0;
+	m_pAPIController->TeacherGetCommonParams(disappearFrameThresh,
+		                                     centerWeightThresh,
+											 gbmLearningRate,
+											 trackingInterval);
+
+	wchar_t *stemp = new wchar_t[1024];
+
+	memset(stemp, 0x00, 1024);
+	double disappearFrameSecond = disappearFrameThresh * 1.0 / 25.0;
+	swprintf(stemp, 1024, L"%f", disappearFrameSecond);
+	m_ctrlEditDisFrameThresh.SetWindowTextW(stemp);
+
+	memset(stemp, 0x00, 1024);
+	centerWeightThresh /= 5;
+	swprintf(stemp, 1024, L"%d", centerWeightThresh);
+	m_ctrlEditCenterWeightThresh.SetWindowTextW(stemp);
+
+	memset(stemp, 0x00, 1024);
+	int gbmLearningRateLvl = (int)(gbmLearningRate / 0.005);
+	swprintf(stemp, 1024, L"%d", gbmLearningRateLvl);
+	m_ctrlEditLearningRate.SetWindowTextW(stemp);
+
+	memset(stemp, 0x00, 1024);
+	swprintf(stemp, 1024, L"%d", trackingInterval);
+	m_ctrlEditTrackInterval.SetWindowTextW(stemp);
+
+	delete stemp;
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
