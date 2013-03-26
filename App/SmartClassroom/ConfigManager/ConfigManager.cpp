@@ -661,7 +661,7 @@ HRESULT CConfigManager::dumpTeacherConfig()
 
 	teacherOut<<PRESETFSCRVLOC<<NAMEVALUEDELIMITER;
 	LocationCode fullScrCode = m_teacherEnt.viscaFullScreen;
-	if(fullScrCode.Pos[0] != '\0')
+	if(m_teacherEnt.fullScreenLocId >= 0)
 	{
 		for(int i=0; i<12; ++i)
 		{
