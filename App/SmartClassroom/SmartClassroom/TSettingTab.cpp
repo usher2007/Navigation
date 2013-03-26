@@ -252,6 +252,7 @@ void CTSettingTab::OnBnClickedButtonadvsettings()
 	if(advSettingsDlg.DoModal() == IDOK)
 	{
 		// Popup a message box to indicate that setting success.
+		::MessageBox(NULL, _T("设置成功！"), _T("提示"), MB_OK);
 		return;
 	}
 }
