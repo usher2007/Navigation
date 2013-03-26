@@ -27,4 +27,6 @@ static cv::Rect PAD_AREA_1;
 static cv::Rect PAD_AREA_2;
 static cv::Rect PAD_AREA_3;
 static cv::Rect PAD_AREA_4;
+static cv::Rect PAD_AREA_5;
+static cv::Rect PAD_AREA_6;
 };

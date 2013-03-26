@@ -42,6 +42,11 @@ HRESULT CConfigManager::DumpConfigFile()
 
 HRESULT CConfigManager::SetTeacherPresetLoc( int locId, int leftRange, int rightRange )
 {
+	if(m_teacherEnt.presetLocDict.find(locId) == m_teacherEnt.presetLocDict.end())
+	{
+		m_teacherEnt.presetLocIds.push_back(locId);
+		m_teacherEnt.numOfPresetLoc++;
+	}
 	LocRange tmpLoc;
 	tmpLoc.left = leftRange;
 	tmpLoc.right = rightRange;
@@ -55,6 +60,18 @@ HRESULT CConfigManager::SetTeacherFullScreen( int locId )
 	return S_OK;
 }
 
+HRESULT CConfigManager::ClearTeacherPresetLoc()
+{
+	m_teacherEnt.fullScreenLocId = -1;
+	m_teacherEnt.numOfPresetLoc = 0;
+	m_teacherEnt.presetLocIds.clear();
+	m_teacherEnt.presetLocDict.clear();
+	m_teacherEnt.viscaPresetLocDict.clear();
+	m_teacherEnt.viscaFullScreen.Pos[0] = '\0';
+	m_teacherEnt.viscaFullScreen.Focal[0] = '\0';
+
+	return E_FAIL;
+}
 
 HRESULT CConfigManager::SetTeaShowTracking(BOOL bShowTracking)
 {
@@ -123,6 +140,12 @@ HRESULT CConfigManager::SetBlindZone(int x1, int y1, int x2, int y2, int x3, int
 	return S_OK;
 }
 
+HRESULT CConfigManager::SetTeaCameraVelocity(int velocity)
+{
+	m_teacherEnt.cameraVelocity = velocity;
+	return S_OK;
+}
+
 HRESULT CConfigManager::ClearBlindZones()
 {
 	if(m_teacherEnt.blindZones.empty())
@@ -139,6 +162,7 @@ HRESULT CConfigManager::GetTeaEnvParams(double& roomWidth, double& cameraDistanc
 	return S_OK;
 }
 
+
 HRESULT CConfigManager::GetTeaPresetLocDict( PresetLocDict** locDict )
 {
 	//locDict.clear();
@@ -148,6 +172,18 @@ HRESULT CConfigManager::GetTeaPresetLocDict( PresetLocDict** locDict )
 		locDict[pIter->first] = pIter->second;
 	}*/
 	*locDict = &m_teacherEnt.presetLocDict;
+	return S_OK;
+}
+
+HRESULT CConfigManager::GetTeaVLocCodes(VLocCodeDict** vLocCodeList)
+{
+	*vLocCodeList = &m_teacherEnt.viscaPresetLocDict;
+	return S_OK;
+}
+
+HRESULT CConfigManager::GetTeaFullScreenVLocCode(LocationCode **vLocFullScreen)
+{
+	*vLocFullScreen = &m_teacherEnt.viscaFullScreen;
 	return S_OK;
 }
 
@@ -242,10 +278,40 @@ int CConfigManager::GetTeaTrackingInterval()
 	return m_teacherEnt.trackingInterval;
 }
 
+int CConfigManager::GetTeaCameraProtocol()
+{
+	return m_teacherEnt.cameraProtocol;
+}
+
+int CConfigManager::GetTeaCameraVelocity()
+{
+	return m_teacherEnt.cameraVelocity;
+}
+
 HRESULT CConfigManager::GetBlindZoneList(BlindZoneList **bZoneList)
 {
 	*bZoneList = &(m_teacherEnt.blindZones);
 	return S_OK;
+}
+
+HRESULT CConfigManager::SyncViscaCode( int locId, unsigned char *pos, unsigned char *focal )
+{
+	if(locId == 0)
+	{
+		memcpy(m_teacherEnt.viscaFullScreen.Pos, pos+6, 8);
+		memcpy(m_teacherEnt.viscaFullScreen.Focal, focal+4, 4);
+		return S_OK;
+	}
+	else if(locId > 0)
+	{
+		LocationCode locCode;
+		memcpy(locCode.Pos, pos+6, 8);
+		memcpy(locCode.Focal, focal+4, 4);
+		m_teacherEnt.viscaPresetLocDict[locId] = locCode;
+		return S_OK;
+	}
+	return E_FAIL;
+
 }
 
 HRESULT CConfigManager::loadTeacherConfig()
@@ -276,6 +342,10 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	{
 		m_teacherEnt.id = atoi(paramValue.c_str());
 	}
+	else if(paramName.compare(PROTOCOL) == 0)
+	{
+		m_teacherEnt.cameraProtocol = atoi(paramValue.c_str());
+	}
 	else if(paramName.compare(CLASSROOMWIDTH) == 0)
 	{
 		m_teacherEnt.roomWidth = atof(paramValue.c_str());
@@ -302,32 +372,113 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	}
 	else if(paramName.compare(PRESETLOCIDS) == 0)
 	{
-		processArrayParameters(paramName, paramValue, m_teacherEnt.numOfPresetLoc);
+		if(m_teacherEnt.numOfPresetLoc > 0)
+		{
+			processArrayParameters(paramName, paramValue, m_teacherEnt.numOfPresetLoc);
+		}
 	}
 	else if(paramName.compare(PRESETLOCPIXRANGES) == 0)
 	{
-		int nDelimiPos = 0, i = 0;
-		for(i=1; i<m_teacherEnt.numOfPresetLoc; ++i)
+		if(m_teacherEnt.numOfPresetLoc > 0)
 		{
-			if(i!=1)
+			int nDelimiPos = 0, i = 0;
+			for(i=1; i<m_teacherEnt.numOfPresetLoc; ++i)
 			{
-				nDelimiPos++;
+				if(i!=1)
+				{
+					nDelimiPos++;
+				}
+				int nextDelimPos = paramValue.find(DICTIONARYDELIMITER, nDelimiPos);
+				std::string ranges = paramValue.substr(nDelimiPos, nextDelimPos-nDelimiPos);
+				int rangeDelimPos = ranges.find(ARRAYDELIMITER);
+				LocRange tmpRange;
+				tmpRange.left = atoi(ranges.substr(0, rangeDelimPos).c_str());
+				tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
+				m_teacherEnt.presetLocDict[m_teacherEnt.presetLocIds[i-1]] = tmpRange;
+				nDelimiPos = nextDelimPos;
 			}
-			int nextDelimPos = paramValue.find(DICTIONARYDELIMITER, nDelimiPos);
-			std::string ranges = paramValue.substr(nDelimiPos, nextDelimPos-nDelimiPos);
+			std::string ranges = paramValue.substr(nDelimiPos+1, paramValue.length()-nDelimiPos-1);
 			int rangeDelimPos = ranges.find(ARRAYDELIMITER);
 			LocRange tmpRange;
 			tmpRange.left = atoi(ranges.substr(0, rangeDelimPos).c_str());
 			tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
 			m_teacherEnt.presetLocDict[m_teacherEnt.presetLocIds[i-1]] = tmpRange;
-			nDelimiPos = nextDelimPos;
 		}
-		std::string ranges = paramValue.substr(nDelimiPos+1, paramValue.length()-nDelimiPos-1);
-		int rangeDelimPos = ranges.find(ARRAYDELIMITER);
-		LocRange tmpRange;
-		tmpRange.left = atoi(ranges.substr(0, rangeDelimPos).c_str());
-		tmpRange.right = atoi(ranges.substr(rangeDelimPos+1, ranges.length()-rangeDelimPos-1).c_str());
-		m_teacherEnt.presetLocDict[m_teacherEnt.presetLocIds[i-1]] = tmpRange;
+	}
+	else if(paramName.compare(PRESETVLOC) == 0)
+	{
+		if(m_teacherEnt.numOfPresetLoc > 0)
+		{
+			int nDelimPos = 0, i = 0;
+			for(i=1; i<m_teacherEnt.numOfPresetLoc; ++i)
+			{
+				if(i!=1)
+				{
+					nDelimPos++;
+				}
+				int nextDelimPos = paramValue.find(ARRAYDELIMITER, nDelimPos);
+				std::string arrayElem = paramValue.substr(nDelimPos, nextDelimPos-nDelimPos);
+				// TODO: PROCESS THE ELEMENTS
+				LocationCode vLocCode;
+				for(int j=0; j<12; j++)
+				{
+					std::string code = arrayElem.substr(j, 1);
+					char *stopstring;
+					unsigned char vcode = (unsigned char)strtol(code.c_str(), &stopstring, 16);
+					if(j<8)
+					{
+						vLocCode.Pos[j] = vcode;
+					}
+					else
+					{
+						vLocCode.Focal[j%8] = vcode;
+					}
+				}
+				m_teacherEnt.viscaPresetLocDict[m_teacherEnt.presetLocIds[i-1]] = vLocCode;
+				nDelimPos = nextDelimPos;
+			}
+			std::string arrayElem = paramValue.substr(nDelimPos+1, paramValue.length()-nDelimPos-1);
+			LocationCode vLocCode;
+			for(int j=0; j<12; j++)
+			{
+				std::string code = arrayElem.substr(j, 1);
+				char *stopstring;
+				unsigned char vcode = (unsigned char)strtol(code.c_str(), &stopstring, 16);
+				if(j<8)
+				{
+					vLocCode.Pos[j] = vcode;
+				}
+				else
+				{
+					vLocCode.Focal[j%8] = vcode;
+				}
+			}
+			m_teacherEnt.viscaPresetLocDict[m_teacherEnt.presetLocIds[i-1]] = vLocCode;
+		}
+	}
+	else if(paramName.compare(PRESETFSCRVLOC) == 0)
+	{
+		if(m_teacherEnt.numOfPresetLoc > 0)
+		{
+			for(int i=0; i<12; ++i)
+			{
+				std::string code = paramValue.substr(i,1);
+				char* stopString;
+				unsigned char vcode = (unsigned char)strtol(code.c_str(), &stopString, 16);
+				if(i<8)
+				{
+					m_teacherEnt.viscaFullScreen.Pos[i] = vcode;
+				}
+				else
+				{
+					m_teacherEnt.viscaFullScreen.Focal[i%8] = vcode;
+				}
+			}
+		}
+	}
+	else if(paramName.compare(CAMERAVELOCITY) == 0)
+	{
+		m_teacherEnt.cameraVelocity = atoi(paramValue.c_str());
 	}
 	else if(paramName.compare(BEGINTRACKINGAREA) == 0)
 	{
@@ -373,7 +524,7 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	{
 		m_teacherEnt.trackingInterval = atoi(paramValue.c_str());
 	}
-	else if(paramName.compare(BLINKZONE) == 0)
+	else if(paramName.compare(BLINDZONE) == 0)
 	{
 		int nDelimiPos = 0, i = 0;
 		BlindZone bZone;
@@ -451,6 +602,7 @@ HRESULT CConfigManager::dumpTeacherConfig()
 		return E_FAIL;
 	}
 	teacherOut<<ID<<NAMEVALUEDELIMITER<<m_teacherEnt.id<<'\n';
+	teacherOut<<PROTOCOL<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraProtocol<<'\n';
 	teacherOut<<CLASSROOMWIDTH<<NAMEVALUEDELIMITER<<m_teacherEnt.roomWidth<<'\n';
 	teacherOut<<CAMERADISTANCE<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraDistance<<'\n';
 	teacherOut<<FULLSCREENLOCID<<NAMEVALUEDELIMITER<<m_teacherEnt.fullScreenLocId<<'\n';
@@ -482,6 +634,52 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	}
 	teacherOut<<'\n';
 
+	teacherOut<<PRESETVLOC<<NAMEVALUEDELIMITER;
+	VLocCodeIter vLocDictIter;
+	for(vLocDictIter=m_teacherEnt.viscaPresetLocDict.begin(); vLocDictIter!=m_teacherEnt.viscaPresetLocDict.end(); ++vLocDictIter)
+	{
+		if(vLocDictIter != m_teacherEnt.viscaPresetLocDict.begin())
+		{
+			teacherOut<<ARRAYDELIMITER;
+		}
+		for(int i=0; i<12; ++i)
+		{
+			int code = 0;
+			if(i >= 8)
+			{
+				int j = i % 8;
+				code = (*vLocDictIter).second.Focal[j];
+			}
+			else
+			{
+				code = (*vLocDictIter).second.Pos[i];
+			}
+			teacherOut<<int2char(code, 16);
+		}
+	}
+	teacherOut<<'\n';
+
+	teacherOut<<PRESETFSCRVLOC<<NAMEVALUEDELIMITER;
+	LocationCode fullScrCode = m_teacherEnt.viscaFullScreen;
+	if(fullScrCode.Pos[0] != '\0')
+	{
+		for(int i=0; i<12; ++i)
+		{
+			int code = 0;
+			if(i >= 8)
+			{
+				int j = i % 8;
+				code = fullScrCode.Focal[j];
+			}
+			else
+			{
+				code = fullScrCode.Pos[i];
+			}
+			teacherOut<<int2char(code, 16);
+		}
+	}
+	teacherOut<<'\n';
+	teacherOut<<CAMERAVELOCITY<<NAMEVALUEDELIMITER<<m_teacherEnt.cameraVelocity<<'\n';
 	teacherOut<<BEGINTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.beginTrackArea[0]<<ARRAYDELIMITER<<
 		m_teacherEnt.beginTrackArea[1]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[2]<<ARRAYDELIMITER<<m_teacherEnt.beginTrackArea[3]<<'\n';
 	teacherOut<<STOPTRACKINGAREA<<NAMEVALUEDELIMITER<<m_teacherEnt.stopTrackArea[0]<<ARRAYDELIMITER<<
@@ -501,7 +699,7 @@ HRESULT CConfigManager::dumpTeacherConfig()
 		BlindZoneIter bZoneIter;
 		for(bZoneIter=m_teacherEnt.blindZones.begin(); bZoneIter!=m_teacherEnt.blindZones.end(); ++bZoneIter)
 		{
-			teacherOut<<BLINKZONE<<NAMEVALUEDELIMITER;
+			teacherOut<<BLINDZONE<<NAMEVALUEDELIMITER;
 			for(int i=0; i<4; i++)
 			{
 				if(i != 0)
@@ -516,4 +714,45 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	teacherOut<<std::endl;
 	teacherOut.close();
 	return S_OK;
+}
+
+char CConfigManager::int2char(int code, int scale)
+{
+	char res = '0';
+	if(scale == 16)
+	{
+		if(code < 0 || code > 15)
+		{
+			return res;
+		}
+		switch (code)
+		{
+		case 10:
+			res = 'A';
+			break;
+		case 11:
+			res = 'B';
+			break;
+		case 12:
+			res = 'C';
+			break;
+		case 13:
+			res = 'D';
+			break;
+		case 14:
+			res = 'E';
+			break;
+		case 15:
+			res = 'F';
+			break;
+		default:
+			res = '0' + code;
+		}
+		return res;
+	}
+	else if(scale == 10)
+	{
+		return ('0' + code);
+	}
+	return res;
 }

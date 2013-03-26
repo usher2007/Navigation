@@ -164,6 +164,7 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	QueryPerformanceFrequency((LARGE_INTEGER *)&FREQ);
 	m_bTracking = FALSE;
 	m_pPosAnalyzer = (void *)(new CPositionAnalyzer);
+	m_nFrameCount = 0;
 }
 
 CUnknown * WINAPI CTrackingAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -237,6 +238,15 @@ STDMETHODIMP CTrackingAlgFilter::NonDelegatingQueryInterface(REFIID riid, void *
 
 HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 {
+	m_nFrameCount++;
+	if(m_nFrameCount == CheckSoftDogInterval)
+	{
+		m_nFrameCount = 0;
+		if(FAILED(checkSoftDog()))
+		{
+			return S_OK;
+		}
+	}
 	PBYTE p;
 	pSample->GetPointer(&p);
 
@@ -387,4 +397,10 @@ STDMETHODIMP CTrackingAlgFilter::AddBZone(int x1, int y1, int x2, int y2, int x3
 STDMETHODIMP CTrackingAlgFilter::ClearBlindZones()
 {
 	return m_pTrackingAlg->ClearBZones();
+}
+
+HRESULT CTrackingAlgFilter::checkSoftDog()
+{
+	// TODO: IMPLEMENT THIS.
+	return S_OK;
 }

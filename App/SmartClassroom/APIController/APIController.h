@@ -25,6 +25,8 @@ public:
 	HRESULT BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
 	HRESULT AddTeaCamera();
+	HRESULT SetTeaCameraProtocol(int nProtocol);
+	HRESULT SetTeaCameraVelocity(int velocity);
 	HRESULT TeacherPTZUp();
 	HRESULT TeacherPTZDown();
 	HRESULT TeacherPTZLeft();
@@ -35,6 +37,7 @@ public:
 
 	HRESULT TeacherPTZSetPrePos(int locId, int pixLeft, int pixRight, double realLeft, double realRight);
 	HRESULT TeacherPTZRecallPrePos(int locId);
+	HRESULT TeacherPTZClearPrePos();
 
 	HRESULT TeacherPTZGraphRun();
 	HRESULT TeacherPTZGraphStop();
@@ -50,8 +53,10 @@ public:
 	HRESULT TeacherSetShowTracking(BOOL bShowTracking);
 	HRESULT TeacherSetDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, int humanWidth, int fgLowThresh, 
 		int fgUpThresh, double fgHistThresh);
+	HRESULT TeacherGetDetailParams(int &pixOverlap, double &classroomWidth, double &cameraDistance, int &leastHumanGap, int &humanWidth, int &fgLowThresh, int &fgUpThresh, double &fgHistThresh, int &protocol, int &velocity);
 	HRESULT TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH);
 	HRESULT TeacherSetCommonParams(int disappearFrameThresh, int centerWeightThresh, double gbmLearningRate, int trackingInterval);
+	HRESULT TeacherGetCommonParams(int &disappearFrameThresh, int &centerWeightThresh, double &gbmLearningRate, int &trackingInterval);
 
 	HRESULT TeacherCachePointToShow(int xPix, int yPix);
 	HRESULT TeacherEraseCurrentBlindZone();
@@ -66,7 +71,7 @@ public:
 private:
 	CAPIController(void);
 
-	HRESULT addCamera(int cameraId, int comNum, int baudRate);
+	HRESULT addCamera(int cameraId, int comNum, int baudRate, int protocol);
 	HRESULT restoreCameraPresetLoc(int cameraId);
 
 private:

@@ -4,6 +4,8 @@
 #include "TrackingAlgUIDs.h"
 #include "TrackingAlg.h"
 
+const static int CheckSoftDogInterval = 25*5;
+
 class CTrackingAlgInputPin : public CTransInPlaceInputPin
 {
 public:
@@ -76,6 +78,8 @@ private:
 	CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);
 
 	HRESULT Transform(IMediaSample *pSample);
+	HRESULT checkSoftDog();
+	int m_nFrameCount;
 
 	static int m_nInstanceCount;
 	int m_nThisInstance;

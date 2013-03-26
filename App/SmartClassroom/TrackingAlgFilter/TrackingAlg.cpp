@@ -296,10 +296,12 @@ int TrackingAlg::drawAuxInfo( cv::Mat& frame )
 {
 	cv::rectangle(frame, TrackingConfig::BEGIN_TRACKING_AREA, cv::Scalar(255,0,0), 2);
 	cv::rectangle(frame, TrackingConfig::STOP_TRACKING_AREA, cv::Scalar(0,0,255), 2);
-	cv::rectangle(frame, TrackingConfig::PAD_AREA_1, cv::Scalar(0,255,0), 3);
+	cv::rectangle(frame, TrackingConfig::PAD_AREA_1, cv::Scalar(255,255,0), 3);
 	cv::rectangle(frame, TrackingConfig::PAD_AREA_2, cv::Scalar(0,255,0), 3);
-	cv::rectangle(frame, TrackingConfig::PAD_AREA_3, cv::Scalar(0,255,0), 3);
-	cv::rectangle(frame, TrackingConfig::PAD_AREA_4, cv::Scalar(0,255,0), 3);
+	cv::rectangle(frame, TrackingConfig::PAD_AREA_3, cv::Scalar(0,255,255), 3);
+	cv::rectangle(frame, TrackingConfig::PAD_AREA_4, cv::Scalar(255,255,0), 3);
+	cv::rectangle(frame, TrackingConfig::PAD_AREA_5, cv::Scalar(0,255,0), 3);
+	cv::rectangle(frame, TrackingConfig::PAD_AREA_6, cv::Scalar(0,255,255), 3);
 
 	return 0;
 }

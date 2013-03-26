@@ -34,6 +34,20 @@ HRESULT CAPIController::DumpConfiguration()
 {
 	if(m_pModuleFactory)
 	{
+		CameraLocDict *cameraLocDict = NULL;
+		int teaID = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->GetSpecificCameraLocations(teaID, &cameraLocDict);
+		CameraLocIter camLocIter;
+		for(camLocIter=cameraLocDict->begin(); camLocIter!=cameraLocDict->end(); ++camLocIter)
+		{
+			unsigned char posCmd[1024];
+			unsigned char focalCmd[1024];
+			int res = m_pModuleFactory->GetCameraController()->GetSpecificCameraLocCode(cameraLocDict, camLocIter->first, posCmd, focalCmd);
+			if(res < 0)
+			{
+				m_pModuleFactory->GetConfigManager()->SyncViscaCode(camLocIter->first, posCmd, focalCmd);
+			}
+		}
 		HRESULT hr = m_pModuleFactory->GetConfigManager()->DumpConfigFile();
 		return hr;
 	}
@@ -60,11 +74,13 @@ HRESULT CAPIController::BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWN
 	return E_FAIL;
 }
 
-HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate )
+HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate, int protocol )
 {
 	if(m_pModuleFactory)
 	{
 		m_pModuleFactory->GetCameraController()->addCamera(cameraId, comNum, baudRate);
+		m_pModuleFactory->GetCameraController()->SetCameraProtocol(cameraId, protocol);
+		m_pModuleFactory->GetCameraController()->SetCameraVelocity(cameraId, m_pModuleFactory->GetConfigManager()->GetTeaCameraVelocity());
 		restoreCameraPresetLoc(cameraId);
 		return S_OK;
 	}
@@ -77,24 +93,68 @@ HRESULT CAPIController::restoreCameraPresetLoc(int cameraId)
 	{
 		PresetLocDict *pLocDict = NULL;
 		m_pModuleFactory->GetConfigManager()->GetTeaPresetLocDict(&pLocDict);
+		VLocCodeDict *pVLocCodeDict = NULL;
+		m_pModuleFactory->GetConfigManager()->GetTeaVLocCodes(&pVLocCodeDict);
+		int protocol = m_pModuleFactory->GetConfigManager()->GetTeaCameraProtocol();
 		PresetLocDictIter locIter;
 		for(locIter=pLocDict->begin(); locIter!=pLocDict->end(); ++locIter)
 		{
-			m_pModuleFactory->GetCameraController()->SetPreSetPos(cameraId, locIter->first, TRUE);
+			if(protocol == Pelco_D)
+			{
+				m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, locIter->first, NULL, NULL);
+			}
+			else if(protocol == VISCA)
+			{
+				LocationCode code = (*pVLocCodeDict)[locIter->first];
+				m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, locIter->first,code.Pos, code.Focal);
+			}
 		}
 		int fullScreenLocId = m_pModuleFactory->GetConfigManager()->GetTeaFullScreenLocId();
-		m_pModuleFactory->GetCameraController()->SetPreSetPos(cameraId, fullScreenLocId, TRUE);
+		if(protocol == Pelco_D)
+		{
+			m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, fullScreenLocId, NULL, NULL);
+		}
+		else if(protocol == VISCA)
+		{
+			LocationCode *vFullScreen = NULL;
+			m_pModuleFactory->GetConfigManager()->GetTeaFullScreenVLocCode(&vFullScreen);
+			m_pModuleFactory->GetCameraController()->RestorePreSetPos(cameraId, fullScreenLocId, vFullScreen->Pos, vFullScreen->Focal);
+		}
 		return S_OK;
 	}
 	return E_FAIL;
 }
 
-HRESULT CAPIController::AddTeaCamera()
+HRESULT CAPIController::AddTeaCamera( )
 {
 	if(m_pModuleFactory)
 	{
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
-		return addCamera(teaId, 1, 9600);
+		int protocol = m_pModuleFactory->GetConfigManager()->GetTeaCameraProtocol();
+		return addCamera(teaId, 1, 9600, protocol);
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::SetTeaCameraProtocol(int nProtocol)
+{
+	if(m_pModuleFactory && nProtocol >= 0)
+	{
+		int teadId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->SetCameraProtocol(teadId, nProtocol);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::SetTeaCameraVelocity(int velocity)
+{
+	if(m_pModuleFactory && velocity > 0 && velocity < 16)
+	{
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetCameraController()->SetCameraVelocity(teaId, velocity);
+		m_pModuleFactory->GetConfigManager()->SetTeaCameraVelocity(velocity);
+		return S_OK;
 	}
 	return E_FAIL;
 }
@@ -189,7 +249,7 @@ HRESULT CAPIController::TeacherPTZSetPrePos( int locId, int pixLeft, int pixRigh
 			m_pModuleFactory->GetConfigManager()->SetTeacherPresetLoc(locId, pixLeft, pixRight);
 		}
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
-		m_pModuleFactory->GetCameraController()->SetPreSetPos(teaId, locId, FALSE);
+		m_pModuleFactory->GetCameraController()->SetPreSetPos(teaId, locId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -201,6 +261,18 @@ HRESULT CAPIController::TeacherPTZRecallPrePos( int locId )
 	{
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
 		m_pModuleFactory->GetCameraController()->RecallPreSetPos(teaId, locId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::TeacherPTZClearPrePos()
+{
+	if(m_pModuleFactory)
+	{
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetConfigManager()->ClearTeacherPresetLoc();
+		m_pModuleFactory->GetCameraController()->ClearPreSetPos(teaId);
 		return S_OK;
 	}
 	return E_FAIL;
@@ -299,6 +371,26 @@ HRESULT CAPIController::TeacherSetDetailParams(int pixOverlap, double classroomW
 	return hr;
 }
 
+HRESULT CAPIController::TeacherGetDetailParams( int &pixOverlap, double &classroomWidth, double &cameraDistance, int &leastHumanGap, int &humanWidth, int &fgLowThresh, int &fgUpThresh, double &fgHistThresh, int &protocol, int &velocity )
+{
+	if(m_pModuleFactory)
+	{
+		CConfigManager *pConfigManager = m_pModuleFactory->GetConfigManager();
+		pixOverlap = pConfigManager->GetTeaPixRangeOverlap();
+		pConfigManager->GetTeaEnvParams(classroomWidth, cameraDistance);
+		leastHumanGap = pConfigManager->GetTeaLeastHumanGap();
+		humanWidth = pConfigManager->GetTeaHumanWidth();
+		fgLowThresh = pConfigManager->GetTeaFgLowThresh();
+		fgUpThresh = pConfigManager->GetTeaFgUpThresh();
+		fgHistThresh = pConfigManager->GetTeaFgHistThresh();
+		protocol = pConfigManager->GetTeaCameraProtocol();
+		velocity = pConfigManager->GetTeaCameraVelocity();
+
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 HRESULT CAPIController::TeacherSetTrackingArea(int beginX, int beginY, int beginW, int beginH, int stopX, int stopY, int stopW, int stopH)
 {
 	HRESULT hr = E_FAIL;
@@ -317,6 +409,21 @@ HRESULT CAPIController::TeacherSetCommonParams(int disappearFrameThresh, int cen
 		hr = m_pModuleFactory->GetConfigManager()->SetTeaCommonParams(disappearFrameThresh, centerWeightThresh, gbmLearningRate, trackingInterval);
 	}
 	return hr;
+}
+
+HRESULT CAPIController::TeacherGetCommonParams(int &disappearFrameThresh, int &centerWeightThresh, double &gbmLearningRate, int &trackingInterval)
+{
+	if(m_pModuleFactory)
+	{
+		CConfigManager *pConfigManager = m_pModuleFactory->GetConfigManager();
+		disappearFrameThresh = pConfigManager->GetTeaDisFrameThresh();
+		centerWeightThresh = pConfigManager->GetTeaCenterWeightThresh();
+		gbmLearningRate = pConfigManager->GetTeaGBMLearningRate();
+		trackingInterval = pConfigManager->GetTeaTrackingInterval();
+
+		return S_OK;
+	}
+	return E_FAIL;
 }
 
 HRESULT CAPIController::TeacherCachePointToShow(int xPix, int yPix)
