@@ -22,7 +22,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 {
 	int teaId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaId();
 	int teaFullScreenId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaFullScreenLocId();
-	if(m_nPrevLocId == teaFullScreenId)
+	if(teaFullScreenId >= 0 && m_nPrevLocId == teaFullScreenId )
 	{
 		if(m_nFullScrDuration < 250)
 		{
@@ -38,10 +38,13 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 	}
 	else if(trackedPersons.size() > 1)
 	{
-		((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
-		m_nPrevLocId = teaFullScreenId;
-		m_nFullScrDuration = 1;
-		return S_OK;
+		if(teaFullScreenId >= 0)
+		{
+			((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
+			m_nPrevLocId = teaFullScreenId;
+			m_nFullScrDuration = 1;
+			return S_OK;
+		}
 	}
 	else
 	{

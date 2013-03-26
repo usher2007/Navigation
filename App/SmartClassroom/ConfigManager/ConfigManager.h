@@ -24,6 +24,7 @@ public:
 	// Set Parameters
 	HRESULT SetTeacherPresetLoc(int locId, int leftRange, int rightRange);
 	HRESULT SetTeacherFullScreen(int locId);
+	HRESULT ClearTeacherPresetLoc();
 	HRESULT SetTeaShowTracking(BOOL bShowTracking);
 	HRESULT SetTeaDetailParams(int pixOverlap, double classroomWidth, double cameraDistance, int leastHumanGap, int humanWidth, int fgLowThresh, 
 		int fgUpThresh, double fgHistThresh);

@@ -56,4 +56,5 @@ public:
 	afx_msg void OnBnClickedButtonsetblindzone();
 	afx_msg void OnBnClickedButtonsaveblindzone();
 	afx_msg void OnBnClickedButtonclearblindzone2();
+	afx_msg void OnBnClickedButtonclearpresetpos();
 };

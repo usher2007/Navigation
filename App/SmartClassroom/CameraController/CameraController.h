@@ -37,6 +37,7 @@ public:
 	int SetPreSetPos(int cameraId, int locId);
 	int RestorePreSetPos(int cameraId, int locId, const unsigned char *posCode, const unsigned char *focalCode);
 	int RecallPreSetPos(int cameraId, int locId);
+	int ClearPreSetPos(int cameraId);
 	int TurnToSpecificLocation(int cameraId, const Location& loc);
 	int GetSpecificCameraLocations(int cameraId, CameraLocDict **locDict);
 	int GetSpecificCameraLocCode(CameraLocDict *locDict, int locId, unsigned char *pos, unsigned char *focal);

@@ -59,6 +59,7 @@ BEGIN_MESSAGE_MAP(CTSettingTab, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONSetBlindZone, &CTSettingTab::OnBnClickedButtonsetblindzone)
 	ON_BN_CLICKED(IDC_BUTTONSaveBlindZone, &CTSettingTab::OnBnClickedButtonsaveblindzone)
 	ON_BN_CLICKED(IDC_BUTTONClearBlindZone2, &CTSettingTab::OnBnClickedButtonclearblindzone2)
+	ON_BN_CLICKED(IDC_BUTTONClearPresetPos, &CTSettingTab::OnBnClickedButtonclearpresetpos)
 END_MESSAGE_MAP()
 
 
@@ -313,5 +314,14 @@ void CTSettingTab::OnBnClickedButtonclearblindzone2()
 	if(m_pAPIController)
 	{
 		m_pAPIController->TeacherClearBlindZones();
+	}
+}
+
+
+void CTSettingTab::OnBnClickedButtonclearpresetpos()
+{
+	if(m_pAPIController)
+	{
+		m_pAPIController->TeacherPTZClearPrePos();
 	}
 }

@@ -249,6 +249,13 @@ int Camera::AddPreSetLocation( Location& loc, BOOL bRestoreFromConfig, const uns
 	return 0;
 }
 
+int Camera::ClearPreSetLocation()
+{
+	presetLocations.clear();
+	m_nPreLocNum = 0;
+	return 0;
+}
+
 int Camera::RecallSpecificLocation(int locId)
 {
 	Location specificLoc;

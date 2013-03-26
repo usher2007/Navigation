@@ -120,6 +120,10 @@ int CCameraController::Stop(int cameraId)
 
 int CCameraController::SetPreSetPos( int cameraId, int locId)
 {
+	if(locId < 0)
+	{
+		return -1;
+	}
 	Location loc(locId);
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
@@ -131,6 +135,10 @@ int CCameraController::SetPreSetPos( int cameraId, int locId)
 
 int CCameraController::RestorePreSetPos( int cameraId, int locId, const unsigned char *posCode, const unsigned char *focalCode )
 {
+	if(locId < 0)
+	{
+		return -1;
+	}
 	Location loc(locId);
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
@@ -142,9 +150,23 @@ int CCameraController::RestorePreSetPos( int cameraId, int locId, const unsigned
 
 int CCameraController::RecallPreSetPos(int cameraId, int locId)
 {
+	if(locId < 0)
+	{
+		return -1;
+	}
 	if(cameraList.find(cameraId) != cameraList.end())
 	{
 		cameraList[cameraId].RecallSpecificLocation(locId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+int CCameraController::ClearPreSetPos( int cameraId )
+{
+	if(cameraList.find(cameraId) != cameraList.end())
+	{
+		cameraList[cameraId].ClearPreSetLocation();
 		return S_OK;
 	}
 	return E_FAIL;
@@ -161,6 +183,10 @@ int CCameraController::GetSpecificCameraLocations(int cameraId, CameraLocDict **
 
 int CCameraController::GetSpecificCameraLocCode( CameraLocDict *locDict, int locId, unsigned char *pos, unsigned char *focal )
 {
+	if(locId < 0 || locDict->find(locId) == locDict->end())
+	{
+		return -1;
+	}
 	Location loc = (*locDict)[locId];
 	int cmdLen = 0;
 	loc.GetCommand(pos, cmdLen);

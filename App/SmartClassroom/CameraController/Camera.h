@@ -80,6 +80,7 @@ public:
 	int SetVelocity(int velocity);
 	int Open();
 	int AddPreSetLocation(Location& loc, BOOL bRestoreFromConfig, const unsigned char *posCode, const unsigned char *focalCode);
+	int ClearPreSetLocation();
 	// Control
 	int RecallSpecificLocation(int locId);
 	int TurnLeft();

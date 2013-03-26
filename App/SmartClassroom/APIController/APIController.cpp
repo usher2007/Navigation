@@ -42,8 +42,11 @@ HRESULT CAPIController::DumpConfiguration()
 		{
 			unsigned char posCmd[1024];
 			unsigned char focalCmd[1024];
-			m_pModuleFactory->GetCameraController()->GetSpecificCameraLocCode(cameraLocDict, camLocIter->first, posCmd, focalCmd);
-			m_pModuleFactory->GetConfigManager()->SyncViscaCode(camLocIter->first, posCmd, focalCmd);
+			int res = m_pModuleFactory->GetCameraController()->GetSpecificCameraLocCode(cameraLocDict, camLocIter->first, posCmd, focalCmd);
+			if(res < 0)
+			{
+				m_pModuleFactory->GetConfigManager()->SyncViscaCode(camLocIter->first, posCmd, focalCmd);
+			}
 		}
 		HRESULT hr = m_pModuleFactory->GetConfigManager()->DumpConfigFile();
 		return hr;
@@ -258,6 +261,18 @@ HRESULT CAPIController::TeacherPTZRecallPrePos( int locId )
 	{
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
 		m_pModuleFactory->GetCameraController()->RecallPreSetPos(teaId, locId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::TeacherPTZClearPrePos()
+{
+	if(m_pModuleFactory)
+	{
+		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
+		m_pModuleFactory->GetConfigManager()->ClearTeacherPresetLoc();
+		m_pModuleFactory->GetCameraController()->ClearPreSetPos(teaId);
 		return S_OK;
 	}
 	return E_FAIL;

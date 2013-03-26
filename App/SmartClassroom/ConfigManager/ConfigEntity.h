@@ -33,7 +33,7 @@ const std::string FGUPTHRESH                          = "FG_UP_THRESH";
 const std::string FGHISTTHRESH                        = "FG_HIST_THRESH";
 const std::string GBMLEARNINGRATE                     = "GBM_LEARNING_RATE";
 const std::string TRACKINGINTERVAL                    = "TRACKING_INTERVAL";
-const std::string BLINKZONE                           = "BLIND_ZONE";
+const std::string BLINDZONE                           = "BLIND_ZONE";
 typedef struct LocRange
 {
 	int left;
