@@ -4,18 +4,13 @@ fannote = 'faceocc2.txt';
 fext = 'png';
 s_annotation = strcat(fprefix, fannote);
 start_frame = 4;
-nframes = 100;
+nframes = 600;
 
 n_row = 3;
 n_col = 3;
 
-<<<<<<< Updated upstream
-t_row = 60;
-t_col = 75;
-=======
 t_row = 75;
 t_col = 60;
->>>>>>> Stashed changes
 
 patch_row = ceil(t_row / n_row);
 patch_col = ceil(t_col / n_col);
@@ -39,8 +34,10 @@ param.approx=0;
 param.pos = true;
 
 template_num = 10;
+template_weight = zeros(1,10);
 sim_thresh = 0;
 s_frames = cell(nframes, 1);
+template_decay = 0.01;
 for i=1:nframes
     image_no = start_frame + i - 1;
     fid = sprintf('%05d', image_no);
@@ -50,7 +47,7 @@ end
 %for the 1st frame, get the true object
 truth = load(s_annotation);
 first_loc = truth(start_frame,:);
-image_gray = imread(s_frames{1});
+image_gray = imread(s_frames{start_frame});
 if(size(image_gray,3) ~= 1)
     image_gray = rgb2gray(image_gray);
 end
@@ -109,10 +106,16 @@ for i=2:nframes
         prow_begin = particles(j,2);
         prow_end = prow_begin + particles(j,4);
         if  pcol_begin <= 0
-            pcol = 1;
+            pcol_begin = 1;
         end
         if prow_begin <= 0
-            prow = 1;
+            prow_begin = 1;
+        end
+        if pcol_end > image_w
+            pcol_end = image_w;
+        end
+        if prow_end > image_h
+            prow_end = image_h;
         end
         object_candidate = image_gray(prow_begin:prow_end, pcol_begin:pcol_end);
         object_candidate = imresize(object_candidate, [t_row t_col]);
@@ -151,8 +154,8 @@ for i=2:nframes
     
     plot(x,y,'r-');
     hold off
-    filename = sprintf('%d.bmp',i+start_frame-1);
-    saveas(fig,filename,'bmp');
+    filename = sprintf('%d.jpg',i+start_frame-1);
+    saveas(fig,filename,'jpg');
     
     %max(particle_sim)
     % Generate the new particles
@@ -168,19 +171,31 @@ for i=2:nframes
     particles(:,4) =  particles(:,4) + round(sigma_ph*randn(particle_num,1));
     
     % Update the template
-    index = mod(i-1, template_num);
-    if index == 0
-<<<<<<< Updated upstream
-        index = 10;
-=======
-        index = template_num;
->>>>>>> Stashed changes
+    sorted_sim = sort(particle_sim);
+    new_weight = sum(sorted_sim(particle_num-9:particle_num));
+    template_weight = template_weight * (1-template_decay);
+    min_weight = min(template_weight);
+    max_weight = max(template_weight);
+    if new_weight > max_weight
+        min_indexes = find(template_weight == min_weight);
+        min_index = min_indexes(1);
+        template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
+        template = imresize(template,[t_row t_col]);
+        template_patches = im_get_patches(template, n_row, n_col);
+        for j=1:n_row*n_col
+            HT(j,min_index+1,:) = my_hog(template_patches(j,:,:),hog_bin_size, hog_n_orient, hog_index);
+        end
+        template_weight(min_index) = new_weight;
     end
-    %HT(:,index+1,:) = mean(particle_features(:, best_index, :), 2);
-    template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
-    template = imresize(template,[t_row t_col]);
-    template_patches = im_get_patches(template, n_row, n_col);
-    for j=1:n_row*n_col
-        HT(j,index+1,:) = my_hog(template_patches(j,:,:),hog_bin_size, hog_n_orient, hog_index);
-    end
+%     index = mod(i-1, template_num);
+%     if index == 0
+%         index = template_num;
+%     end
+%     %HT(:,index+1,:) = mean(particle_features(:, best_index, :), 2);
+%     template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
+%     template = imresize(template,[t_row t_col]);
+%     template_patches = im_get_patches(template, n_row, n_col);
+%     for j=1:n_row*n_col
+%         HT(j,index+1,:) = my_hog(template_patches(j,:,:),hog_bin_size, hog_n_orient, hog_index);
+%     end
 end
