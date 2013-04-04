@@ -56,7 +56,7 @@ HRESULT CConfigManager::SetTeacherPresetLoc( int locId, int leftRange, int right
 
 HRESULT CConfigManager::SetTeacherFullScreen( int locId )
 {
-	m_teacherEnt.fullScreenLocId = locId > 0 ? locId : m_teacherEnt.fullScreenLocId;
+	m_teacherEnt.fullScreenLocId = locId > 0 ? locId : 0;
 	return S_OK;
 }
 
