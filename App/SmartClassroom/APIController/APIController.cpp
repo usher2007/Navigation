@@ -43,7 +43,7 @@ HRESULT CAPIController::DumpConfiguration()
 			unsigned char posCmd[1024];
 			unsigned char focalCmd[1024];
 			int res = m_pModuleFactory->GetCameraController()->GetSpecificCameraLocCode(cameraLocDict, camLocIter->first, posCmd, focalCmd);
-			if(res < 0)
+			if(res >= 0)
 			{
 				m_pModuleFactory->GetConfigManager()->SyncViscaCode(camLocIter->first, posCmd, focalCmd);
 			}

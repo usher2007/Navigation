@@ -2,6 +2,9 @@
 #include <iostream>
 #include <hash_map>
 
+// 
+// --- Pelco-D Protocol --
+//
 //FF 01 00 04 28 00 2D
 const static unsigned char TurnLeftCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x04, (unsigned char)0x28, (unsigned char)0x00, (unsigned char)0x2D};
 //FF 01 00 02 28 00 2B
@@ -11,7 +14,7 @@ const static unsigned char TurnUpCmd[1024] = {(unsigned char)0xFF, (unsigned cha
 //FF 01 00 10 00 23 34
 const static unsigned char TurnDownCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x10, (unsigned char)0x00, (unsigned char)0x23, (unsigned char)0x34};
 //FF 01 00 20 00 00 21
-const static unsigned char ZommInCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x20, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x21};
+const static unsigned char ZoomInCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x20, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x21};
 //FF 01 00 40 00 00 41
 const static unsigned char ZoomOutCmd[1024] = {(unsigned char)0xFF, (unsigned char)0x01, (unsigned char)0x00, (unsigned char)0x40, (unsigned char)0x00, (unsigned char)0x00, (unsigned char)0x41};
 //FF 01 00 00 00 00 01
@@ -27,6 +30,22 @@ const static int RegularCmdLength = 7;
 // 
 // --- VISCA Protocol --
 //
+// 81 01 06 01 10 10 01 03 FF
+const static unsigned char VTurnLeftCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x10, (unsigned char)0x10, (unsigned char)0x01, (unsigned char)0x03, (unsigned char)0xFF};
+// 81 01 06 01 10 10 02 03 FF
+const static unsigned char VTurnRightCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x10, (unsigned char)0x10, (unsigned char)0x02, (unsigned char)0x03, (unsigned char)0xFF};
+// 81 01 06 01 10 10 03 01 FF
+const static unsigned char VTurnUpCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x10, (unsigned char)0x10, (unsigned char)0x03, (unsigned char)0x01, (unsigned char)0xFF};
+// 81 01 06 01 10 10 03 01 FF
+const static unsigned char VTurnDownCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x10, (unsigned char)0x10, (unsigned char)0x03, (unsigned char)0x02, (unsigned char)0xFF};
+// 81 01 04 07 29 FF
+const static unsigned char VZoomInCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x29, (unsigned char)0xFF};
+// 81 01 04 07 39 FF
+const static unsigned char VZoomOutCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x39, (unsigned char)0xFF};
+// 81 01 06 01 10 10 03 03 FF
+const static unsigned char VStopCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x10, (unsigned char)0x10, (unsigned char)0x03, (unsigned char)0x03, (unsigned char)0xFF};
+// 81 01 04 07 00 FF
+const static unsigned char VStopZoomCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x00, (unsigned char)0xFF};
 // 81 09 06 12 FF
 const static unsigned char VQueryPosCmd[1024] = {(unsigned char)0x81, (unsigned char)0x09, (unsigned char)0x06, (unsigned char)0x12, (unsigned char)0xFF};
 // 81 09 04 47 FF
@@ -38,6 +57,8 @@ const static unsigned char VPrefixOfTurnToAbsoluteFocal[1024] = {(unsigned char)
 const static int VQueryCmdLength = 5;
 const static int VRecallPosCmdLength = 15;
 const static int VRecallFocalCmdLength = 9;
+const static int VMoveCmdLength = 9;
+const static int VZoomCmdLength = 6;
 const static int Pelco_D = 0;
 const static int VISCA = 1;
 

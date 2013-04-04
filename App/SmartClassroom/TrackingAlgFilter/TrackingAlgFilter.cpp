@@ -7,6 +7,21 @@
 #include "opencv2/highgui/highgui.hpp"
 
 #include "Analyzer.h"
+#include "hasp_api.h"
+
+unsigned char vendor_code[] =
+	"JU4Y6fjHvwcWe4F9pe4xVQOBeo9QU7nTXt4A/bChE2Hgi5AyqN8K60CFBuywB/KLwPbZPdwDXeEe1+fP"
+	"hfTsH077DvFXtIrPRfdk3hU6FEGL6Gpf1asD9+ElM3ZWCKrGWKkAj3qtoEssvGHs9psl7ngIkJMqjY43"
+	"2tUmjw4SGyQyk3fPWKI4LFPCuyijkOzsiLd+FExyO7PblGBfjYEdn9/JcWjhwopwgWXtbqTpZm3rDIQS"
+	"ixEfuaRV8yDKeoePDo23O0pruYlo0d931/Z4iGER5fCw0HIWerYsnDb8Q34Wc+ERvGo5K+aYrffa4IXa"
+	"ECW+41bNNRCOoeTqPJbkV5AcR61yZEzq8RddvsKV7W2w4u0SCBEr0aHHXVVKTdqKfLQDLyMCfQ4cDVlj"
+	"FZor1UQrBE4PSGn8R8FbPwBo1hoRZaCI8PaENrJD7TNafABaoPrKt8T/qNHBHrgNlU3XzzNaw4J//+Vo"
+	"hA1/JNl3MCJ4Lcfqey+qHiZs/XxS9ckPaaNCpRK8U9+ytXCAX5TAhXannUrOQdGN+CY7ybD3e1Lzq95q"
+	"gKx0uxinA+6ncd7KmhDrxDi9IxfllgnqFIsxPbNhCljp9vNFwx+ziUPvr73np1il5L/Gj5gb/CXyLMaA"
+	"MClue3n61V8RrQSTSH1RTfZJ9BXk5cwSeJEZ/XsKyVpeqgqlY479AetK2Lo1Sc6ywtfMnUObcGIqfxqA"
+	"rX3VlqQYbisFvFhVHblkru3qqsotbuvZfauTiv6Vi2kq1RuQaE6CF8I0y+A8y9EiecauTPFAbLaqIjDZ"
+	"X56W/P8qmL7ZUZSphm07lU5ONlXYGfqdbksLJ9TP2zDCVJ3BdA+G8rAFyoR7QoSvU6quCBeY3c4uXUVE"
+	"oHmHpg/0WQsrq+BfXDZaeibIjC0HyunQ5umzLxtvoYic0FNjA03ENsSrVLU=";
 
 const LONG DEFAULT_WIDTH = 720;
 const LONG DEFUALT_HEIGHT = 576;
@@ -401,6 +416,27 @@ STDMETHODIMP CTrackingAlgFilter::ClearBlindZones()
 
 HRESULT CTrackingAlgFilter::checkSoftDog()
 {
-	// TODO: IMPLEMENT THIS.
-	return S_OK;
+	hasp_status_t status;
+	hasp_handle_t handle;
+	HRESULT result = S_OK;
+	status = hasp_login(HASP_DEFAULT_FID, (hasp_vendor_code_t *)vendor_code, &handle);
+	if (status != HASP_STATUS_OK)
+	{
+		switch (status)
+		{
+		case HASP_FEATURE_NOT_FOUND:
+			printf("login to default feature failed!\n");
+			break;
+		case HASP_CONTAINER_NOT_FOUND:
+			printf("no sentinel key with vendor code CACOM found\n");
+			break;
+		default:
+			printf("%d\n", status);
+			printf("unknown error!\n");
+
+		}
+		result = E_FAIL;
+	}
+	status = hasp_logout(handle);
+	return result;
 }
