@@ -304,37 +304,94 @@ int Camera::RecallSpecificLocation(int locId)
 
 int Camera::TurnLeft()
 {
-	return sendCommand(TurnLeftCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(TurnLeftCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		return sendCommand(VTurnLeftCmd, VMoveCmdLength);
+	}
+	return -1;
 }
 
 int Camera::TurnRight()
 {
-	return sendCommand(TurnRightCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(TurnRightCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		return sendCommand(VTurnRightCmd, VMoveCmdLength);
+	}
+	return -1;
 }
 
 int Camera::TurnUp()
 {
-	return sendCommand(TurnUpCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(TurnUpCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		return sendCommand(VTurnUpCmd, VMoveCmdLength);
+	}
+	return -1;
 }
 
 int Camera::TurnDown()
 {
-	return sendCommand(TurnDownCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(TurnDownCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		return sendCommand(VTurnDownCmd, VMoveCmdLength);
+	}
+	return -1;
 }
 
 int Camera::ZoomIn()
 {
-	return sendCommand(ZommInCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(ZoomInCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		return sendCommand(VZoomInCmd, VZoomCmdLength);
+	}
+	return -1;
 }
 
 int Camera::ZoomOut()
 {
-	return sendCommand(ZoomOutCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(ZoomOutCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		return sendCommand(VZoomOutCmd, VZoomCmdLength);
+	}
+	return -1;
 }
 
 int Camera::Stop()
 {
-	return sendCommand(StopCmd, RegularCmdLength);
+	if(m_nProtocol == Pelco_D)
+	{
+		return sendCommand(StopCmd, RegularCmdLength);
+	}
+	else if(m_nProtocol == VISCA)
+	{
+		sendCommand(VStopCmd, VMoveCmdLength);
+		return sendCommand(VStopZoomCmd, VZoomCmdLength);
+	}
+	return -1;
 }
 
 int Camera::GetLocationDict(CameraLocDict **locDict)
