@@ -1,14 +1,22 @@
-close all, clear all;
-fprefix = 'data\faceocc2\';
-fannote = 'faceocc2.txt';
+close all;
+%clear all;
+fprefix = 'data\singer1\';
+fannote = 'data\GroundTruth2\GT_singer1';
 fres = 'res.txt';
-fext = 'png';
-s_annotation = strcat(fprefix, fannote);
-start_frame = 4;
-nframes = 600;
+fsigma = 'sigma.txt';
+freplace = 'replace.txt';
+fweight = 'weight.txt';
+fext = 'jpg';
 
-t_row = 25;
-t_col = 20;
+%fprefix = 'data\OneLeaveShopReenter2cor\';
+%fannote = 'OneLeaveShopReenter2cor.txt';
+% fext = 'jpg';
+s_annotation = fannote;
+start_frame = 1;
+nframes = 885;
+
+t_row = 30;
+t_col = 10;
 
 hog_bin_size = 5;
 hog_n_orient = 9;
@@ -20,6 +28,11 @@ sigma_px = 3;
 sigma_py = 2;
 sigma_pw = 1;
 sigma_ph = 1;
+
+sigma_px_th = 5;
+sigma_py_th = 3;
+sigma_pw_th = 1;
+sigma_ph_th = 2;
 
 param.lambda=1;
 param.numThreads=-1; % number of threads
@@ -34,31 +47,40 @@ sim_thresh_hog = 0.0005;
 s_frames = cell(nframes, 1);
 template_decay = 0.01;
 
+minThresh = 0.015;
+maxThresh = 0.7;
+alpha_big = 1.02;
+alpha_small = 0.98;
+
 sigma_weight = 0.05;
 
 
-hog_weight = 0.7;
+hog_weight_th = 1/800;
 for i=1:nframes
     image_no = start_frame + i - 1;
     fid = sprintf('%05d', image_no);
-    s_frames{i} = strcat(fprefix,'img', fid, '.', fext);
+    %s_frames{i} = strcat(fprefix, 'OneLeaveShopReenter2cor', fid, '.', fext);
+    s_frames{i} = strcat(fprefix, 'img', fid, '.', fext);
 end
 
 %for the 1st frame, get the true object
-truth = load(s_annotation);
+load(s_annotation);
 fout = fopen(fres,'wt');
-first_loc = truth(start_frame,:);
+fout_sigma = fopen(fsigma,'wt');
+fout_replace = fopen(freplace,'wt');
+fout_weight = fopen(fweight,'wt');
+first_loc = GT_corner(:,:,start_frame);
 image_gray = imread(s_frames{start_frame});
 if(size(image_gray,3) ~= 1)
     image_gray = rgb2gray(image_gray);
 end
 [image_h image_w] = size(image_gray);
-col_begin = first_loc(1);
-row_begin = first_loc(2);
-col_width = first_loc(3);
-row_height = first_loc(4);
-col_end = col_begin + first_loc(3);
-row_end = row_begin + first_loc(4);
+col_begin = first_loc(1,1);
+row_begin = first_loc(2,1);
+col_width = first_loc(1,2) - first_loc(1,1);
+row_height = first_loc(2,3) - first_loc(2,1);
+col_end = first_loc(1,2);
+row_end = first_loc(2,3);
 object = image_gray(row_begin:row_end, col_begin:col_end);
 object = imresize(object, [t_row t_col]);
 hog_row = ceil(t_row)/hog_bin_size;
@@ -71,6 +93,7 @@ HT(2+template_num:1+template_num+hog_feature_len, :) = eye(hog_feature_len);
 HT(2+template_num+hog_feature_len:end,:) = -1*eye(hog_feature_len);
 
 State = [col_begin, row_begin, col_width, row_height];
+State = round(State);
 particles(:,1) = State(1) + round(sigma_px*randn(1,particle_num));
 particles(:,2) = State(2) + round(sigma_py*randn(1,particle_num));
 particles(:,3) = State(3) + round(sigma_pw*randn(1,particle_num));
@@ -89,6 +112,7 @@ y = [State(2) State(2) State(2)+State(4) State(2)+State(4) State(2)];
     
 plot(x,y,'r-');
 hold off
+oldState = State;
 for i=2:nframes
     image_gray = imread(s_frames{i});
     if(size(image_gray,3) ~= 1)
@@ -118,7 +142,7 @@ for i=2:nframes
     end
     
     particle_alpha_hog = my_lasso(particle_features_hog', HT', param);
-    particle_sim_hog(1,:) = reshape((sum(particle_alpha_hog(1:1+template_num,:))+0.0001+particle_alpha_hog(1,:))./(sum(particle_alpha_hog(2+template_num:end,:))+0.0001), 1, particle_num);
+    particle_sim_hog(1,:) = reshape((sum(particle_alpha_hog(1:1+template_num,:))+0.0001+19*particle_alpha_hog(1,:))./(sum(particle_alpha_hog(2+template_num:end,:))+0.0001+19*particle_alpha_hog(1,:)), 1, particle_num);
     particle_sim_hog(1,:) = particle_sim_hog(1,:)/sum(particle_sim_hog(1,:));
     
     for k=1:particle_num
@@ -129,7 +153,8 @@ for i=2:nframes
     
     
     %particle_sim = hog_weight*particle_sim_hog+gray_weight*particle_sim_gray;
-    particle_sim = particle_sim_hog;
+    particle_sim = particle_sim_hog.*(particle_sim_hog>hog_weight_th);
+    particle_sim = particle_sim/sum(particle_sim);
     particle_sim_matrix = repmat(particle_sim',1,4);
     particles_temp = particles.*particle_sim_matrix;
     State = round(sum(particles_temp(:, :), 1));
@@ -139,10 +164,88 @@ for i=2:nframes
     imshow(image_gray);
     title(sprintf('Frame = %d',i+start_frame-1));
     hold on
+    if State(1) <= 0
+        State(1) = 1;
+    end
+    if State(1) > image_w-1
+        State(1) = image_w-1;
+    end
+    if State(2) <= 0
+        State(2) = 1;
+    end
+    if State(2) > image_h-1
+        State(2) = image_h-1;
+    end
+    if State(3) <= 0
+        State(3) = 1;
+    end
+    if State(1)+State(3) > image_w
+        State(3) = image_w - State(1);
+    end
+    if State(4) <= 0
+        State(4) = 1;
+    end
+    if State(2)+State(4) > image_h
+        State(4) = image_h - State(2);
+    end
+    
+    % Update the template
+    sorted_sim = sort(particle_sim);
+    new_weight = sum(sorted_sim(particle_num-9:particle_num));
+    template_weight = template_weight * (1-template_decay);
+    min_weight = min(template_weight);
+    max_weight = max(template_weight);
+    mean_weight = mean(template_weight);
+    fprintf('max:%f    min:%f    ave:%f    new:%f\n', max_weight, min_weight, mean_weight, new_weight);
+    fprintf(fout_weight, '%f %f %f %f\n', max_weight, min_weight, mean_weight, new_weight);
+    if new_weight > mean_weight*1.2 
+        fprintf('Replace!!!!\n');
+        fprintf(fout_replace,'1\n');
+        min_indexes = find(template_weight == min_weight);
+        min_index = min_indexes(1);
+        template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
+        template = imresize(template,[t_row t_col]);
+        HT(min_index+1,:) = my_hog2(template(:,:),hog_bin_size, hog_n_orient, hog_index);
+        template_weight(min_index) = new_weight;
+    else
+        fprintf(fout_replace,'0\n');
+    end
+    if new_weight < minThresh
+        State = oldState;
+        if sigma_px <= sigma_px_th
+            sigma_px = sigma_px * alpha_big;
+        end
+        if sigma_py <= sigma_py_th
+            sigma_py = sigma_py * alpha_big;
+        end
+        if sigma_pw <= sigma_pw_th
+            sigma_pw = sigma_pw * alpha_big;
+        end
+        if sigma_ph <= sigma_ph_th
+            sigma_ph = sigma_ph * alpha_big;
+        end
+    end
+    
+    if new_weight > maxThresh
+        if sigma_px > 1
+            sigma_px = sigma_px * alpha_small;
+        end
+        if sigma_py > 1
+            sigma_py = sigma_py * alpha_small;
+        end
+        if sigma_pw > 1
+            sigma_pw = sigma_pw * alpha_small;
+        end
+        if sigma_ph > 1
+            sigma_ph = sigma_ph * alpha_small;
+        end
+    end
+    fprintf('sigma: x-%f, y-%f, w-%f, h-%f\n', sigma_px, sigma_py, sigma_pw, sigma_ph);
+    fprintf(fout_sigma, '%f %f %f %f\n', sigma_px, sigma_py, sigma_pw, sigma_ph);
     x = [State(1) State(1)+State(3) State(1)+State(3) State(1) State(1)];
     y = [State(2) State(2) State(2)+State(4) State(2)+State(4) State(2)];
     
-    plot(x,y,'r-');
+    plot(x,y,'r-','LineWidth',2);
     hold off
     filename = sprintf('%d.jpg',i+start_frame-1);
     saveas(fig,filename,'jpg');
@@ -161,20 +264,7 @@ for i=2:nframes
     particles(:,3) =  particles(:,3) + round(sigma_pw*randn(particle_num,1));
     particles(:,4) =  particles(:,4) + round(sigma_ph*randn(particle_num,1));
     
-    % Update the template
-    sorted_sim = sort(particle_sim);
-    new_weight = sum(sorted_sim(particle_num-9:particle_num));
-    template_weight = template_weight * (1-template_decay);
-    min_weight = min(template_weight);
-    max_weight = max(template_weight);
-    if new_weight > max_weight
-        min_indexes = find(template_weight == min_weight);
-        min_index = min_indexes(1);
-        template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
-        template = imresize(template,[t_row t_col]);
-        HT(min_index+1,:) = my_hog2(template(:,:),hog_bin_size, hog_n_orient, hog_index);
-        template_weight(min_index) = new_weight;
-    end
+    oldState = State;
 %     index = mod(i-1, template_num);
 %     if index == 0
 %         index = template_num;

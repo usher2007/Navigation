@@ -220,6 +220,8 @@ App/TMReceiverSrc/TMReceiverSrc.rar
 App/TransAlgFilter/Release/
 App/TransAlgFilter/TransAlgFilter/Release/
 *.bmp
+*.jpg
+*.png
 *.sdf
 *.filters
 *.user
