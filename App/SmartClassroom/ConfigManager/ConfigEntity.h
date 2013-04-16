@@ -5,7 +5,12 @@
 #include <iostream>
 #include <string>
 
+#ifdef _DEBUG
 const std::string TeacherConfigFile                   = "..\\Config\\Teacher.conf";
+#else
+const std::string TeacherConfigFile                   = "Teacher.conf";
+#endif
+
 const char ARRAYDELIMITER                             = ',';
 const char DICTIONARYDELIMITER                        = ';';
 const char NAMEVALUEDELIMITER                         = '=';
