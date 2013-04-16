@@ -79,6 +79,7 @@ private:
 
 	HRESULT Transform(IMediaSample *pSample);
 	HRESULT checkSoftDog();
+	BOOL m_bSoftDogChecked;
 	int m_nFrameCount;
 
 	static int m_nInstanceCount;

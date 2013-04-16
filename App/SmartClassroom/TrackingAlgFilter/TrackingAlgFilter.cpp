@@ -180,6 +180,7 @@ CTrackingAlgFilter::CTrackingAlgFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *
 	m_bTracking = FALSE;
 	m_pPosAnalyzer = (void *)(new CPositionAnalyzer);
 	m_nFrameCount = 0;
+	m_bSoftDogChecked = TRUE;
 }
 
 CUnknown * WINAPI CTrackingAlgFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -261,6 +262,10 @@ HRESULT CTrackingAlgFilter::Transform(IMediaSample *pSample)
 		{
 			return S_OK;
 		}
+	}
+	if(!m_bSoftDogChecked)
+	{
+		return S_OK;
 	}
 	PBYTE p;
 	pSample->GetPointer(&p);
@@ -420,7 +425,7 @@ HRESULT CTrackingAlgFilter::checkSoftDog()
 	hasp_handle_t handle;
 	HRESULT result = S_OK;
 	status = hasp_login(HASP_DEFAULT_FID, (hasp_vendor_code_t *)vendor_code, &handle);
-	if (status != HASP_STATUS_OK)
+	if (status != HASP_STATUS_OK )
 	{
 		switch (status)
 		{
@@ -436,6 +441,11 @@ HRESULT CTrackingAlgFilter::checkSoftDog()
 
 		}
 		result = E_FAIL;
+		m_bSoftDogChecked = FALSE;
+	}
+	else
+	{
+		m_bSoftDogChecked = TRUE;
 	}
 	status = hasp_logout(handle);
 	return result;
