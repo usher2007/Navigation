@@ -15,8 +15,8 @@ s_annotation = fannote;
 start_frame = 1;
 nframes = 885;
 
-t_row = 30;
-t_col = 10;
+t_row = 35;
+t_col = 15;
 
 hog_bin_size = 5;
 hog_n_orient = 9;
@@ -24,10 +24,10 @@ hog_index = 1;
 
 particle_num = 800;
 particles = zeros(particle_num, 4);
-sigma_px = 3;
+sigma_px = 2;
 sigma_py = 2;
-sigma_pw = 1;
-sigma_ph = 1;
+sigma_pw = 2;
+sigma_ph = 2;
 
 sigma_px_th = 5;
 sigma_py_th = 3;
@@ -48,18 +48,20 @@ s_frames = cell(nframes, 1);
 template_decay = 0.01;
 
 minThresh = 0.015;
-maxThresh = 0.7;
+maxThresh = 0.6;
 alpha_big = 1.02;
 alpha_small = 0.98;
 
 sigma_weight = 0.05;
 
 
-hog_weight_th = 1/800;
+weight_th = 1/800;
 
 %gray feature
 %todo: 15*12=180 vector, append to the end of hog vector
-
+gray_feature_r_len = 15;
+gray_feature_c_len = 12;
+gray_feature_len = gray_feature_r_len * gray_feature_c_len;
 for i=1:nframes
     image_no = start_frame + i - 1;
     fid = sprintf('%05d', image_no);
@@ -90,11 +92,12 @@ object = imresize(object, [t_row t_col]);
 hog_row = ceil(t_row)/hog_bin_size;
 hog_col = ceil(t_col)/hog_bin_size;
 hog_feature_len = hog_row*hog_col*hog_n_orient;
-HT = zeros(1+template_num+hog_feature_len*2, hog_feature_len);
-HT(1, :) = my_hog2(object(:, :), hog_bin_size, hog_n_orient, hog_index);
+HT = zeros(1+template_num+(hog_feature_len+gray_feature_len)*2, hog_feature_len+gray_feature_len);
+HT(1, 1:hog_feature_len) = my_hog2(object(:, :), hog_bin_size, hog_n_orient, hog_index);
+HT(1, hog_feature_len+1:hog_feature_len+gray_feature_len) = reshape(imresize(object, [gray_feature_r_len gray_feature_c_len]), gray_feature_len,1);
 % trival templates
-HT(2+template_num:1+template_num+hog_feature_len, :) = eye(hog_feature_len);
-HT(2+template_num+hog_feature_len:end,:) = -1*eye(hog_feature_len);
+HT(2+template_num:1+template_num+hog_feature_len+gray_feature_len, :) = eye(hog_feature_len+gray_feature_len);
+HT(2+template_num+hog_feature_len+gray_feature_len:end,:) = -1*eye(hog_feature_len+gray_feature_len);
 
 State = [col_begin, row_begin, col_width, row_height];
 State = round(State);
@@ -103,9 +106,8 @@ particles(:,2) = State(2) + round(sigma_py*randn(1,particle_num));
 particles(:,3) = State(3) + round(sigma_pw*randn(1,particle_num));
 particles(:,4) = State(4) + round(sigma_ph*randn(1,particle_num));
 
-particle_features_hog = zeros(particle_num, hog_feature_len);
-particle_alpha_hog = zeros(1+template_num+hog_feature_len*2, particle_num);
-particle_sim_hog = zeros(1,particle_num);
+particle_features = zeros(particle_num, hog_feature_len+gray_feature_len);
+particle_alpha = zeros(1+template_num+(hog_feature_len+gray_feature_len)*2, particle_num);
 particle_sim = zeros(1, particle_num);
 particle_reind = zeros(1,particle_num);
 fig = figure(1);
@@ -142,22 +144,23 @@ for i=2:nframes
         end
         object_candidate = image_gray(prow_begin:prow_end, pcol_begin:pcol_end);
         object_candidate = imresize(object_candidate, [t_row t_col]);
-        particle_features_hog(j,:) = my_hog2(object_candidate(:,:),hog_bin_size, hog_n_orient, hog_index);
+        particle_features(j,1:hog_feature_len) = my_hog2(object_candidate(:,:),hog_bin_size, hog_n_orient, hog_index);
+        particle_features(j,hog_feature_len+1:hog_feature_len+gray_feature_len) = reshape(imresize(object_candidate, [gray_feature_r_len gray_feature_c_len]), gray_feature_len, 1);
     end
     
-    particle_alpha_hog = my_lasso(particle_features_hog', HT', param);
-    particle_sim_hog(1,:) = reshape((sum(particle_alpha_hog(1:1+template_num,:))+0.0001+19*particle_alpha_hog(1,:))./(sum(particle_alpha_hog(2+template_num:end,:))+0.0001+19*particle_alpha_hog(1,:)), 1, particle_num);
-    particle_sim_hog(1,:) = particle_sim_hog(1,:)/sum(particle_sim_hog(1,:));
+    particle_alpha = my_lasso(particle_features', HT', param);
+    particle_sim(1,:) = reshape((sum(particle_alpha(1:1+template_num,:))+0.0001+29*particle_alpha(1,:))./(sum(particle_alpha(2+template_num:end,:))+0.0001+29*particle_alpha(1,:)), 1, particle_num);
+    particle_sim(1,:) = particle_sim(1,:)/sum(particle_sim(1,:));
     
     for k=1:particle_num
-       particle_sim_hog(1,k) = 1/sqrt(2*pi)/sigma_weight*exp(-(1-particle_sim_hog(1,k))/2/sigma_weight^2);
+       particle_sim(1,k) = 1/sqrt(2*pi)/sigma_weight*exp(-(1-particle_sim(1,k))/2/sigma_weight^2);
     end
-    particle_sim_hog(1,:) = particle_sim_hog(1,:)/sum(particle_sim_hog(1,:));
+    particle_sim(1,:) = particle_sim(1,:)/sum(particle_sim(1,:));
     %best_index = find(particle_sim_hog == max(particle_sim_hog));
     
     
     %particle_sim = hog_weight*particle_sim_hog+gray_weight*particle_sim_gray;
-    particle_sim = particle_sim_hog.*(particle_sim_hog>hog_weight_th);
+    particle_sim = particle_sim.*(particle_sim>weight_th);
     particle_sim = particle_sim/sum(particle_sim);
     particle_sim_matrix = repmat(particle_sim',1,4);
     particles_temp = particles.*particle_sim_matrix;
@@ -209,41 +212,42 @@ for i=2:nframes
         min_index = min_indexes(1);
         template = image_gray(State(2):State(2)+State(4), State(1):State(1)+State(3));
         template = imresize(template,[t_row t_col]);
-        HT(min_index+1,:) = my_hog2(template(:,:),hog_bin_size, hog_n_orient, hog_index);
+        HT(min_index+1,1:hog_feature_len) = my_hog2(template(:,:),hog_bin_size, hog_n_orient, hog_index);
+        HT(min_index+1,hog_feature_len+1:hog_feature_len+gray_feature_len) = reshape(imresize(template, [gray_feature_r_len gray_feature_c_len]), gray_feature_len, 1);
         template_weight(min_index) = new_weight;
     else
         fprintf(fout_replace,'0\n');
     end
-    if new_weight < minThresh
-        State = oldState;
-        if sigma_px <= sigma_px_th
-            sigma_px = sigma_px * alpha_big;
-        end
-        if sigma_py <= sigma_py_th
-            sigma_py = sigma_py * alpha_big;
-        end
-        if sigma_pw <= sigma_pw_th
-            sigma_pw = sigma_pw * alpha_big;
-        end
-        if sigma_ph <= sigma_ph_th
-            sigma_ph = sigma_ph * alpha_big;
-        end
-    end
-    
-    if new_weight > maxThresh
-        if sigma_px > 1
-            sigma_px = sigma_px * alpha_small;
-        end
-        if sigma_py > 1
-            sigma_py = sigma_py * alpha_small;
-        end
-        if sigma_pw > 1
-            sigma_pw = sigma_pw * alpha_small;
-        end
-        if sigma_ph > 1
-            sigma_ph = sigma_ph * alpha_small;
-        end
-    end
+%     if new_weight < minThresh
+%         State = oldState;
+%         if sigma_px <= sigma_px_th
+%             sigma_px = sigma_px * alpha_big;
+%         end
+%         if sigma_py <= sigma_py_th
+%             sigma_py = sigma_py * alpha_big;
+%         end
+%         if sigma_pw <= sigma_pw_th
+%             sigma_pw = sigma_pw * alpha_big;
+%         end
+%         if sigma_ph <= sigma_ph_th
+%             sigma_ph = sigma_ph * alpha_big;
+%         end
+%     end
+%     
+%     if new_weight > maxThresh
+%         if sigma_px > 1
+%             sigma_px = sigma_px * alpha_small;
+%         end
+%         if sigma_py > 1
+%             sigma_py = sigma_py * alpha_small;
+%         end
+%         if sigma_pw > 1
+%             sigma_pw = sigma_pw * alpha_small;
+%         end
+%         if sigma_ph > 1
+%             sigma_ph = sigma_ph * alpha_small;
+%         end
+%     end
     fprintf('sigma: x-%f, y-%f, w-%f, h-%f\n', sigma_px, sigma_py, sigma_pw, sigma_ph);
     fprintf(fout_sigma, '%f %f %f %f\n', sigma_px, sigma_py, sigma_pw, sigma_ph);
     x = [State(1) State(1)+State(3) State(1)+State(3) State(1) State(1)];
