@@ -56,6 +56,7 @@ public:
 	HRESULT GetBlindZoneList(BlindZoneList **bZoneList);
 	int GetTeaCameraProtocol();
 	int GetTeaCameraVelocity();
+	int GetTeaComNum();
 	// Sync VISCA code from camera
 	HRESULT SyncViscaCode(int locId, unsigned char *pos, unsigned char *focal);
 private:

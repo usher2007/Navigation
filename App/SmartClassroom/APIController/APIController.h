@@ -24,7 +24,7 @@ public:
 	HRESULT BuildTeacherGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 	HRESULT BuildTeacherPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
-	HRESULT AddTeaCamera();
+	HRESULT AddTeaCamera(int comNum);
 	HRESULT SetTeaCameraProtocol(int nProtocol);
 	HRESULT SetTeaCameraVelocity(int velocity);
 	HRESULT TeacherPTZUp();

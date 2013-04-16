@@ -278,6 +278,11 @@ int CConfigManager::GetTeaTrackingInterval()
 	return m_teacherEnt.trackingInterval;
 }
 
+int CConfigManager::GetTeaComNum()
+{
+	return m_teacherEnt.comNum;
+}
+
 int CConfigManager::GetTeaCameraProtocol()
 {
 	return m_teacherEnt.cameraProtocol;
@@ -524,6 +529,10 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	{
 		m_teacherEnt.trackingInterval = atoi(paramValue.c_str());
 	}
+	else if(paramName.compare(COMNUM) == 0)
+	{
+		m_teacherEnt.comNum = atoi(paramValue.c_str());
+	}
 	else if(paramName.compare(BLINDZONE) == 0)
 	{
 		int nDelimiPos = 0, i = 0;
@@ -694,6 +703,7 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	teacherOut<<FGHISTTHRESH<<NAMEVALUEDELIMITER<<m_teacherEnt.fgHistThresh<<'\n';
 	teacherOut<<GBMLEARNINGRATE<<NAMEVALUEDELIMITER<<m_teacherEnt.gbmLearningRate<<'\n';
 	teacherOut<<TRACKINGINTERVAL<<NAMEVALUEDELIMITER<<m_teacherEnt.trackingInterval<<'\n';
+	teacherOut<<COMNUM<<NAMEVALUEDELIMITER<<m_teacherEnt.comNum<<'\n';
 	if(!(m_teacherEnt.blindZones.empty()))
 	{
 		BlindZoneIter bZoneIter;

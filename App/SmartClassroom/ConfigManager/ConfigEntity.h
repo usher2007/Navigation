@@ -34,6 +34,7 @@ const std::string FGHISTTHRESH                        = "FG_HIST_THRESH";
 const std::string GBMLEARNINGRATE                     = "GBM_LEARNING_RATE";
 const std::string TRACKINGINTERVAL                    = "TRACKING_INTERVAL";
 const std::string BLINDZONE                           = "BLIND_ZONE";
+const std::string COMNUM                              = "COM_NUM";
 typedef struct LocRange
 {
 	int left;
@@ -88,6 +89,7 @@ public:
 	double fgHistThresh;                       // Foreground hist thresh
 	double gbmLearningRate;                    // GBM's learning rate, used in the GBM training
 	int trackingInterval;                      // every trackingInterval frames do once tracking
+	int comNum;                                // The serial com number of teacher PTZ camera.
 
 	BlindZoneList blindZones;                  // Blind Zone of the teacher view
 };
