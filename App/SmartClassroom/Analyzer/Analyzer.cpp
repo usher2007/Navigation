@@ -14,9 +14,18 @@ CPositionAnalyzer::CPositionAnalyzer()
 	m_pModuleFactory = CModuleFactory::GetInstance();
 	m_nPrevLocId = -1;
 	m_nFullScrDuration = 0;
+	m_nFullScrMinDuration = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaMinFullScrDuration();
+	m_nNoPersonFrameCount = 0;
+	m_nMaxNoPersonFrameCount = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaMaxNoPersonDuration();
 	return;
 }
 
+HRESULT CPositionAnalyzer::SetFullscreenStrategy(int fullScrMinDuration, int maxNoPersonFrameCount)
+{
+	m_nFullScrMinDuration = fullScrMinDuration;
+	m_nMaxNoPersonFrameCount = maxNoPersonFrameCount;
+	return S_OK;
+}
 
 HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons)
 {
@@ -24,7 +33,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 	int teaFullScreenId = ((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaFullScreenLocId();
 	if(teaFullScreenId >= 0 && m_nPrevLocId == teaFullScreenId )
 	{
-		if(m_nFullScrDuration < 250)
+		if(m_nFullScrDuration < m_nFullScrMinDuration)
 		{
 			m_nFullScrDuration++;
 			return S_OK;
@@ -32,12 +41,30 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 		m_nFullScrDuration = 0;
 		m_nPrevLocId = -1;
 	}
+
 	if(trackedPersons.empty())
 	{
-		return S_FALSE;
+		if(m_nNoPersonFrameCount < m_nMaxNoPersonFrameCount)
+		{
+			m_nNoPersonFrameCount++;
+			return S_FALSE;
+		}
+		else
+		{
+			m_nNoPersonFrameCount = 0;
+			if(teaFullScreenId >= 0)
+			{
+				((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
+				m_nPrevLocId = teaFullScreenId;
+				m_nFullScrDuration = 1;
+			}
+			return S_OK;
+
+		}
 	}
 	else if(trackedPersons.size() > 1)
 	{
+		m_nNoPersonFrameCount = 0;
 		if(teaFullScreenId >= 0)
 		{
 			((CModuleFactory *)m_pModuleFactory)->GetCameraController()->RecallPreSetPos(teaId, teaFullScreenId);
@@ -48,6 +75,7 @@ HRESULT CPositionAnalyzer::AnalyzeTeacherPositions(std::vector<Point2f> trackedP
 	}
 	else
 	{
+		m_nNoPersonFrameCount = 0;
 		PresetLocDict * teaPresetLocDict = NULL;
 		PresetLocDictIter teaPresetLocDictIter;
 		((CModuleFactory *)m_pModuleFactory)->GetConfigManager()->GetTeaPresetLocDict(&teaPresetLocDict);

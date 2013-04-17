@@ -40,6 +40,8 @@ const std::string GBMLEARNINGRATE                     = "GBM_LEARNING_RATE";
 const std::string TRACKINGINTERVAL                    = "TRACKING_INTERVAL";
 const std::string BLINDZONE                           = "BLIND_ZONE";
 const std::string COMNUM                              = "COM_NUM";
+const std::string MINFULLSCRDURATION                  = "MIN_FULL_SCR_DUR";
+const std::string MAXNOPERSONDURATION                 = "MAX_NO_PERSON_DUR";
 typedef struct LocRange
 {
 	int left;
@@ -93,8 +95,10 @@ public:
 	int fgUpThresh;                            // Foreground up thresh, used in the GBM training
 	double fgHistThresh;                       // Foreground hist thresh
 	double gbmLearningRate;                    // GBM's learning rate, used in the GBM training
-	int trackingInterval;                      // every trackingInterval frames do once tracking
+	int trackingInterval;                      // Every trackingInterval frames do once tracking
 	int comNum;                                // The serial com number of teacher PTZ camera.
+	int minFullscreenDuration;                 // Min time duration for full screen scope.
+	int maxNoPersonDuration;                   // Max time duration for no person, then the scope will turn to full screen.
 
 	BlindZoneList blindZones;                  // Blind Zone of the teacher view
 };

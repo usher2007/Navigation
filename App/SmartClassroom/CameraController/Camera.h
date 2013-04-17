@@ -31,17 +31,17 @@ const static int RegularCmdLength = 7;
 // --- VISCA Protocol --
 //
 // 81 01 06 01 08 08 01 03 FF
-const static unsigned char VTurnLeftCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x08, (unsigned char)0x08, (unsigned char)0x01, (unsigned char)0x03, (unsigned char)0xFF};
+const static unsigned char VTurnLeftCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x05, (unsigned char)0x05, (unsigned char)0x01, (unsigned char)0x03, (unsigned char)0xFF};
 // 81 01 06 01 08 08 02 03 FF
-const static unsigned char VTurnRightCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x08, (unsigned char)0x08, (unsigned char)0x02, (unsigned char)0x03, (unsigned char)0xFF};
+const static unsigned char VTurnRightCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x05, (unsigned char)0x05, (unsigned char)0x02, (unsigned char)0x03, (unsigned char)0xFF};
 // 81 01 06 01 08 08 03 01 FF
-const static unsigned char VTurnUpCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x08, (unsigned char)0x08, (unsigned char)0x03, (unsigned char)0x01, (unsigned char)0xFF};
+const static unsigned char VTurnUpCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x05, (unsigned char)0x05, (unsigned char)0x03, (unsigned char)0x01, (unsigned char)0xFF};
 // 81 01 06 01 08 08 03 01 FF
-const static unsigned char VTurnDownCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x08, (unsigned char)0x08, (unsigned char)0x03, (unsigned char)0x02, (unsigned char)0xFF};
+const static unsigned char VTurnDownCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x05, (unsigned char)0x05, (unsigned char)0x03, (unsigned char)0x02, (unsigned char)0xFF};
 // 81 01 04 07 26 FF
-const static unsigned char VZoomInCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x26, (unsigned char)0xFF};
+const static unsigned char VZoomInCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x24, (unsigned char)0xFF};
 // 81 01 04 07 36 FF
-const static unsigned char VZoomOutCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x36, (unsigned char)0xFF};
+const static unsigned char VZoomOutCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x04, (unsigned char)0x07, (unsigned char)0x34, (unsigned char)0xFF};
 // 81 01 06 01 10 10 03 03 FF
 const static unsigned char VStopCmd[1024] = {(unsigned char)0x81, (unsigned char)0x01, (unsigned char)0x06, (unsigned char)0x01, (unsigned char)0x10, (unsigned char)0x10, (unsigned char)0x03, (unsigned char)0x03, (unsigned char)0xFF};
 // 81 01 04 07 00 FF

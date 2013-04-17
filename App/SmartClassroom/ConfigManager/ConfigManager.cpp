@@ -146,6 +146,13 @@ HRESULT CConfigManager::SetTeaCameraVelocity(int velocity)
 	return S_OK;
 }
 
+HRESULT CConfigManager::SetTeaFullscreenStrategy(int minFullScrDuration, int maxNoPersonDuration)
+{
+	m_teacherEnt.minFullscreenDuration = minFullScrDuration;
+	m_teacherEnt.maxNoPersonDuration = maxNoPersonDuration;
+	return S_OK;
+}
+
 HRESULT CConfigManager::ClearBlindZones()
 {
 	if(m_teacherEnt.blindZones.empty())
@@ -281,6 +288,16 @@ int CConfigManager::GetTeaTrackingInterval()
 int CConfigManager::GetTeaComNum()
 {
 	return m_teacherEnt.comNum;
+}
+
+int CConfigManager::GetTeaMinFullScrDuration()
+{
+	return m_teacherEnt.minFullscreenDuration;
+}
+
+int CConfigManager::GetTeaMaxNoPersonDuration()
+{
+	return m_teacherEnt.maxNoPersonDuration;
 }
 
 int CConfigManager::GetTeaCameraProtocol()
@@ -533,6 +550,14 @@ HRESULT CConfigManager::setTeaParametersFromFile( const std::string& paramName, 
 	{
 		m_teacherEnt.comNum = atoi(paramValue.c_str());
 	}
+	else if(paramName.compare(MINFULLSCRDURATION) == 0)
+	{
+		m_teacherEnt.minFullscreenDuration = atoi(paramValue.c_str());
+	}
+	else if(paramName.compare(MAXNOPERSONDURATION) == 0)
+	{
+		m_teacherEnt.maxNoPersonDuration = atoi(paramValue.c_str());
+	}
 	else if(paramName.compare(BLINDZONE) == 0)
 	{
 		int nDelimiPos = 0, i = 0;
@@ -704,6 +729,8 @@ HRESULT CConfigManager::dumpTeacherConfig()
 	teacherOut<<GBMLEARNINGRATE<<NAMEVALUEDELIMITER<<m_teacherEnt.gbmLearningRate<<'\n';
 	teacherOut<<TRACKINGINTERVAL<<NAMEVALUEDELIMITER<<m_teacherEnt.trackingInterval<<'\n';
 	teacherOut<<COMNUM<<NAMEVALUEDELIMITER<<m_teacherEnt.comNum<<'\n';
+	teacherOut<<MINFULLSCRDURATION<<NAMEVALUEDELIMITER<<m_teacherEnt.minFullscreenDuration<<'\n';
+	teacherOut<<MAXNOPERSONDURATION<<NAMEVALUEDELIMITER<<m_teacherEnt.maxNoPersonDuration<<'\n';
 	if(!(m_teacherEnt.blindZones.empty()))
 	{
 		BlindZoneIter bZoneIter;

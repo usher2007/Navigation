@@ -142,3 +142,13 @@ HRESULT CDXGraphManager::ClearBlindZones()
 	}
 	return hr;
 }
+
+HRESULT CDXGraphManager::SetTeacherFullScrStrategy(int fullScrMinDur, int noPersonMaxDur)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTeacherGraph)
+	{
+		hr = m_pTeacherGraph->SetFullScreenStrategy(fullScrMinDur, noPersonMaxDur);
+	}
+	return hr;
+}

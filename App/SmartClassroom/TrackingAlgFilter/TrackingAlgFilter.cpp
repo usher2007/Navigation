@@ -419,6 +419,11 @@ STDMETHODIMP CTrackingAlgFilter::ClearBlindZones()
 	return m_pTrackingAlg->ClearBZones();
 }
 
+STDMETHODIMP CTrackingAlgFilter::SetFullScrStrategy(int fullScrMinDur, int noPersonMaxDur)
+{
+	return ((CPositionAnalyzer *)m_pPosAnalyzer)->SetFullscreenStrategy(fullScrMinDur, noPersonMaxDur);
+}
+
 HRESULT CTrackingAlgFilter::checkSoftDog()
 {
 	hasp_status_t status;

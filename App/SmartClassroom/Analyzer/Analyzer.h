@@ -20,9 +20,13 @@ public:
 	CPositionAnalyzer(void);
 	HRESULT AnalyzeTeacherPositions(std::vector<Point2f> trackedPersons);
 	HRESULT ResetParameters();
+	HRESULT SetFullscreenStrategy(int fullScrMinDuration, int maxNoPersonFrameCount);
 private:
 	void * m_pModuleFactory;
 	int m_nPrevLocId;
 	int m_nFullScrDuration;
+	int m_nFullScrMinDuration;
+	int m_nNoPersonFrameCount;
+	int m_nMaxNoPersonFrameCount;
 };
 

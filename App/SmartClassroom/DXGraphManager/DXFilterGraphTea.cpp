@@ -280,6 +280,16 @@ HRESULT CDXFilterGraphTea::ClearBlindZones()
 	return hr;
 }
 
+HRESULT CDXFilterGraphTea::SetFullScreenStrategy(int fullScrMinDur, int noPersonMaxDur)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pTrackingControl)
+	{
+		hr = m_pTrackingControl->SetFullScrStrategy(fullScrMinDur, noPersonMaxDur);
+	}
+	return hr;
+}
+
 
 HRESULT CDXFilterGraphTea::syncConfiguration()
 {

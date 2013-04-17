@@ -35,6 +35,8 @@ void CAdvSettingsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDITPresetLocOverlap, m_ctrlEditPresetLocOverlap);
 	DDX_Control(pDX, IDC_COMBOProtocol, m_ctrlComboProtocol);
 	DDX_Control(pDX, IDC_EDITVelocity, m_ctrlEditVelocity);
+	DDX_Control(pDX, IDC_EDITFullScrMinDur, m_ctrlEditFullScrMinDur);
+	DDX_Control(pDX, IDC_EDITNoPersonMaxDur, m_ctrlEditNoPersonMaxDur);
 }
 
 
@@ -130,10 +132,13 @@ void CAdvSettingsDialog::OnBnClickedButtonsaveadvsettings()
 		int presetLocOverlap = getIntFromCEdit(&m_ctrlEditPresetLocOverlap);
 		int protocol = m_ctrlComboProtocol.GetCurSel();
 		int velocity = getIntFromCEdit(&m_ctrlEditVelocity);
+		int fullScrMinDur = getDoubleFromCEdit(&m_ctrlEditFullScrMinDur)*25;
+		int noPersonMaxDur = getDoubleFromCEdit(&m_ctrlEditNoPersonMaxDur)*25;
 
 		m_pAPIController->TeacherSetDetailParams(presetLocOverlap, roomWidth, camDist, leastHumanGap, humanWidth, fgLowThresh, fgUpThresh, fgHistThresh);
 		m_pAPIController->SetTeaCameraProtocol(protocol);
 		m_pAPIController->SetTeaCameraVelocity(velocity);
+		m_pAPIController->TeacherSetFullScrStrategy(fullScrMinDur, noPersonMaxDur);
 	}
 
 	CDialogEx::OnOK();

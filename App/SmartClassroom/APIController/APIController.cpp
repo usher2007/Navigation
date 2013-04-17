@@ -478,3 +478,15 @@ HRESULT CAPIController::TeacherClearBlindZones()
 	}
 	return hr;
 }
+
+HRESULT CAPIController::TeacherSetFullScrStrategy(int fullScrMinDur, int noPersonMaxDur)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetConfigManager()->SetTeaFullscreenStrategy(fullScrMinDur, noPersonMaxDur);
+		if(FAILED(hr)) return hr;
+		hr = m_pModuleFactory->GetGraphManager()->SetTeacherFullScrStrategy(fullScrMinDur, noPersonMaxDur);
+	}
+	return hr;
+}
