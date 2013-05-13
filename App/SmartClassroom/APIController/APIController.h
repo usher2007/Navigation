@@ -64,8 +64,14 @@ public:
 	HRESULT TeacherClearBlindZones();
 	HRESULT TeacherSetFullScrStrategy(int fullScrMinDur, int noPersonMaxDur);
 	// Student Part
-	HRESULT BuildStudentGraph();
+	HRESULT BuildStudentGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd, int num);
+	HRESULT BuildStudentPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
 
+	HRESULT StudentPTZGraphRun();
+	HRESULT StudentPTZGraphStop();
+
+	HRESULT StudentGraphRun(int num);
+	HRESULT StudentGraphStop(int num);
 	// LaserPoint Part
 	HRESULT BuildLaserPointGraph();
 

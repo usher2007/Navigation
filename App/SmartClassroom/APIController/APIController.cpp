@@ -490,3 +490,64 @@ HRESULT CAPIController::TeacherSetFullScrStrategy(int fullScrMinDur, int noPerso
 	}
 	return hr;
 }
+
+
+HRESULT CAPIController::BuildStudentGraph( BOOL bDisplay, HWND displayWnd, HWND notifyWnd, int num )
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->CreateStudentGraph(bDisplay, displayWnd, notifyWnd, num);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::BuildStudentPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd)
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->CreateStudentPTZGraph(bDisplay, displayWnd, notifyWnd);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentGraphRun( int num )
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->RunStudentGraph(num);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::StudentGraphStop( int num )
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->StopStudentGraph(num);
+	}
+	return hr;
+}
+
+HRESULT CAPIController::StudentPTZGraphRun()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->RunStudentPTZGraph();
+	}
+	return hr;
+}
+
+HRESULT CAPIController::StudentPTZGraphStop()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pModuleFactory)
+	{
+		hr = m_pModuleFactory->GetGraphManager()->StopStudentPTZGraph();
+	}
+	return hr;
+}

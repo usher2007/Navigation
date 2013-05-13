@@ -6,6 +6,7 @@
 #include "afxcmn.h"
 #include "TabSheet.h"
 #include "TSettingTab.h"
+#include "SSettingTab.h"
 
 
 // CSmartClassroomDlg dialog
@@ -36,7 +37,7 @@ protected:
 public:
 	CTabSheet m_tabSheet;
 	CTSettingTab m_TSettingPage;
-	//CSSettingTab m_SSettingPage;
+	CSSettingTab m_SSettingPage;
 	//CLSettingTab m_LSettingPage;
 	afx_msg void OnStnDblclickStaticplaywndtea();
 };

@@ -52,8 +52,8 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	m_pAPIController = CAPIController::GetInstance();
 	m_tabSheet.AddPage(L"教师", &m_TSettingPage, IDD_DIALOGTSetting);
-	/*m_tabSheet.AddPage(L"学生", &m_SSettingPage, IDD_DIALOGSSetting);
-	m_tabSheet.AddPage(L"激光笔", &m_LSettingPage, IDD_DIALOGLSetting);*/
+	m_tabSheet.AddPage(L"学生", &m_SSettingPage, IDD_DIALOGSSetting);
+	/*m_tabSheet.AddPage(L"激光笔", &m_LSettingPage, IDD_DIALOGLSetting);*/
 	m_tabSheet.Show();
 
 	m_pAPIController->AddTeaCamera(1);
@@ -61,6 +61,14 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	m_pAPIController->BuildTeacherPTZGraph(TRUE, GetDlgItem(IDC_STATICPlayWndTeaPTZ)->GetSafeHwnd(), this->GetSafeHwnd());
 	m_pAPIController->TeacherGraphRun();
 	m_pAPIController->TeacherPTZGraphRun();
+
+	// Student Part
+	m_pAPIController->BuildStudentGraph(TRUE, GetDlgItem(IDC_STUONE)->GetSafeHwnd(), this->GetSafeHwnd(), 1);
+	m_pAPIController->BuildStudentGraph(TRUE, GetDlgItem(IDC_STUTWO)->GetSafeHwnd(), this->GetSafeHwnd(), 2);
+	m_pAPIController->BuildStudentPTZGraph(TRUE, GetDlgItem(IDC_STUCAP)->GetSafeHwnd(), this->GetSafeHwnd());
+	m_pAPIController->StudentGraphRun(1);
+	m_pAPIController->StudentGraphRun(2);
+	m_pAPIController->StudentPTZGraphRun();
 	
 
 	return TRUE;  // return TRUE  unless you set the focus to a control

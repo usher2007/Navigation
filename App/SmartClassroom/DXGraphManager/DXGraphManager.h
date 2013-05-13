@@ -11,6 +11,7 @@
 #endif
 #pragma once
 #include "DXFilterGraphTea.h"
+#include "DXFilterGraphStu.h"
 // This class is exported from the DXGraphManager.dll
 class DXGRAPHMANAGER_API CDXGraphManager {
 public:
@@ -28,8 +29,22 @@ public:
 	HRESULT AddTeacherBlindZone(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4); 
 	HRESULT ClearBlindZones();
 	HRESULT SetTeacherFullScrStrategy(int fullScrMinDur, int noPersonMaxDur);
+
+	HRESULT CreateStudentGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd, int number);
+	HRESULT CreateStudentPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd);
+	HRESULT RunStudentGraph(int number);
+	HRESULT RunStudentPTZGraph();
+	HRESULT StopStudentGraph(int number);
+	HRESULT StopStudentPTZGraph();
+	HRESULT StartStandUpDectect(BOOL bShowDetectRes);
+	HRESULT StopStandUpDectect();
+
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
 	CDXFilterGraphTeaPTZ *m_pTeacherPTZGraph;
+
+	CDXFilterGraphStu * m_pStudentGraphLeft;
+	CDXFilterGraphStu * m_pStudentGraphRight;
+	CDXFilterGraphStuPTZ * m_pStudentPTZGraph;
 };
 

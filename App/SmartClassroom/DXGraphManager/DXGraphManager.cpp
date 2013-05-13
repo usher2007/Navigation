@@ -152,3 +152,114 @@ HRESULT CDXGraphManager::SetTeacherFullScrStrategy(int fullScrMinDur, int noPers
 	}
 	return hr;
 }
+
+HRESULT CDXGraphManager::CreateStudentGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd, int number)
+{
+	HRESULT hr = S_FALSE;
+	CDXFilterGraphStu **mppStudentGraph = NULL;
+	if(number == 1)
+	{
+		mppStudentGraph = &m_pStudentGraphLeft;
+	}
+	else if(number == 2)
+	{
+		mppStudentGraph = &m_pStudentGraphRight;
+	}
+	else
+	{
+		return E_FAIL;
+	}
+	*mppStudentGraph = new CDXFilterGraphStu(number);
+	hr = (*mppStudentGraph)->Create();
+	if(FAILED(hr)) return hr;
+	hr = (*mppStudentGraph)->BuildGraph(bDisplay);
+	if(FAILED(hr)) return hr;
+	hr = (*mppStudentGraph)->SetDisplayWindow(displayWnd);
+	if(FAILED(hr)) return hr;
+	hr = (*mppStudentGraph)->SetNotifyWindow(notifyWnd);
+	if(FAILED(hr)) return hr;
+	return S_OK;
+}
+
+HRESULT CDXGraphManager::RunStudentGraph(int number)
+{
+	HRESULT hr = S_FALSE;
+	CDXFilterGraphStu *mpStudentGraph = NULL;
+	if(number == 1)
+	{
+		mpStudentGraph = m_pStudentGraphLeft;
+	}
+	else if(number == 2)
+	{
+		mpStudentGraph = m_pStudentGraphRight;
+	}
+	else
+	{
+		return E_FAIL;
+	}
+
+	if(mpStudentGraph != NULL)
+	{
+		hr = mpStudentGraph->Run();
+	}
+	return hr;
+}
+
+HRESULT CDXGraphManager::StopStudentGraph(int number)
+{
+	HRESULT hr = S_FALSE;
+	CDXFilterGraphStu *mpStudentGraph = NULL;
+	if(number == 1)
+	{
+		mpStudentGraph = m_pStudentGraphLeft;
+	}
+	else if(number == 2)
+	{
+		mpStudentGraph = m_pStudentGraphRight;
+	}
+	else
+	{
+		return E_FAIL;
+	}
+
+	if(mpStudentGraph != NULL)
+	{
+		hr = mpStudentGraph->Stop();
+	}
+	return hr;
+}
+
+HRESULT CDXGraphManager::CreateStudentPTZGraph(BOOL bDisplay, HWND displayWnd, HWND notifyWnd)
+{
+	HRESULT hr = S_FALSE;
+	m_pStudentPTZGraph = new CDXFilterGraphStuPTZ();
+	hr = m_pStudentPTZGraph->Create();
+	if(FAILED(hr)) return hr;
+	hr = m_pStudentPTZGraph->BuildGraph(bDisplay);
+	if(FAILED(hr)) return hr;
+	hr = m_pStudentPTZGraph->SetDisplayWindow(displayWnd);
+	if(FAILED(hr)) return hr;
+	hr = m_pStudentPTZGraph->SetNotifyWindow(notifyWnd);
+	if(FAILED(hr)) return hr;
+	return S_OK;
+}
+
+HRESULT CDXGraphManager::RunStudentPTZGraph()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStudentPTZGraph)
+	{
+		hr = m_pStudentPTZGraph->Run();
+	}
+	return hr;
+}
+
+HRESULT CDXGraphManager::StopStudentPTZGraph()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStudentPTZGraph)
+	{
+		hr = m_pStudentPTZGraph->Stop();
+	}
+	return hr;
+}
