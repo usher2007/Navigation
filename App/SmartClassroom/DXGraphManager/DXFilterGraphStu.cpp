@@ -37,7 +37,11 @@ HRESULT CDXFilterGraphStu::BuildGraph(BOOL bDisplay)
 			return E_FAIL;
 		}
 
-		// TODO: need to add the detector filter.
+		CComPtr<IBaseFilter> pStandUpDetectorFilter;
+		hr = CoCreateInstance(CLSID_StandUpDetector, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pStandUpDetectorFilter);
+		if(FAILED(hr)) return hr;
+		hr = m_pGraphBuilder->AddFilter(pStandUpDetectorFilter, L"StandUp Detector");
+		if(FAILED(hr)) return hr;
 
 		CComPtr<IBaseFilter> pRenderer;
 		if(m_bDisplay)
@@ -53,7 +57,9 @@ HRESULT CDXFilterGraphStu::BuildGraph(BOOL bDisplay)
 		hr = m_pGraphBuilder->AddFilter(pRenderer, L"Renderer");
 		if(FAILED(hr)) return hr;
 
-		hr = CUtils::ConnectFilters(m_pGraphBuilder, pSrc, pRenderer, MEDIATYPE_NULL);
+		hr = CUtils::ConnectFilters(m_pGraphBuilder, pSrc, pStandUpDetectorFilter, MEDIATYPE_NULL);
+		if(FAILED(hr)) return hr;
+		hr = CUtils::ConnectFilters(m_pGraphBuilder, pStandUpDetectorFilter, pRenderer, MEDIATYPE_NULL);
 		if(FAILED(hr)) return hr;
 
 		return S_OK;
