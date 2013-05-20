@@ -64,15 +64,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_AFXDLL;STANDUPDETECTORFILTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\yubo\SDK\DShow\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\yubo\SDK\DShow\include;F:\yubo\SDK\OpenCV_build\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\yubo\SDK\dx9sdkcp\SDK (C++)\Samples\C++\DirectShow\BaseClasses\Release_Unicode</AdditionalLibraryDirectories>
-      <AdditionalDependencies>strmbase.lib;msvcrtd.lib;quartz.lib;vfw32.lib;winmm.lib;version.lib;comctl32.lib;olepro32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\yubo\SDK\dx9sdkcp\SDK (C++)\Samples\C++\DirectShow\BaseClasses\Release_Unicode;F:\yubo\SDK\OpenCV_build\install\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>strmbase.lib;opencv_core230.lib;opencv_highgui230.lib;opencv_video230.lib;opencv_ml230.lib;opencv_legacy230.lib;opencv_imgproc230.lib;opencv_features2d230.lib;opencv_flann230.lib;msvcrtd.lib;quartz.lib;vfw32.lib;winmm.lib;version.lib;comctl32.lib;olepro32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>StandUpDetectorFilter.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -81,10 +81,12 @@
     <None Include="StandUpDetectorFilter.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="StandUpDetectAlg.h" />
     <ClInclude Include="StandUpDetectorFilter.h" />
     <ClInclude Include="StandUpDetectorUIDs.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -95,6 +97,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StandUpDetectAlg.cpp" />
     <ClCompile Include="StandUpDetectorFilter.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
