@@ -11,6 +11,12 @@ int    StandUpConfig::DETECT_LINE       = 250;
 StandUpDetectAlg::StandUpDetectAlg()
 {
 	frameIndex = 0;
+	cachedPosSum = 0;
+	for(int i=0; i<25; i++)
+	{
+		cachedPos.push(250);
+		cachedPosSum += 250;
+	}
 }
 
 int StandUpDetectAlg::Update(cv::Mat& frame)
@@ -105,8 +111,108 @@ int StandUpDetectAlg::findStandUp()
 bool StandUpDetectAlg::isStandUp(int rangIdx)
 {
 	int width = studentRanges[rangIdx].right - studentRanges[rangIdx].left;
+	cv::Rect roi(0,studentRanges[rangIdx].left, width, gbmForeground.rows);
+	cv::Mat curCandidate = doubleForeground(roi);
+
+	width = curCandidate.cols;
+	int height = curCandidate.rows;
 	cv::Mat rightOnes = cv::Mat::ones(width, 1, CV_64F);
-	cv::Mat curCandidate = cv::Mat(gbmForeground.rows, width, CV_64F);
-	doubleForeground.adjustROI(0, gbmForeground.rows-1, studentRanges[rangIdx].left, studentRanges[rangIdx].right);
-	doubleForeground.copyTo(curCandidate);
+	cv::Mat leftOnes = cv::Mat::ones(1,height, CV_64F);
+
+	cv::Mat histByRow = curCandidate*rightOnes;
+	cv::Mat tempSum = leftOnes*histByRow;
+	double avgByRow = tempSum.at<double>(0,0)/height;
+
+	int prevIdx = 0;
+	int countSum = 0;
+	std::vector<int> pixIdx;
+	int weightSum = 0;
+	int posSum = 0;
+	int totalSum = 0;
+	for(int rowIdx=0; rowIdx<height; ++rowIdx)
+	{
+		if(histByRow.at<double>(rowIdx,0) > 3*avgByRow)
+		{
+			if(rowIdx-prevIdx>100)
+			{
+				if(countSum > 50)
+				{
+					for(int j=0; j<countSum; j++)
+					{
+						weightSum += histByRow.at<double>(pixIdx[j], 0);
+						totalSum += histByRow.at<double>(pixIdx[j], 0) * pixIdx[j];
+					}
+					posSum += countSum;
+				}
+				countSum = 0;
+				pixIdx.clear();
+			}
+			else
+			{
+				countSum++;
+				pixIdx.push_back(rowIdx);
+			}
+		}
+	}
+
+	if(posSum == 0 || weightSum == 0)
+	{
+		return false;
+	}
+
+	int pos = 0;
+	double weight = 0.0;
+	pos = totalSum / weightSum;
+	weight = weightSum * 1.0 / posSum;
+
+	if(pos < 250 && weight > 2000)
+	{
+		cachedPosSum -= cachedPos.front();
+		cachedPos.pop();
+		cachedPos.push(pos);
+		cachedPosSum += pos;
+	}
+	else
+	{
+		int avgPos = cachedPosSum / 25;
+		cachedPosSum -= cachedPos.front();
+		cachedPos.pop();
+		cachedPos.push(avgPos);
+		cachedPosSum += avgPos;
+	}
+
+	double slope = calcSlope();
+	if(slope < -2.5)
+	{
+		return true;
+	}
+	return false;
+}
+
+double StandUpDetectAlg::calcSlope()
+{
+	static cv::Mat X = cv::Mat(1,25, CV_64F);
+	static cv::Mat Y = cv::Mat(1,25, CV_64F); 
+	std::queue<int> reverseQueue;
+	for(int i=0; i<25; ++i)
+	{
+		X.at<double>(0, i) = i+1;
+		Y.at<double>(0, i) = cachedPos.front();
+		int tmpPos = cachedPos.front();
+		cachedPos.pop();
+		reverseQueue.push(tmpPos);
+	}
+
+	for(int i=0; i<25; ++i)
+	{
+		int tmpPos = reverseQueue.front();
+		reverseQueue.pop();
+		cachedPos.push(tmpPos);
+	}
+
+	double A = X.dot(X);
+	double B = X.dot(cv::Mat::ones(1, 25, CV_64F));
+	double C = X.dot(Y);
+	double D = Y.dot(cv::Mat::ones(1, 25, CV_64F));
+	return (C*25 - B*D) / (A*25 - B*B);
 }

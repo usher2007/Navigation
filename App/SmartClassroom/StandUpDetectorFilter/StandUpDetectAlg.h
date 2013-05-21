@@ -3,6 +3,9 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/video/background_segm.hpp"
+#include <iostream>
+#include <vector>
+#include <queue>
 
 typedef struct _stuRange
 {
@@ -22,9 +25,13 @@ private:
 	cv::Mat doubleForeground;
 	int frameIndex;
 	std::vector<StuRange> studentRanges;
+	std::queue<int> cachedPos;
+	double cachedPosSum;
 
 private:
 	int findStudentRanges();
 	int findStandUp();
 	bool isStandUp(int rangIdx);
+	double calcSlope();
+	
 };
