@@ -234,3 +234,6 @@ App/TransAlgFilter/TransAlgFilter/Release/
 *.sym
 *.hole
 *.nohole
+*.dll
+*.lib
+*.rar
