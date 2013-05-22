@@ -6,12 +6,15 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <set>
 
 typedef struct _stuRange
 {
 	int left;
 	int right;
 } StuRange;
+
+typedef std::vector<std::queue<int>> QueueList;
 
 class StandUpDetectAlg
 {
@@ -25,13 +28,14 @@ private:
 	cv::Mat doubleForeground;
 	int frameIndex;
 	std::vector<StuRange> studentRanges;
-	std::queue<int> cachedPos;
-	double cachedPosSum;
+	QueueList cachedPosList;
+	double *cachedSums;
+	std::set<int> curStandUpRows;
 
 private:
 	int findStudentRanges();
 	int findStandUp();
-	bool isStandUp(int rangIdx);
-	double calcSlope();
+	int isStandUpOrSitDown(int rangIdx);
+	double calcSlope(int rowNum);
 	
 };

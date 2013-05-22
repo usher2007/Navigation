@@ -10,12 +10,6 @@ class StandUpConfig
 public:
 	static string VIDEO_FILE_NAME;
 	static string RESULT_FILE_NAME;
-	static cv::Rect BEGIN_TRACKING_AREA;
-	static cv::Rect STOP_TRACKING_AREA;
-	static int LEAST_HUMAN_GAP;
-	static int HUMAN_WIDTH;
-	static int DISAPPEAR_FRAME_THRESH;
-	static int CENTER_WEIGHT_THRESH;
 	static int FG_LOW_THRESH;
 	static int FG_UP_THRESH;
 	static double FG_HIST_THRESH;
@@ -23,11 +17,15 @@ public:
 	static int TRACK_INTERVAL;
 	static double PI;
 	static int DETECT_LINE;
-	//For Debug
-	static cv::Rect PAD_AREA_1;
-	static cv::Rect PAD_AREA_2;
-	static cv::Rect PAD_AREA_3;
-	static cv::Rect PAD_AREA_4;
-	static cv::Rect PAD_AREA_5;
-	static cv::Rect PAD_AREA_6;
+	static int START_LEFT;
+	static int END_RIGHT;
+	static int ROW_NUM;
+	static int CACHED_POS_COUNT;
+	static int MAX_GAP;
+	static int HUMAN_WIDTH;
+	static int HUMAN_HEIGHT;
+	static int MAX_HEIGHT_GAP;
+	static int CENTER_WEIGHT_THRESH;
+	static int SLOPE_UP_THRESH;
+	static int SLOPE_DOWN_THRESH;
 };
