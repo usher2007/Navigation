@@ -1,7 +1,7 @@
 close all;
 %clear all;
-fprefix = 'data\singer1\';
-fannote = 'data\GroundTruth2\GT_singer1';
+fprefix = 'data\car4\';
+fannote = 'data\GroundTruth2\GT_car4';
 fres = 'res.txt';
 fsigma = 'sigma.txt';
 freplace = 'replace.txt';
@@ -12,11 +12,12 @@ fext = 'jpg';
 %fannote = 'OneLeaveShopReenter2cor.txt';
 % fext = 'jpg';
 s_annotation = fannote;
-start_frame = 1;
+start_frame = 12;
+annotation_start = 1;
 nframes = 885;
 
-t_row = 35;
-t_col = 15;
+t_row = 20;
+t_col = 25;
 
 hog_bin_size = 5;
 hog_n_orient = 9;
@@ -24,15 +25,15 @@ hog_index = 1;
 
 particle_num = 800;
 particles = zeros(particle_num, 4);
-sigma_px = 2;
-sigma_py = 2;
-sigma_pw = 2;
+sigma_px = 5;
+sigma_py = 3;
+sigma_pw = 1;
 sigma_ph = 2;
 
-sigma_px_th = 5;
-sigma_py_th = 3;
+sigma_px_th = 10;
+sigma_py_th = 10;
 sigma_pw_th = 1;
-sigma_ph_th = 2;
+sigma_ph_th = 1;
 
 param.lambda=1;
 param.numThreads=-1; % number of threads
@@ -45,22 +46,22 @@ template_num = 10;
 template_weight = zeros(1,10);
 sim_thresh_hog = 0.0005;
 s_frames = cell(nframes, 1);
-template_decay = 0.01;
+template_decay = 0.005;
 
-minThresh = 0.015;
-maxThresh = 0.6;
+minThresh = 0.2;
+maxThresh = 0.8;
 alpha_big = 1.02;
 alpha_small = 0.98;
 
 sigma_weight = 0.05;
 
 
-weight_th = 1/800;
+weight_th = 1/particle_num;
 
 %gray feature
 %todo: 15*12=180 vector, append to the end of hog vector
-gray_feature_r_len = 15;
-gray_feature_c_len = 12;
+gray_feature_r_len = 12;
+gray_feature_c_len = 15;
 gray_feature_len = gray_feature_r_len * gray_feature_c_len;
 for i=1:nframes
     image_no = start_frame + i - 1;
@@ -75,8 +76,8 @@ fout = fopen(fres,'wt');
 fout_sigma = fopen(fsigma,'wt');
 fout_replace = fopen(freplace,'wt');
 fout_weight = fopen(fweight,'wt');
-first_loc = GT_corner(:,:,start_frame);
-image_gray = imread(s_frames{start_frame});
+first_loc = GT_corner(:,:,annotation_start);
+image_gray = imread(s_frames{1});
 if(size(image_gray,3) ~= 1)
     image_gray = rgb2gray(image_gray);
 end
@@ -235,10 +236,10 @@ for i=2:nframes
 %     end
 %     
 %     if new_weight > maxThresh
-%         if sigma_px > 1
+%         if sigma_px > 7
 %             sigma_px = sigma_px * alpha_small;
 %         end
-%         if sigma_py > 1
+%         if sigma_py > 7
 %             sigma_py = sigma_py * alpha_small;
 %         end
 %         if sigma_pw > 1
