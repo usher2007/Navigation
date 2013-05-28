@@ -5,6 +5,21 @@
 #include "StandUpAnalyzer.h"
 
 
+CStandUpAnalyzer* CStandUpAnalyzer::m_pInstance = NULL;
+
+
+CStandUpAnalyzer* CStandUpAnalyzer::GetInstance()
+{
+	if(m_pInstance != NULL)
+	{
+		return m_pInstance;
+	}
+	else
+	{
+		m_pInstance = new CStandUpAnalyzer;
+		return m_pInstance;
+	}
+}
 // This is the constructor of a class that has been exported.
 // see StandUpAnalyzer.h for the class definition
 CStandUpAnalyzer::CStandUpAnalyzer()
@@ -17,6 +32,7 @@ CStandUpAnalyzer::CStandUpAnalyzer()
 HRESULT CStandUpAnalyzer::AnalyzePosition( int index, StandUpRowInfo info )
 {
 	m_StandUpInfo[index] = info;
+	controlPTZCamera();
 	return S_OK;
 }
 

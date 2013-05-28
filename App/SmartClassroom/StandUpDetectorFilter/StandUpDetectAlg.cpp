@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "StandUpDetectAlg.h"
 #include "Utility.h"
+#include "StandUpAnalyzer.h"
 
 double StandUpConfig::GBM_LEARNING_RATE		= 0.01;
 int    StandUpConfig::FG_LOW_THRESH			= 128;
@@ -36,6 +37,7 @@ StandUpDetectAlg::StandUpDetectAlg()
 	}
 
 	curStandUpRows.clear();
+	m_pStandUpAnalyzer = CStandUpAnalyzer::GetInstance();
 }
 
 int StandUpDetectAlg::Update(cv::Mat& frame)
@@ -64,6 +66,8 @@ int StandUpDetectAlg::Update(cv::Mat& frame)
 
 	gbmForeground = gbmForeground/255;
 	findStudentRanges();
+	findStandUp();
+	((CStandUpAnalyzer *)m_pStandUpAnalyzer)->AnalyzePosition(0, curStandUpRowInfo);
 }
 
 int StandUpDetectAlg::findStudentRanges()

@@ -12,29 +12,23 @@
 
 #include <iostream>
 #include <map>
+#include "DataStruct.h"
 
-
-typedef struct _standUpInfo
-{
-	double slope;
-	double weight;
-	int pos;
-} StandUpInfo;
-
-typedef std::map<int, StandUpInfo> StandUpRowInfo;
-typedef std::map<int, StandUpInfo>::iterator StandUpInfoIter;
 
 // This class is exported from the StandUpAnalyzer.dll
 class STANDUPANALYZER_API CStandUpAnalyzer {
 public:
-	CStandUpAnalyzer(void);
+	static CStandUpAnalyzer* GetInstance();
+	
 	// TODO: add your methods here.
 	HRESULT AnalyzePosition(int index, StandUpRowInfo info);
 
 private:
+	CStandUpAnalyzer(void);
 	HRESULT controlPTZCamera();
 
 private:
+	static CStandUpAnalyzer* m_pInstance;
 	void* m_pModulerFactory;
 	StandUpRowInfo m_StandUpInfo[2];
 	int m_standUpStatus[9];    // 1 for standup, -1 for sitdown

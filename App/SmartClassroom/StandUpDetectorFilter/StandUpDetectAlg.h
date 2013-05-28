@@ -7,6 +7,8 @@
 #include <vector>
 #include <queue>
 #include <set>
+#include "DataStruct.h"
+
 
 typedef struct _stuRange
 {
@@ -14,12 +16,7 @@ typedef struct _stuRange
 	int right;
 } StuRange;
 
-typedef struct _standUpInfo
-{
-	double slope;
-	double weight;
-	int pos;
-} StandUpInfo;
+
 
 typedef std::vector<std::queue<int>> QueueList;
 
@@ -38,7 +35,9 @@ private:
 	QueueList cachedPosList;
 	double *cachedSums;
 	std::set<int> curStandUpRows;
-	std::map<int, StandUpInfo> curStandUpRowInfo;
+	StandUpRowInfo curStandUpRowInfo;
+
+	void *m_pStandUpAnalyzer;
 
 private:
 	int findStudentRanges();
