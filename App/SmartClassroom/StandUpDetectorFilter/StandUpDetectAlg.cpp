@@ -116,6 +116,7 @@ int StandUpDetectAlg::findStudentRanges()
 
 int StandUpDetectAlg::findStandUp()
 {
+	curStandUpRowInfo.clear();
 	for(int i=0; i<studentRanges.size(); ++i)
 	{
 		if(isStandUpOrSitDown(i))
@@ -206,6 +207,11 @@ int StandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 	if(slope < StandUpConfig::SLOPE_UP_THRESH)
 	{
 		curStandUpRows.insert(rowNum);
+		StandUpInfo sInfo;
+		sInfo.weight = weight;
+		sInfo.pos = pos;
+		sInfo.slope = slope;
+		curStandUpRowInfo[rowNum] = sInfo;
 		return 1;  // stand up
 	}
 	else if(slope > StandUpConfig::SLOPE_DOWN_THRESH)
@@ -214,6 +220,11 @@ int StandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 		{
 			curStandUpRows.erase(rowNum);
 		}
+		StandUpInfo sInfo;
+		sInfo.weight = weight;
+		sInfo.pos = pos;
+		sInfo.slope = slope;
+		curStandUpRowInfo[rowNum] = sInfo;
 		return -1; // sit down
 	}
 	return 0;

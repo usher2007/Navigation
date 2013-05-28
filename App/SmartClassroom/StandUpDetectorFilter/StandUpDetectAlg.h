@@ -14,6 +14,13 @@ typedef struct _stuRange
 	int right;
 } StuRange;
 
+typedef struct _standUpInfo
+{
+	double slope;
+	double weight;
+	int pos;
+} StandUpInfo;
+
 typedef std::vector<std::queue<int>> QueueList;
 
 class StandUpDetectAlg
@@ -31,6 +38,7 @@ private:
 	QueueList cachedPosList;
 	double *cachedSums;
 	std::set<int> curStandUpRows;
+	std::map<int, StandUpInfo> curStandUpRowInfo;
 
 private:
 	int findStudentRanges();
