@@ -151,6 +151,7 @@ CStandUpDetectorFilter::CStandUpDetectorFilter(TCHAR *tszName, LPUNKNOWN punk, H
 	m_bDetecting = FALSE;
 	m_nFrameCount = 0;
 	m_bSoftDogChecked = TRUE;
+	m_pStandUpAlg = new StandUpDetectAlg;
 }
 
 CUnknown * WINAPI CStandUpDetectorFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -220,7 +221,12 @@ STDMETHODIMP CStandUpDetectorFilter::NonDelegatingQueryInterface(REFIID riid, vo
 HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
 {
 	m_nFrameCount++;
+	PBYTE p;
+	pSample->GetPointer(&p);
 
+	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
+	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
+	m_pStandUpAlg->Update(img);
 	return S_OK;
 }
 

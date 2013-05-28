@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <streams.h>
 #include "StandUpDetectorUIDs.h"
+#include "StandUpDetectAlg.h"
 
 class CStandUpDetectorInputPin : public CTransInPlaceInputPin
 {
@@ -73,6 +74,7 @@ private:
 
 	BOOL m_bDetecting;
 
+	StandUpDetectAlg *m_pStandUpAlg;
 };
 
 
