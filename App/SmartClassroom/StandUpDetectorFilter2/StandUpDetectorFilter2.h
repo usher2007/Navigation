@@ -1,13 +1,13 @@
 #pragma once
 #include "stdafx.h"
 #include <streams.h>
-#include "StandUpDetectorUIDs.h"
+#include "StandUpDetector2UIDs.h"
 #include "StandUpDetectAlg.h"
 
-class CStandUpDetectorInputPin : public CTransInPlaceInputPin
+class CStandUpDetector2InputPin : public CTransInPlaceInputPin
 {
 public:
-	CStandUpDetectorInputPin(TCHAR *pObjectName, CTransInPlaceFilter *pTransInPlaceFilter, HRESULT *phr, LPCTSTR pName)
+	CStandUpDetector2InputPin(TCHAR *pObjectName, CTransInPlaceFilter *pTransInPlaceFilter, HRESULT *phr, LPCTSTR pName)
 		: CTransInPlaceInputPin(pObjectName, pTransInPlaceFilter, phr, pName)
 	{
 
@@ -16,10 +16,10 @@ public:
 	HRESULT CheckMediaType(const CMediaType *pmt);
 };
 
-class CStandUpDetectorOutputPin : public CTransInPlaceOutputPin
+class CStandUpDetector2OutputPin : public CTransInPlaceOutputPin
 {
 public:
-	CStandUpDetectorOutputPin(TCHAR *pObjectName, CTransInPlaceFilter *pTransInPlaceFilter, HRESULT *phr, LPCTSTR pName)
+	CStandUpDetector2OutputPin(TCHAR *pObjectName, CTransInPlaceFilter *pTransInPlaceFilter, HRESULT *phr, LPCTSTR pName)
 		: CTransInPlaceOutputPin(pObjectName, pTransInPlaceFilter, phr, pName)
 	{
 
@@ -28,10 +28,10 @@ public:
 	HRESULT CheckMediaType(const CMediaType *pmt);
 };
 
-class CStandUpDetectorFilter : public CTransInPlaceFilter
+class CStandUpDetectorFilter2 : public CTransInPlaceFilter
 {
-	friend class CStandUpDetectorInputPin;
-	friend class CStandUpDetectorOutputPin;
+	friend class CStandUpDetector2InputPin;
+	friend class CStandUpDetector2OutputPin;
 
 public:
 	static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
@@ -56,7 +56,7 @@ public:
 
 private:
 
-	CStandUpDetectorFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);
+	CStandUpDetectorFilter2(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);
 
 	HRESULT Transform(IMediaSample *pSample);
 	HRESULT checkSoftDog();

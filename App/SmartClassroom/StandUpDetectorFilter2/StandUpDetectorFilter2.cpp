@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <streams.h>
-#include "StandUpDetectorFilter.h"
+#include "StandUpDetectorFilter2.h"
 
 const LONG DEFAULT_WIDTH = 720;
 const LONG DEFUALT_HEIGHT = 576;
@@ -33,26 +33,26 @@ const AMOVIESETUP_PIN
 
 
 const AMOVIESETUP_FILTER
-	sudNullIP = { &CLSID_StandUpDetector                 // clsID
-	, L"StandUp Detector"                // strName
+	sudNullIP = { &CLSID_StandUpDetector2                 // clsID
+	, L"StandUp Detector2"                // strName
 	, MERIT_DO_NOT_USE                // dwMerit
 	, 2                               // nPins
 	, psudPins };                     // lpPin
 
 CFactoryTemplate g_Templates[]=
-{   {L"StandUp-Detector"
-, &CLSID_StandUpDetector
-,   CStandUpDetectorFilter::CreateInstance
+{   {L"StandUp-Detector2"
+, &CLSID_StandUpDetector2
+,   CStandUpDetectorFilter2::CreateInstance
 , NULL
 , &sudNullIP }
 };
 int g_cTemplates = sizeof(g_Templates)/sizeof(g_Templates[0]);
 
-int CStandUpDetectorFilter::m_nInstanceCount = 0;
+int CStandUpDetectorFilter2::m_nInstanceCount = 0;
 
-HRESULT CStandUpDetectorInputPin::CheckMediaType(const CMediaType *pmt)
+HRESULT CStandUpDetector2InputPin::CheckMediaType(const CMediaType *pmt)
 {
-	CStandUpDetectorFilter *pStandUpDetector = (CStandUpDetectorFilter *)m_pTIPFilter;
+	CStandUpDetectorFilter2 *pStandUpDetector = (CStandUpDetectorFilter2 *)m_pTIPFilter;
 	CheckPointer(pStandUpDetector, E_UNEXPECTED);
 
 	if(*(pmt->Type()) !=  MEDIATYPE_Video)
@@ -92,9 +92,9 @@ HRESULT CStandUpDetectorInputPin::CheckMediaType(const CMediaType *pmt)
 	return S_OK;
 }
 
-HRESULT CStandUpDetectorOutputPin::CheckMediaType(const CMediaType *pmt)
+HRESULT CStandUpDetector2OutputPin::CheckMediaType(const CMediaType *pmt)
 {
-	CStandUpDetectorFilter *pStandUpDetector = (CStandUpDetectorFilter *)m_pTIPFilter;
+	CStandUpDetectorFilter2 *pStandUpDetector = (CStandUpDetectorFilter2 *)m_pTIPFilter;
 	CheckPointer(pStandUpDetector, E_UNEXPECTED);
 
 	if(*(pmt->Type()) !=  MEDIATYPE_Video)
@@ -142,8 +142,8 @@ HRESULT CStandUpDetectorOutputPin::CheckMediaType(const CMediaType *pmt)
 	return S_OK;
 }
 
-CStandUpDetectorFilter::CStandUpDetectorFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr)
-	:CTransInPlaceFilter(tszName, punk, CLSID_StandUpDetector, phr)
+CStandUpDetectorFilter2::CStandUpDetectorFilter2(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr)
+	:CTransInPlaceFilter(tszName, punk, CLSID_StandUpDetector2, phr)
 {
 	m_nInstanceCount = ++ m_nInstanceCount;
 	m_mtPreferred.InitMediaType();
@@ -151,14 +151,14 @@ CStandUpDetectorFilter::CStandUpDetectorFilter(TCHAR *tszName, LPUNKNOWN punk, H
 	m_bDetecting = FALSE;
 	m_nFrameCount = 0;
 	m_bSoftDogChecked = TRUE;
-	m_pStandUpAlg = new CStandUpDetectAlg(0);
+	m_pStandUpAlg = new CStandUpDetectAlg(1);
 }
 
-CUnknown * WINAPI CStandUpDetectorFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
+CUnknown * WINAPI CStandUpDetectorFilter2::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 {
 	ASSERT(phr);
 
-	CStandUpDetectorFilter *pNewObject = new CStandUpDetectorFilter(NAME("StandUp-Detector Filter"), punk, phr);
+	CStandUpDetectorFilter2 *pNewObject = new CStandUpDetectorFilter2(NAME("StandUp-Detector Filter"), punk, phr);
 	if (pNewObject == NULL) 
 	{
 		if (phr)
@@ -168,13 +168,13 @@ CUnknown * WINAPI CStandUpDetectorFilter::CreateInstance(LPUNKNOWN punk, HRESULT
 	return pNewObject;
 }
 
-CBasePin *CStandUpDetectorFilter::GetPin(int n)
+CBasePin *CStandUpDetectorFilter2::GetPin(int n)
 {
 	if (m_pInput == NULL || m_pOutput == NULL)
 	{
 		HRESULT hr = S_OK;
 
-		m_pInput = new CStandUpDetectorInputPin(NAME("StandUpDetector input pin"), this, &hr, L"Input");
+		m_pInput = new CStandUpDetector2InputPin(NAME("StandUpDetector2 input pin"), this, &hr, L"Input");
 
 		if(FAILED(hr) || m_pInput == NULL)
 		{
@@ -183,7 +183,7 @@ CBasePin *CStandUpDetectorFilter::GetPin(int n)
 			return NULL;
 		}
 
-		m_pOutput = new CStandUpDetectorOutputPin(NAME("StandUpDetector output pin"), this, &hr, L"Output");
+		m_pOutput = new CStandUpDetector2OutputPin(NAME("StandUpDetector2 output pin"), this, &hr, L"Output");
 
 		if(FAILED(hr) || m_pOutput == NULL)
 		{
@@ -206,7 +206,7 @@ CBasePin *CStandUpDetectorFilter::GetPin(int n)
 	return NULL;
 }
 
-STDMETHODIMP CStandUpDetectorFilter::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+STDMETHODIMP CStandUpDetectorFilter2::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
 	CheckPointer(ppv,E_POINTER);
 
@@ -214,11 +214,11 @@ STDMETHODIMP CStandUpDetectorFilter::NonDelegatingQueryInterface(REFIID riid, vo
 	//	return GetInterface((ITrackingControl *) this, ppv);
 	//}
 	//else {
-		return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
+	return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
 	//}
 }
 
-HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
+HRESULT CStandUpDetectorFilter2::Transform(IMediaSample *pSample)
 {
 	m_nFrameCount++;
 	PBYTE p;
@@ -230,7 +230,7 @@ HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
 	return S_OK;
 }
 
-HRESULT CStandUpDetectorFilter::SetResolution(LONG biWidth, LONG biHeight)
+HRESULT CStandUpDetectorFilter2::SetResolution(LONG biWidth, LONG biHeight)
 {
 	if(biWidth > 0 && biHeight > 0)
 	{
@@ -241,12 +241,12 @@ HRESULT CStandUpDetectorFilter::SetResolution(LONG biWidth, LONG biHeight)
 	return E_FAIL;
 }
 
-LONG CStandUpDetectorFilter::GetWidth()
+LONG CStandUpDetectorFilter2::GetWidth()
 {
 	return m_biWidth > 0 ? m_biWidth : DEFAULT_WIDTH;
 }
 
-LONG CStandUpDetectorFilter::GetHeight()
+LONG CStandUpDetectorFilter2::GetHeight()
 {
 	return m_biHeight > 0 ? m_biHeight : DEFUALT_HEIGHT;
 }

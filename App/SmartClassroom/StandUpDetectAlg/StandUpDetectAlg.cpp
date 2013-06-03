@@ -1,3 +1,6 @@
+// StandUpDetectAlg.cpp : Defines the exported functions for the DLL application.
+//
+
 #include "stdafx.h"
 #include "StandUpDetectAlg.h"
 #include "Utility.h"
@@ -20,8 +23,9 @@ int    StandUpConfig::CENTER_WEIGHT_THRESH  = 2000;
 int    StandUpConfig::SLOPE_UP_THRESH       = -2.5;
 int    StandUpConfig::SLOPE_DOWN_THRESH     = 2.5;
 
-StandUpDetectAlg::StandUpDetectAlg()
+CStandUpDetectAlg::CStandUpDetectAlg(int index)
 {
+	cameraIndex = index;
 	frameIndex = 0;
 	cachedSums = new double[StandUpConfig::ROW_NUM];
 	for(int i=0; i<StandUpConfig::ROW_NUM; ++i)
@@ -40,7 +44,7 @@ StandUpDetectAlg::StandUpDetectAlg()
 	m_pStandUpAnalyzer = CStandUpAnalyzer::GetInstance();
 }
 
-int StandUpDetectAlg::Update(cv::Mat& frame)
+int CStandUpDetectAlg::Update(cv::Mat& frame)
 {
 	if(frame.empty())
 	{
@@ -67,10 +71,10 @@ int StandUpDetectAlg::Update(cv::Mat& frame)
 	gbmForeground = gbmForeground/255;
 	findStudentRanges();
 	findStandUp();
-	((CStandUpAnalyzer *)m_pStandUpAnalyzer)->AnalyzePosition(0, curStandUpRowInfo);
+	((CStandUpAnalyzer *)m_pStandUpAnalyzer)->AnalyzePosition(cameraIndex, curStandUpRowInfo);
 }
 
-int StandUpDetectAlg::findStudentRanges()
+int CStandUpDetectAlg::findStudentRanges()
 {
 	studentRanges.clear();
 	doubleForeground= cv::Mat(gbmForeground.rows, gbmForeground.cols, CV_64F);
@@ -118,7 +122,7 @@ int StandUpDetectAlg::findStudentRanges()
 	return 0;
 }
 
-int StandUpDetectAlg::findStandUp()
+int CStandUpDetectAlg::findStandUp()
 {
 	curStandUpRowInfo.clear();
 	for(int i=0; i<studentRanges.size(); ++i)
@@ -132,7 +136,7 @@ int StandUpDetectAlg::findStandUp()
 	return 0;
 }
 
-int StandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
+int CStandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 {
 	int width = studentRanges[rangIdx].right - studentRanges[rangIdx].left;
 	int center = studentRanges[rangIdx].left + width / 2;
@@ -234,7 +238,7 @@ int StandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 	return 0;
 }
 
-double StandUpDetectAlg::calcSlope( int rowNum )
+double CStandUpDetectAlg::calcSlope( int rowNum )
 {
 	static cv::Mat X = cv::Mat(1,StandUpConfig::CACHED_POS_COUNT, CV_64F);
 	static cv::Mat Y = cv::Mat(1,StandUpConfig::CACHED_POS_COUNT, CV_64F); 
@@ -261,3 +265,4 @@ double StandUpDetectAlg::calcSlope( int rowNum )
 	double D = Y.dot(cv::Mat::ones(1, StandUpConfig::CACHED_POS_COUNT, CV_64F));
 	return (C*StandUpConfig::CACHED_POS_COUNT - B*D) / (A*StandUpConfig::CACHED_POS_COUNT - B*B);
 }
+
