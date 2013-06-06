@@ -38,7 +38,15 @@ HRESULT CDXFilterGraphStu::BuildGraph(BOOL bDisplay)
 		}
 
 		CComPtr<IBaseFilter> pStandUpDetectorFilter;
-		hr = CoCreateInstance(CLSID_StandUpDetector, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pStandUpDetectorFilter);
+		hr = E_FAIL;
+		if(num == 1)
+		{
+			hr = CoCreateInstance(CLSID_StandUpDetector, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pStandUpDetectorFilter);
+		}
+		else if(num == 2)
+		{
+			hr = CoCreateInstance(CLSID_StandUpDetector2, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pStandUpDetectorFilter);
+		}
 		if(FAILED(hr)) return hr;
 		hr = m_pGraphBuilder->AddFilter(pStandUpDetectorFilter, L"StandUp Detector");
 		if(FAILED(hr)) return hr;

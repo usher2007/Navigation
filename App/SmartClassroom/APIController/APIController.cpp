@@ -78,15 +78,13 @@ HRESULT CAPIController::addCamera( int cameraId, int comNum, int baudRate, int p
 {
 	if(m_pModuleFactory)
 	{
-		int confComNum = m_pModuleFactory->GetConfigManager()->GetTeaComNum();
-		if(confComNum >= 0)
-		{
-			comNum = confComNum; 
-		}
 		m_pModuleFactory->GetCameraController()->addCamera(cameraId, comNum, baudRate);
 		m_pModuleFactory->GetCameraController()->SetCameraProtocol(cameraId, protocol);
 		m_pModuleFactory->GetCameraController()->SetCameraVelocity(cameraId, m_pModuleFactory->GetConfigManager()->GetTeaCameraVelocity());
-		restoreCameraPresetLoc(cameraId);
+		if(cameraId == 0)
+		{
+			restoreCameraPresetLoc(cameraId);
+		}
 		return S_OK;
 	}
 	return E_FAIL;
@@ -134,6 +132,7 @@ HRESULT CAPIController::AddTeaCamera( int comNum )
 {
 	if(m_pModuleFactory)
 	{
+		comNum = m_pModuleFactory->GetConfigManager()->GetTeaComNum();
 		int teaId = m_pModuleFactory->GetConfigManager()->GetTeaId();
 		int protocol = m_pModuleFactory->GetConfigManager()->GetTeaCameraProtocol();
 		return addCamera(teaId, comNum, 9600, protocol);
@@ -551,3 +550,92 @@ HRESULT CAPIController::StudentPTZGraphStop()
 	}
 	return hr;
 }
+
+HRESULT CAPIController::AddStuCamera(int comNum)
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		int protocol = VISCA;
+		return addCamera(stuId, comNum, 9600, protocol);
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZUp()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->TurnUp(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZDown()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->TurnDown(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZLeft()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->TurnLeft(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZRight()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->TurnRight(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZZoomIn()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->ZoomIn(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZZoomOut()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->ZoomOut(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZStop()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->Stop(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+

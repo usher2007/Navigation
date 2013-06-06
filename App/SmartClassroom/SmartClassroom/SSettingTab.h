@@ -1,5 +1,5 @@
 #pragma once
-
+#include "APIController.h"
 
 // CSSettingTab dialog
 
@@ -18,4 +18,15 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CAPIController *m_pAPIController;
+public:
+	afx_msg void OnBnClickedButtonsup();
+	afx_msg void OnBnClickedButtonsdown();
+	afx_msg void OnBnClickedButtonsleft();
+	afx_msg void OnBnClickedButtonsright();
+	afx_msg void OnBnClickedButtonsstop();
+	afx_msg void OnBnClickedButtonszoomin();
+	afx_msg void OnBnClickedButtonszoomout();
 };

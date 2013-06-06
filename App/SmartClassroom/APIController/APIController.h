@@ -72,6 +72,16 @@ public:
 
 	HRESULT StudentGraphRun(int num);
 	HRESULT StudentGraphStop(int num);
+
+	HRESULT AddStuCamera(int comNum);
+
+	HRESULT StudentPTZUp();
+	HRESULT StudentPTZDown();
+	HRESULT StudentPTZLeft();
+	HRESULT StudentPTZRight();
+	HRESULT StudentPTZZoomIn();
+	HRESULT StudentPTZZoomOut();
+	HRESULT StudentPTZStop();
 	// LaserPoint Part
 	HRESULT BuildLaserPointGraph();
 

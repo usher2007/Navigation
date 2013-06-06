@@ -63,12 +63,11 @@ BOOL CSmartClassroomDlg::OnInitDialog()
 	m_pAPIController->TeacherPTZGraphRun();
 
 	// Student Part
+	m_pAPIController->AddStuCamera(5);
 	m_pAPIController->BuildStudentGraph(TRUE, GetDlgItem(IDC_STUONE)->GetSafeHwnd(), this->GetSafeHwnd(), 1);
 	m_pAPIController->BuildStudentGraph(TRUE, GetDlgItem(IDC_STUTWO)->GetSafeHwnd(), this->GetSafeHwnd(), 2);
-	m_pAPIController->BuildStudentPTZGraph(TRUE, GetDlgItem(IDC_STUCAP)->GetSafeHwnd(), this->GetSafeHwnd());
 	m_pAPIController->StudentGraphRun(1);
 	m_pAPIController->StudentGraphRun(2);
-	m_pAPIController->StudentPTZGraphRun();
 	
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
