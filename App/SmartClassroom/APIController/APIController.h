@@ -82,6 +82,10 @@ public:
 	HRESULT StudentPTZZoomIn();
 	HRESULT StudentPTZZoomOut();
 	HRESULT StudentPTZStop();
+
+	HRESULT StudentPTZSetPrePos(int locId, int rowNum, int colNum);
+	HRESULT StudentPTZRecallPrePos(int locId);
+	HRESULT StudentPTZClearPrePos();
 	// LaserPoint Part
 	HRESULT BuildLaserPointGraph();
 

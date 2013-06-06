@@ -5,6 +5,7 @@
 #include "SmartClassroom.h"
 #include "SSettingTab.h"
 #include "afxdialogex.h"
+#include "Utils.h"
 
 
 // CSSettingTab dialog
@@ -24,6 +25,9 @@ CSSettingTab::~CSSettingTab()
 void CSSettingTab::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDITSPosId, m_ctrlEditSPosId);
+	DDX_Control(pDX, IDC_EDITSRowNum, m_ctrlEditSRowNum);
+	DDX_Control(pDX, IDC_EDITSColNum, m_ctrlEditColNum);
 }
 
 
@@ -35,6 +39,9 @@ BEGIN_MESSAGE_MAP(CSSettingTab, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTONSStop, &CSSettingTab::OnBnClickedButtonsstop)
 	ON_BN_CLICKED(IDC_BUTTONSZoomIn, &CSSettingTab::OnBnClickedButtonszoomin)
 	ON_BN_CLICKED(IDC_BUTTONSZoomOut, &CSSettingTab::OnBnClickedButtonszoomout)
+	ON_BN_CLICKED(IDC_BUTTONSRecall, &CSSettingTab::OnBnClickedButtonsrecall)
+	ON_BN_CLICKED(IDC_BUTTONSClearPresetPos, &CSSettingTab::OnBnClickedButtonsclearpresetpos)
+	ON_BN_CLICKED(IDC_BUTTONSSavePresetPos, &CSSettingTab::OnBnClickedButtonssavepresetpos)
 END_MESSAGE_MAP()
 
 
@@ -106,6 +113,40 @@ void CSSettingTab::OnBnClickedButtonszoomout()
 	if(m_pAPIController)
 	{
 		m_pAPIController->StudentPTZZoomOut();
+	}
+	return;
+}
+
+
+void CSSettingTab::OnBnClickedButtonsrecall()
+{
+	if(m_pAPIController)
+	{
+		int locId = getIntFromCEdit(&m_ctrlEditSPosId);
+		m_pAPIController->StudentPTZRecallPrePos(locId);
+	}
+	return;
+}
+
+
+void CSSettingTab::OnBnClickedButtonsclearpresetpos()
+{
+	if(m_pAPIController)
+	{
+		m_pAPIController->StudentPTZClearPrePos();
+	}
+	return;
+}
+
+
+void CSSettingTab::OnBnClickedButtonssavepresetpos()
+{
+	if(m_pAPIController)
+	{
+		int locId = getIntFromCEdit(&m_ctrlEditSPosId);
+		int rowNum = getIntFromCEdit(&m_ctrlEditSRowNum);
+		int colNum = getIntFromCEdit(&m_ctrlEditColNum);
+		m_pAPIController->StudentPTZSetPrePos(locId, rowNum, colNum);
 	}
 	return;
 }

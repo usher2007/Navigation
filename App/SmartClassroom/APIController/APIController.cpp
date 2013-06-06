@@ -639,3 +639,38 @@ HRESULT CAPIController::StudentPTZStop()
 	return E_FAIL;
 }
 
+HRESULT CAPIController::StudentPTZSetPrePos( int locId, int rowNum, int colNum )
+{
+	if(m_pModuleFactory)
+	{
+		// TODO: Add preset pos to config file.
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->SetPreSetPos(stuId, locId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZRecallPrePos( int locId )
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		m_pModuleFactory->GetCameraController()->RecallPreSetPos(stuId, locId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentPTZClearPrePos()
+{
+	if(m_pModuleFactory)
+	{
+		int stuId = 1;
+		// TODO: clear the preset pos in config file.
+		m_pModuleFactory->GetCameraController()->ClearPreSetPos(stuId);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+

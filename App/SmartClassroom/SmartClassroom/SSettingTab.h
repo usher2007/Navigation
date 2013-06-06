@@ -1,5 +1,6 @@
 #pragma once
 #include "APIController.h"
+#include "afxwin.h"
 
 // CSSettingTab dialog
 
@@ -29,4 +30,10 @@ public:
 	afx_msg void OnBnClickedButtonsstop();
 	afx_msg void OnBnClickedButtonszoomin();
 	afx_msg void OnBnClickedButtonszoomout();
+	CEdit m_ctrlEditSPosId;
+	CEdit m_ctrlEditSRowNum;
+	CEdit m_ctrlEditColNum;
+	afx_msg void OnBnClickedButtonsrecall();
+	afx_msg void OnBnClickedButtonsclearpresetpos();
+	afx_msg void OnBnClickedButtonssavepresetpos();
 };
