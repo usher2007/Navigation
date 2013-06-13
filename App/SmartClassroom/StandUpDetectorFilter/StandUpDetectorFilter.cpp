@@ -227,6 +227,7 @@ HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
 	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
 	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
 	m_pStandUpAlg->Update(img);
+	OutputDebugStringA("1ST FILTER\n");
 	return S_OK;
 }
 

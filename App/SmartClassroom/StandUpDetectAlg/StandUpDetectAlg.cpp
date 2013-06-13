@@ -17,9 +17,9 @@ int    StandUpConfig::END_RIGHT				= 500;
 int    StandUpConfig::CACHED_POS_COUNT		= 25;
 int    StandUpConfig::MAX_GAP				= 50;
 int    StandUpConfig::HUMAN_WIDTH			= 30;
-int    StandUpConfig::MAX_HEIGHT_GAP		= 100;
-int    StandUpConfig::HUMAN_HEIGHT			= 50;
-int    StandUpConfig::CENTER_WEIGHT_THRESH  = 2000;
+int    StandUpConfig::MAX_HEIGHT_GAP		= 60;
+int    StandUpConfig::HUMAN_HEIGHT			= 30;
+int    StandUpConfig::CENTER_WEIGHT_THRESH  = 10;
 int    StandUpConfig::SLOPE_UP_THRESH       = -2.5;
 int    StandUpConfig::SLOPE_DOWN_THRESH     = 2.5;
 
@@ -42,6 +42,11 @@ CStandUpDetectAlg::CStandUpDetectAlg(int index)
 
 	curStandUpRows.clear();
 	m_pStandUpAnalyzer = CStandUpAnalyzer::GetInstance();
+
+	if(index == 0)
+	{
+		cv::namedWindow("Test1");
+	}
 }
 
 int CStandUpDetectAlg::Update(cv::Mat& frame)
@@ -68,9 +73,23 @@ int CStandUpDetectAlg::Update(cv::Mat& frame)
 	bgSubtractor(frame, gbmForeground, StandUpConfig::GBM_LEARNING_RATE);
 	cv::threshold(gbmForeground, gbmForeground, StandUpConfig::FG_LOW_THRESH, StandUpConfig::FG_UP_THRESH, THRESH_BINARY);
 
+	
+
 	gbmForeground = gbmForeground/255;
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("aaaaa\n");
+	}
 	findStudentRanges();
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("bbbbb\n");
+	}
 	findStandUp();
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("ccccc\n");
+	}
 	((CStandUpAnalyzer *)m_pStandUpAnalyzer)->AnalyzePosition(cameraIndex, curStandUpRowInfo);
 }
 
@@ -90,7 +109,7 @@ int CStandUpDetectAlg::findStudentRanges()
 	std::vector<int> candidates;
 	for(int j=0; j<maxCol; j++)
 	{
-		if(foreHistByCol.at<double>(0,j) > 3*avgForeHist)
+		if(foreHistByCol.at<double>(0,j) > 3*avgForeHist && foreHistByCol.at<double>(0,j) > 10)
 		{
 			candidates.push_back(j);
 		}
@@ -117,8 +136,23 @@ int CStandUpDetectAlg::findStudentRanges()
 			left = index;
 			continueCount = 0;
 		}
+		index++;
 	}
-
+	
+	if(cameraIndex == 0)
+	{
+		gbmForeground *= 255;
+		std::vector<StuRange>::iterator stuIt;
+		if(!studentRanges.empty())
+		{
+			for(stuIt=studentRanges.begin(); stuIt!=studentRanges.end(); ++stuIt)
+			{
+				cv::rectangle(gbmForeground, cv::Rect(stuIt->left,0,stuIt->right-stuIt->left,576), cv::Scalar(255), 2);
+			}
+		}
+		imshow("Test1", gbmForeground);
+		gbmForeground /= 255;
+	}
 	return 0;
 }
 
@@ -141,18 +175,27 @@ int CStandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 	int width = studentRanges[rangIdx].right - studentRanges[rangIdx].left;
 	int center = studentRanges[rangIdx].left + width / 2;
 	int rowNum = (center - StandUpConfig::START_LEFT)/((StandUpConfig::END_RIGHT - StandUpConfig::START_LEFT)/StandUpConfig::ROW_NUM);
-	cv::Rect roi(0,studentRanges[rangIdx].left, width, gbmForeground.rows);
+	cv::Rect roi(studentRanges[rangIdx].left, 0, width, gbmForeground.rows);
 	cv::Mat curCandidate = doubleForeground(roi);
-
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("11111\n");
+	}
 	width = curCandidate.cols;
 	int height = curCandidate.rows;
 	cv::Mat rightOnes = cv::Mat::ones(width, 1, CV_64F);
 	cv::Mat leftOnes = cv::Mat::ones(1,height, CV_64F);
-
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("22222\n");
+	}
 	cv::Mat histByRow = curCandidate*rightOnes;
 	cv::Mat tempSum = leftOnes*histByRow;
 	double avgByRow = tempSum.at<double>(0,0)/height;
-
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("33333\n");
+	}
 	int prevIdx = 0;
 	int countSum = 0;
 	std::vector<int> pixIdx;
@@ -176,26 +219,45 @@ int CStandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 				}
 				countSum = 0;
 				pixIdx.clear();
+				prevIdx = rowIdx;
 			}
 			else
 			{
 				countSum++;
 				pixIdx.push_back(rowIdx);
+				prevIdx = rowIdx;
 			}
 		}
 	}
-
+	if(countSum > StandUpConfig::HUMAN_HEIGHT)
+	{
+		for(int j=0; j<countSum; j++)
+		{
+			weightSum += histByRow.at<double>(pixIdx[j], 0);
+			totalSum += histByRow.at<double>(pixIdx[j], 0) * pixIdx[j];
+		}
+		posSum += countSum;
+	}
 	if(posSum == 0 || weightSum == 0)
 	{
 		return false;
 	}
-
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("44444\n");
+	}
 	int pos = 0;
 	double weight = 0.0;
 	pos = totalSum / weightSum;
 	weight = weightSum * 1.0 / posSum;
-
-	if(pos < StandUpConfig::DETECT_LINE && weight > StandUpConfig::CENTER_WEIGHT_THRESH)
+	if(cameraIndex == 0)
+	{
+		char tmp[1024];
+		memset(tmp, 0x00, 1024);
+		sprintf(tmp, "POS: %d        WEIGHT: %f\n", pos, weight);
+		OutputDebugStringA(tmp);
+	}
+	if(pos > StandUpConfig::DETECT_LINE && weight > StandUpConfig::CENTER_WEIGHT_THRESH)
 	{
 		cachedSums[rowNum] -= cachedPosList[rowNum].front();
 		cachedPosList[rowNum].pop();
@@ -210,8 +272,36 @@ int CStandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 		cachedPosList[rowNum].push(avgPos);
 		cachedSums[rowNum] += avgPos;
 	}
-
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("55555\n");
+	}
 	double slope = calcSlope(rowNum);
+	if(cameraIndex == 0)
+	{
+		OutputDebugStringA("66666\n");
+		char tmp[1024];
+		char tmp2[1024];
+		sprintf(tmp, "SLOPE:%f\n", slope);
+		memset(tmp2, 0x00, 1024);
+		std::queue<int> reverseQueue;
+		for(int i=0; i<StandUpConfig::CACHED_POS_COUNT; ++i)
+		{
+			int tmpPos = cachedPosList[rowNum].front();
+			cachedPosList[rowNum].pop();
+			reverseQueue.push(tmpPos);
+			sprintf(tmp2+i*10, "%10d", tmpPos);
+		}
+		
+		for(int i=0; i<StandUpConfig::CACHED_POS_COUNT; ++i)
+		{
+			int tmpPos = reverseQueue.front();
+			reverseQueue.pop();
+			cachedPosList[rowNum].push(tmpPos);
+		}
+		OutputDebugStringA(tmp);
+		OutputDebugStringA(tmp2);
+	}
 	if(slope < StandUpConfig::SLOPE_UP_THRESH)
 	{
 		curStandUpRows.insert(rowNum);
