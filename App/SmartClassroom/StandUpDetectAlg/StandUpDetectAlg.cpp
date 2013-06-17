@@ -10,7 +10,7 @@ double StandUpConfig::GBM_LEARNING_RATE		= 0.01;
 int    StandUpConfig::FG_LOW_THRESH			= 128;
 int    StandUpConfig::FG_UP_THRESH			= 255;
 int    StandUpConfig::TRACK_INTERVAL		= 2;
-int    StandUpConfig::DETECT_LINE			= 250;
+int    StandUpConfig::DETECT_LINE			= 300;
 int    StandUpConfig::ROW_NUM				= 9;
 int    StandUpConfig::START_LEFT			= 100;
 int    StandUpConfig::END_RIGHT				= 500;
@@ -175,6 +175,14 @@ int CStandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 	int width = studentRanges[rangIdx].right - studentRanges[rangIdx].left;
 	int center = studentRanges[rangIdx].left + width / 2;
 	int rowNum = (center - StandUpConfig::START_LEFT)/((StandUpConfig::END_RIGHT - StandUpConfig::START_LEFT)/StandUpConfig::ROW_NUM);
+	if(rowNum > 8)
+	{
+		rowNum = 8;
+	}
+	if (rowNum < 0)
+	{
+		rowNum = 0;
+	}
 	cv::Rect roi(studentRanges[rangIdx].left, 0, width, gbmForeground.rows);
 	cv::Mat curCandidate = doubleForeground(roi);
 	if(cameraIndex == 0)
@@ -257,20 +265,30 @@ int CStandUpDetectAlg::isStandUpOrSitDown( int rangIdx )
 		sprintf(tmp, "POS: %d        WEIGHT: %f\n", pos, weight);
 		OutputDebugStringA(tmp);
 	}
+	char tmp[1024];
+	memset(tmp, 0x00, 1024);
+	sprintf(tmp, "RowNum:%d\n", rowNum);
+	OutputDebugStringA(tmp);
 	if(pos > StandUpConfig::DETECT_LINE && weight > StandUpConfig::CENTER_WEIGHT_THRESH)
 	{
-		cachedSums[rowNum] -= cachedPosList[rowNum].front();
-		cachedPosList[rowNum].pop();
-		cachedPosList[rowNum].push(pos);
-		cachedSums[rowNum] += pos;
+		if(!cachedPosList[rowNum].empty())
+		{
+			cachedSums[rowNum] -= cachedPosList[rowNum].front();
+			cachedPosList[rowNum].pop();
+			cachedPosList[rowNum].push(pos);
+			cachedSums[rowNum] += pos;
+		}
 	}
 	else
 	{
-		int avgPos = cachedSums[rowNum] / StandUpConfig::CACHED_POS_COUNT;
-		cachedSums[rowNum] -= cachedPosList[rowNum].front();
-		cachedPosList[rowNum].pop();
-		cachedPosList[rowNum].push(avgPos);
-		cachedSums[rowNum] += avgPos;
+		if(!cachedPosList[rowNum].empty())
+		{
+			int avgPos = cachedSums[rowNum] / StandUpConfig::CACHED_POS_COUNT;
+			cachedSums[rowNum] -= cachedPosList[rowNum].front();
+			cachedPosList[rowNum].pop();
+			cachedPosList[rowNum].push(avgPos);
+			cachedSums[rowNum] += avgPos;
+		}
 	}
 	if(cameraIndex == 0)
 	{
