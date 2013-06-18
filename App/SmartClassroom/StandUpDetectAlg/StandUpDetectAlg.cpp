@@ -15,6 +15,7 @@ int    StandUpConfig::ROW_NUM				= 9;
 int    StandUpConfig::START_LEFT			= 100;
 int    StandUpConfig::END_RIGHT				= 500;
 int    StandUpConfig::CACHED_POS_COUNT		= 25;
+int    StandUpConfig::CACHED_SLOPE_COUNT    = 5;
 int    StandUpConfig::MAX_GAP				= 50;
 int    StandUpConfig::HUMAN_WIDTH			= 30;
 int    StandUpConfig::MAX_HEIGHT_GAP		= 60;
@@ -30,14 +31,21 @@ CStandUpDetectAlg::CStandUpDetectAlg(int index)
 	cachedSums = new double[StandUpConfig::ROW_NUM];
 	for(int i=0; i<StandUpConfig::ROW_NUM; ++i)
 	{
-		std::queue<int> singlePos;
+		std::queue<double> singlePos;
+		std::queue<double> singleSlope;
 		cachedSums[i] = 0;
 		for(int j=0; j<StandUpConfig::CACHED_POS_COUNT; j++)
 		{
 			singlePos.push(StandUpConfig::DETECT_LINE);
 			cachedSums[i] += StandUpConfig::DETECT_LINE;
+
+			if(j < StandUpConfig::CACHED_SLOPE_COUNT)
+			{
+				singleSlope.push(0.0);
+			}
 		}
 		cachedPosList.push_back(singlePos);
+		cachedSlopeList.push_back(singleSlope);
 	}
 
 	curStandUpRows.clear();
@@ -287,6 +295,8 @@ int CStandUpDetectAlg::handleStandUpOrSitDownPerRow( int rangIdx )
 	}
 	if(posSum == 0 || weightSum == 0)
 	{
+		cachedSlopeList[rowNum].pop();
+		cachedSlopeList[rowNum].push(0.0);
 		return false;
 	}
 	if(cameraIndex == 0)
@@ -359,6 +369,9 @@ int CStandUpDetectAlg::handleStandUpOrSitDownPerRow( int rangIdx )
 		OutputDebugStringA(tmp);
 		OutputDebugStringA(tmp2);
 	}
+	cachedSlopeList[rowNum].pop();
+	cachedSlopeList[rowNum].push(slope);
+
 	if(slope > StandUpConfig::SLOPE_UP_THRESH)
 	{
 		curStandUpRows.insert(rowNum);
@@ -366,6 +379,7 @@ int CStandUpDetectAlg::handleStandUpOrSitDownPerRow( int rangIdx )
 		sInfo.weight = weight;
 		sInfo.pos = pos;
 		sInfo.slope = slope;
+		sInfo.cachedSlope = cachedSlopeList[rowNum];
 		curStandUpRowInfo[rowNum] = sInfo;
 		return 1;  // stand up
 	}
@@ -379,6 +393,7 @@ int CStandUpDetectAlg::handleStandUpOrSitDownPerRow( int rangIdx )
 		sInfo.weight = weight;
 		sInfo.pos = pos;
 		sInfo.slope = slope;
+		sInfo.cachedSlope = cachedSlopeList[rowNum];
 		curStandUpRowInfo[rowNum] = sInfo;
 		return -1; // sit down
 	}

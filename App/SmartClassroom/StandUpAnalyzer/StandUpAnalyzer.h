@@ -26,6 +26,8 @@ public:
 private:
 	CStandUpAnalyzer(void);
 	HRESULT controlPTZCamera();
+	bool isStandUp(StandUpInfo s0, StandUpInfo s1);
+	bool isSitDown(StandUpInfo s0, StandUpInfo s1);
 
 private:
 	static CStandUpAnalyzer* m_pInstance;

@@ -28,7 +28,7 @@ typedef struct _stuRange
 
 
 
-typedef std::vector<std::queue<int>> QueueList;
+typedef std::vector<std::queue<double>> QueueList;
 
 
 // This class is exported from the StandUpDetectAlg.dll
@@ -44,6 +44,7 @@ private:
 	int frameIndex;
 	std::vector<StuRange> studentRanges;
 	QueueList cachedPosList;
+	QueueList cachedSlopeList;
 	double *cachedSums;
 	std::set<int> curStandUpRows;
 	StandUpRowInfo curStandUpRowInfo;

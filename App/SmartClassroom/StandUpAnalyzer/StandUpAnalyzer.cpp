@@ -9,7 +9,9 @@
 CStandUpAnalyzer* CStandUpAnalyzer::m_pInstance = NULL;
 
 const double    SLOPE_UP_THRESH       = 1.25;
+const double    SLOPE_UP_THRESH_2     = 1.00;
 const double    SLOPE_DOWN_THRESH     = -1.0;
+const double    SLOPE_DOWN_THRESH_2   = -0.7;
 const double    COL_THRESH_1          = 0.5;
 const double    COL_THRESH_2          = 1.5;
 
@@ -60,7 +62,7 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 		{
 			StandUpInfo s0 = infoIter->second;
 			StandUpInfo s1 = secondIter->second;
-			if(s0.slope > SLOPE_UP_THRESH && s1.slope > SLOPE_UP_THRESH) // Stand Up
+			if(isStandUp(s0, s1)) // Stand Up
 			{
 				double ratio = s0.weight / s1.weight;
 				if(ratio < COL_THRESH_1)
@@ -78,7 +80,7 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 				rowNum = infoIter->first;
 				m_standUpStatus[rowNum] = 1;
 			}
-			else if(s0.slope < SLOPE_DOWN_THRESH && s1.slope < SLOPE_DOWN_THRESH) // sit down
+			else if(isSitDown(s0, s1)) // sit down
 			{
 				m_standUpStatus[rowNum] = 0;
 			}
@@ -103,4 +105,80 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 		// Turn camera to full screen position.
 		((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, 0);
 	}
+}
+
+bool CStandUpAnalyzer::isStandUp(StandUpInfo s0, StandUpInfo s1)
+{
+	if(s0.slope < SLOPE_UP_THRESH || s1.slope < SLOPE_UP_THRESH)
+	{
+		return false;
+	}
+
+	int count = 0;
+	while(!s0.cachedSlope.empty())
+	{
+		if(s0.cachedSlope.front() > SLOPE_UP_THRESH_2)
+		{
+			count++;
+		}
+		s0.cachedSlope.pop();
+	}
+	if(count < 3)
+	{
+		return false;
+	}
+
+	count = 0;
+	while(!s1.cachedSlope.empty())
+	{
+		if(s1.cachedSlope.front() > SLOPE_UP_THRESH_2)
+		{
+			count++;
+		}
+		s1.cachedSlope.pop();
+	}
+	if(count < 3)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool CStandUpAnalyzer::isSitDown(StandUpInfo s0, StandUpInfo s1)
+{
+	if(s0.slope > SLOPE_DOWN_THRESH || s1.slope > SLOPE_DOWN_THRESH)
+	{
+		return false;
+	}
+
+	int count = 0;
+	while(!s0.cachedSlope.empty())
+	{
+		if(s0.cachedSlope.front() < SLOPE_DOWN_THRESH_2)
+		{
+			count++;
+		}
+		s0.cachedSlope.pop();
+	}
+	if(count < 3)
+	{
+		return false;
+	}
+
+	count = 0;
+	while(!s1.cachedSlope.empty())
+	{
+		if(s1.cachedSlope.front() < SLOPE_DOWN_THRESH_2)
+		{
+			count++;
+		}
+		s1.cachedSlope.pop();
+	}
+	if(count < 3)
+	{
+		return false;
+	}
+
+	return true;
 }

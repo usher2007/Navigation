@@ -21,6 +21,7 @@ public:
 	static int END_RIGHT;
 	static int ROW_NUM;
 	static int CACHED_POS_COUNT;
+	static int CACHED_SLOPE_COUNT;
 	static int MAX_GAP;
 	static int HUMAN_WIDTH;
 	static int HUMAN_HEIGHT;
