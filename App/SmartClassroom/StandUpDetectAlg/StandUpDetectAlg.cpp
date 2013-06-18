@@ -36,8 +36,8 @@ CStandUpDetectAlg::CStandUpDetectAlg(int index)
 		cachedSums[i] = 0;
 		for(int j=0; j<StandUpConfig::CACHED_POS_COUNT; j++)
 		{
-			singlePos.push(StandUpConfig::DETECT_LINE);
-			cachedSums[i] += StandUpConfig::DETECT_LINE;
+			singlePos.push(StandUpConfig::DETECT_LINE + 20);
+			cachedSums[i] += (StandUpConfig::DETECT_LINE + 20);
 
 			if(j < StandUpConfig::CACHED_SLOPE_COUNT)
 			{
@@ -204,6 +204,16 @@ int CStandUpDetectAlg::mergeStudentRanges()
 int CStandUpDetectAlg::findStandUp()
 {
 	curStandUpRowInfo.clear();
+	if(studentRanges.empty())
+	{
+		for(int rowNum = 0; rowNum < StandUpConfig::ROW_NUM; ++rowNum)
+		{
+			cachedSlopeList[rowNum].pop();
+			cachedSlopeList[rowNum].push(0.0);
+			cachedPosList[rowNum].pop();
+			cachedPosList[rowNum].push(StandUpConfig::DETECT_LINE + 20);
+		}
+	}
 	for(int i=0; i<studentRanges.size(); ++i)
 	{
 		handleStandUpOrSitDownPerRow(i);
@@ -297,6 +307,8 @@ int CStandUpDetectAlg::handleStandUpOrSitDownPerRow( int rangIdx )
 	{
 		cachedSlopeList[rowNum].pop();
 		cachedSlopeList[rowNum].push(0.0);
+		cachedPosList[rowNum].pop();
+		cachedPosList[rowNum].push(StandUpConfig::DETECT_LINE + 20);
 		return false;
 	}
 	if(cameraIndex == 0)
