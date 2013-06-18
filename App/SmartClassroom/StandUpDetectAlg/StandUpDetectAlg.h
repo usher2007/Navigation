@@ -53,8 +53,9 @@ private:
 
 private:
 	int findStudentRanges();
+	int mergeStudentRanges();
 	int findStandUp();
-	int isStandUpOrSitDown(int rangIdx);
+	int handleStandUpOrSitDownPerRow(int rangIdx);
 	double calcSlope(int rowNum);
 };
 

@@ -26,6 +26,6 @@ public:
 	static int HUMAN_HEIGHT;
 	static int MAX_HEIGHT_GAP;
 	static int CENTER_WEIGHT_THRESH;
-	static int SLOPE_UP_THRESH;
-	static int SLOPE_DOWN_THRESH;
+	static double SLOPE_UP_THRESH;
+	static double SLOPE_DOWN_THRESH;
 };

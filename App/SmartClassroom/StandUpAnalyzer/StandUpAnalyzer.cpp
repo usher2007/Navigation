@@ -3,10 +3,15 @@
 
 #include "stdafx.h"
 #include "StandUpAnalyzer.h"
+#include "ModuleFactory.h"
 
 
 CStandUpAnalyzer* CStandUpAnalyzer::m_pInstance = NULL;
 
+const double    SLOPE_UP_THRESH       = 1.25;
+const double    SLOPE_DOWN_THRESH     = -1.0;
+const double    COL_THRESH_1          = 0.5;
+const double    COL_THRESH_2          = 1.5;
 
 CStandUpAnalyzer* CStandUpAnalyzer::GetInstance()
 {
@@ -26,6 +31,7 @@ CStandUpAnalyzer::CStandUpAnalyzer()
 {
 	m_StandUpInfo[0].clear();
 	m_StandUpInfo[1].clear();
+	m_pModulerFactory = CModuleFactory::GetInstance();
 	return;
 }
 
@@ -38,6 +44,8 @@ HRESULT CStandUpAnalyzer::AnalyzePosition( int index, StandUpRowInfo info )
 
 HRESULT CStandUpAnalyzer::controlPTZCamera()
 {
+
+	int stuId = 1;
 	if(m_StandUpInfo[0].empty() || m_StandUpInfo[1].empty())
 	{
 		return E_FAIL;
@@ -52,14 +60,14 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 		{
 			StandUpInfo s0 = infoIter->second;
 			StandUpInfo s1 = secondIter->second;
-			if(s0.slope > 2.5 && s1.slope > 2.5) // Stand Up
+			if(s0.slope > SLOPE_UP_THRESH && s1.slope > SLOPE_UP_THRESH) // Stand Up
 			{
 				double ratio = s0.weight / s1.weight;
-				if(ratio < 0.5)
+				if(ratio < COL_THRESH_1)
 				{
 					colNum = 1;
 				}
-				else if(ratio < 1.5)
+				else if(ratio < COL_THRESH_2)
 				{
 					colNum = 2;
 				}
@@ -70,7 +78,7 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 				rowNum = infoIter->first;
 				m_standUpStatus[rowNum] = 1;
 			}
-			else if(s0.slope < -2.5 && s1.slope < -2.5) // sit down
+			else if(s0.slope < SLOPE_DOWN_THRESH && s1.slope < SLOPE_DOWN_THRESH) // sit down
 			{
 				m_standUpStatus[rowNum] = 0;
 			}
@@ -86,10 +94,13 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 	}
 	if(statusSum == 1)
 	{
+		int cameraPosId = rowNum*3 + colNum + 1;   // 0 is for fullscreen.
 		// Turn camera to specific position according to rowNum and colNum
+		((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, cameraPosId);
 	}
 	else 
 	{
 		// Turn camera to full screen position.
+		((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, 0);
 	}
 }
