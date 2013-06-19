@@ -18,9 +18,10 @@ public:
 
 	HRESULT StartDetect(BOOL bShowDetectRes);
 	HRESULT StopDetect();
-
+	HRESULT SetStandUpParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine);
 private:
 	int num;
+	CComPtr<IStandUpControl> m_pStandUpControl;
 };
 
 class CDXFilterGraphStuPTZ : public CDXFilterGraph

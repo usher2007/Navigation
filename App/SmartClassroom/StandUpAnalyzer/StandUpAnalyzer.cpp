@@ -14,6 +14,7 @@ const double    SLOPE_DOWN_THRESH     = -1.0;
 const double    SLOPE_DOWN_THRESH_2   = -0.7;
 const double    COL_THRESH_1          = 0.5;
 const double    COL_THRESH_2          = 1.5;
+const int       ROW_NUM               = 4;
 
 CStandUpAnalyzer* CStandUpAnalyzer::GetInstance()
 {
@@ -34,6 +35,10 @@ CStandUpAnalyzer::CStandUpAnalyzer()
 	m_StandUpInfo[0].clear();
 	m_StandUpInfo[1].clear();
 	m_pModulerFactory = CModuleFactory::GetInstance();
+	for(int i=0; i<ROW_NUM; ++i)
+	{
+		m_standUpStatus[i] = 0;
+	}
 	return;
 }
 
@@ -90,7 +95,7 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 	}
 
 	int statusSum = 0;
-	for(int i=0; i<9; ++i)
+	for(int i=0; i<ROW_NUM; ++i)
 	{
 		statusSum += m_standUpStatus[i];
 	}
@@ -98,12 +103,20 @@ HRESULT CStandUpAnalyzer::controlPTZCamera()
 	{
 		int cameraPosId = rowNum*3 + colNum + 1;   // 0 is for fullscreen.
 		// Turn camera to specific position according to rowNum and colNum
-		((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, cameraPosId);
+		//((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, cameraPosId);
+		char tmp[1024];
+		memset(tmp, 0x00, 1024);
+		sprintf(tmp, "FINAL RESULT: Row: %d, Col %d\n", rowNum, colNum);
+		OutputDebugStringA(tmp);
 	}
 	else 
 	{
 		// Turn camera to full screen position.
-		((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, 0);
+		//((CModuleFactory *)m_pModulerFactory)->GetCameraController()->RecallPreSetPos(stuId, 0);
+		char tmp[1024];
+		memset(tmp, 0x00, 1024);
+		sprintf(tmp, "FINAL RESULT: Full Screen StatusSum: %d\n", statusSum);
+		OutputDebugStringA(tmp);
 	}
 }
 

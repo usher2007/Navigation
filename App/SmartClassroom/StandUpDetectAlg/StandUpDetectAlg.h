@@ -36,6 +36,7 @@ class STANDUPDETECTALG_API CStandUpDetectAlg {
 public:
 	CStandUpDetectAlg(int);
 	int Update(cv::Mat& frame);
+	int SetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine);
 
 private:
 	cv::BackgroundSubtractorMOG2 bgSubtractor;
@@ -49,6 +50,7 @@ private:
 	std::set<int> curStandUpRows;
 	StandUpRowInfo curStandUpRowInfo;
 	int cameraIndex;
+	std::vector<int> lastPos;
 
 	void *m_pStandUpAnalyzer;
 

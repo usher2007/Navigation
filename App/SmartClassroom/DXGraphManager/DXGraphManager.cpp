@@ -263,3 +263,13 @@ HRESULT CDXGraphManager::StopStudentPTZGraph()
 	}
 	return hr;
 }
+
+HRESULT CDXGraphManager::SetStuStandUpParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStudentGraphLeft)
+	{
+		hr = m_pStudentGraphLeft->SetStandUpParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
+	}
+	return hr;
+}

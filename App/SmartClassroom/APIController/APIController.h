@@ -86,6 +86,8 @@ public:
 	HRESULT StudentPTZSetPrePos(int locId, int rowNum, int colNum);
 	HRESULT StudentPTZRecallPrePos(int locId);
 	HRESULT StudentPTZClearPrePos();
+
+	HRESULT StudentStandUpSetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine);
 	// LaserPoint Part
 	HRESULT BuildLaserPointGraph();
 

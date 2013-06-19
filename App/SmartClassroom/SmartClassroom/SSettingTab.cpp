@@ -28,6 +28,11 @@ void CSSettingTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDITSPosId, m_ctrlEditSPosId);
 	DDX_Control(pDX, IDC_EDITSRowNum, m_ctrlEditSRowNum);
 	DDX_Control(pDX, IDC_EDITSColNum, m_ctrlEditColNum);
+	DDX_Control(pDX, IDC_EDITStuDetectLine, m_ctrlEditSDetectLine);
+	DDX_Control(pDX, IDC_EDITStuLeftBorder, m_ctrlEditSLeftBorder);
+	DDX_Control(pDX, IDC_EDITStuRightBorder, m_ctrlEditSRightBorder);
+	DDX_Control(pDX, IDC_EDITStuTotalRowNum, m_ctrlEditSTotalRowNum);
+	DDX_Control(pDX, IDC_EDITStuTotalColNum, m_ctrlEditSTotalColNum);
 }
 
 
@@ -42,6 +47,7 @@ BEGIN_MESSAGE_MAP(CSSettingTab, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTONSRecall, &CSSettingTab::OnBnClickedButtonsrecall)
 	ON_BN_CLICKED(IDC_BUTTONSClearPresetPos, &CSSettingTab::OnBnClickedButtonsclearpresetpos)
 	ON_BN_CLICKED(IDC_BUTTONSSavePresetPos, &CSSettingTab::OnBnClickedButtonssavepresetpos)
+	ON_BN_CLICKED(IDC_BUTTONSSaveParams, &CSSettingTab::OnBnClickedButtonssaveparams)
 END_MESSAGE_MAP()
 
 
@@ -147,6 +153,21 @@ void CSSettingTab::OnBnClickedButtonssavepresetpos()
 		int rowNum = getIntFromCEdit(&m_ctrlEditSRowNum);
 		int colNum = getIntFromCEdit(&m_ctrlEditColNum);
 		m_pAPIController->StudentPTZSetPrePos(locId, rowNum, colNum);
+	}
+	return;
+}
+
+
+void CSSettingTab::OnBnClickedButtonssaveparams()
+{
+	if(m_pAPIController)
+	{
+		int leftBorder = getIntFromCEdit(&m_ctrlEditSLeftBorder);
+		int rightBorder = getIntFromCEdit(&m_ctrlEditSRightBorder);
+		int totalRowNum = getIntFromCEdit(&m_ctrlEditSTotalRowNum);
+		int totalColNum = getIntFromCEdit(&m_ctrlEditSTotalColNum);
+		int detectLine = getIntFromCEdit(&m_ctrlEditSDetectLine);
+		m_pAPIController->StudentStandUpSetParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
 	}
 	return;
 }

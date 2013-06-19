@@ -6,6 +6,7 @@
 CDXFilterGraphStu::CDXFilterGraphStu(int posNum) : num(posNum)
 {
 	init();
+	m_pStandUpControl = NULL;
 	return;
 }
 
@@ -42,6 +43,8 @@ HRESULT CDXFilterGraphStu::BuildGraph(BOOL bDisplay)
 		if(num == 1)
 		{
 			hr = CoCreateInstance(CLSID_StandUpDetector, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pStandUpDetectorFilter);
+			hr = pStandUpDetectorFilter->QueryInterface(IID_IStandUpControl, (void **)&m_pStandUpControl);
+			if(FAILED(hr)) return hr;
 		}
 		else if(num == 2)
 		{
@@ -75,6 +78,16 @@ HRESULT CDXFilterGraphStu::BuildGraph(BOOL bDisplay)
 	return E_FAIL;
 }
 
+
+HRESULT CDXFilterGraphStu::SetStandUpParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine)
+{
+	if(m_pStandUpControl)
+	{
+		m_pStandUpControl->SetParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
+		return S_OK;
+	}
+	return E_FAIL;
+}
 
 CDXFilterGraphStuPTZ::CDXFilterGraphStuPTZ()
 {

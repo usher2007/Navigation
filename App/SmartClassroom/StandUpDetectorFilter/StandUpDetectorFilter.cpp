@@ -210,12 +210,12 @@ STDMETHODIMP CStandUpDetectorFilter::NonDelegatingQueryInterface(REFIID riid, vo
 {
 	CheckPointer(ppv,E_POINTER);
 
-	//if (riid == IID_ITrackingControl) {
-	//	return GetInterface((ITrackingControl *) this, ppv);
-	//}
-	//else {
+	if (riid == IID_IStandUpControl) {
+		return GetInterface((IStandUpControl *) this, ppv);
+	}
+	else {
 		return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
-	//}
+	}
 }
 
 HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
@@ -224,10 +224,11 @@ HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
 	PBYTE p;
 	pSample->GetPointer(&p);
 
+
+	OutputDebugStringA("1ST FILTER\n");
 	int stride = (m_biWidth * sizeof(RGBTRIPLE) + 3) & -4;
 	cv::Mat img(m_biHeight, m_biWidth, CV_8UC3, p, stride);
 	m_pStandUpAlg->Update(img);
-	OutputDebugStringA("1ST FILTER\n");
 	return S_OK;
 }
 
@@ -252,3 +253,19 @@ LONG CStandUpDetectorFilter::GetHeight()
 	return m_biHeight > 0 ? m_biHeight : DEFUALT_HEIGHT;
 }
 
+
+STDMETHODIMP CStandUpDetectorFilter::Start(BOOL bShowTrackingRes)
+{
+	return S_OK;
+}
+
+STDMETHODIMP CStandUpDetectorFilter::Stop()
+{
+	return S_OK;
+}
+
+STDMETHODIMP CStandUpDetectorFilter::SetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine)
+{
+	m_pStandUpAlg->SetParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
+	return S_OK;
+}

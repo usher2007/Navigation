@@ -44,3 +44,15 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE SetFullScrStrategy(int fullScrMinDur, int noPersonMaxDur)PURE;
 };
 
+// {A64EC696-5A13-45F8-A0D6-695DBFB13213}
+DEFINE_GUID(IID_IStandUpControl, 
+	0xa64ec696, 0x5a13, 0x45f8, 0xa0, 0xd6, 0x69, 0x5d, 0xbf, 0xb1, 0x32, 0x13);
+MIDL_INTERFACE("A64EC696-5A13-45F8-A0D6-695DBFB13213")
+IStandUpControl : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Start(BOOL bShowTrackingRes)PURE;
+	virtual HRESULT STDMETHODCALLTYPE Stop()PURE;
+
+	virtual HRESULT STDMETHODCALLTYPE SetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine)PURE;
+};

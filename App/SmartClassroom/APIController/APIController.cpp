@@ -674,3 +674,13 @@ HRESULT CAPIController::StudentPTZClearPrePos()
 	return E_FAIL;
 }
 
+HRESULT CAPIController::StudentStandUpSetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine)
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->SetStuStandUpParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+

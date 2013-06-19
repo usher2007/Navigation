@@ -36,4 +36,10 @@ public:
 	afx_msg void OnBnClickedButtonsrecall();
 	afx_msg void OnBnClickedButtonsclearpresetpos();
 	afx_msg void OnBnClickedButtonssavepresetpos();
+	CEdit m_ctrlEditSDetectLine;
+	CEdit m_ctrlEditSLeftBorder;
+	CEdit m_ctrlEditSRightBorder;
+	CEdit m_ctrlEditSTotalRowNum;
+	CEdit m_ctrlEditSTotalColNum;
+	afx_msg void OnBnClickedButtonssaveparams();
 };

@@ -28,7 +28,7 @@ public:
 	HRESULT CheckMediaType(const CMediaType *pmt);
 };
 
-class CStandUpDetectorFilter : public CTransInPlaceFilter
+class CStandUpDetectorFilter : public CTransInPlaceFilter, public IStandUpControl
 {
 	friend class CStandUpDetectorInputPin;
 	friend class CStandUpDetectorOutputPin;
@@ -54,6 +54,13 @@ public:
 	LONG GetWidth();
 	LONG GetHeight();
 
+
+	//
+	// --- IStandUpControl Interface --
+	//
+	STDMETHODIMP Start(BOOL bShowTrackingRes);
+	STDMETHODIMP Stop();
+	STDMETHODIMP SetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine);
 private:
 
 	CStandUpDetectorFilter(TCHAR *tszName, LPUNKNOWN punk, HRESULT *phr);

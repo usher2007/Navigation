@@ -38,6 +38,7 @@ public:
 	HRESULT StopStudentPTZGraph();
 	HRESULT StartStandUpDectect(BOOL bShowDetectRes);
 	HRESULT StopStandUpDectect();
+	HRESULT SetStuStandUpParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine);
 
 private:
 	CDXFilterGraphTea * m_pTeacherGraph;
