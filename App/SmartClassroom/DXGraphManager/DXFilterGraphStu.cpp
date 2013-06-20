@@ -49,6 +49,8 @@ HRESULT CDXFilterGraphStu::BuildGraph(BOOL bDisplay)
 		else if(num == 2)
 		{
 			hr = CoCreateInstance(CLSID_StandUpDetector2, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void **)&pStandUpDetectorFilter);
+			hr = pStandUpDetectorFilter->QueryInterface(IID_IStandUpControl, (void **)&m_pStandUpControl);
+			if(FAILED(hr)) return hr;
 		}
 		if(FAILED(hr)) return hr;
 		hr = m_pGraphBuilder->AddFilter(pStandUpDetectorFilter, L"StandUp Detector");
@@ -87,6 +89,26 @@ HRESULT CDXFilterGraphStu::SetStandUpParams(int leftBorder, int rightBorder, int
 		return S_OK;
 	}
 	return E_FAIL;
+}
+
+HRESULT CDXFilterGraphStu::StartDetect(BOOL bShowDetectRes)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStandUpControl)
+	{
+		hr = m_pStandUpControl->Start(bShowDetectRes);
+	}
+	return hr;
+}
+
+HRESULT CDXFilterGraphStu::StopDetect()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStandUpControl)
+	{
+		hr = m_pStandUpControl->Stop();
+	}
+	return hr;
 }
 
 CDXFilterGraphStuPTZ::CDXFilterGraphStuPTZ()
@@ -130,3 +152,4 @@ HRESULT CDXFilterGraphStuPTZ::BuildGraph(BOOL bDisplay)
 	}
 	return E_FAIL;
 }
+

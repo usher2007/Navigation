@@ -151,7 +151,7 @@ CStandUpDetectorFilter2::CStandUpDetectorFilter2(TCHAR *tszName, LPUNKNOWN punk,
 	m_bDetecting = FALSE;
 	m_nFrameCount = 0;
 	m_bSoftDogChecked = TRUE;
-	m_pStandUpAlg = new CStandUpDetectAlg(1);
+	m_pStandUpAlg = new CStandUpDetectAlg(-1);
 }
 
 CUnknown * WINAPI CStandUpDetectorFilter2::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -210,16 +210,20 @@ STDMETHODIMP CStandUpDetectorFilter2::NonDelegatingQueryInterface(REFIID riid, v
 {
 	CheckPointer(ppv,E_POINTER);
 
-	//if (riid == IID_ITrackingControl) {
-	//	return GetInterface((ITrackingControl *) this, ppv);
-	//}
-	//else {
-	return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
-	//}
+	if (riid == IID_IStandUpControl) {
+		return GetInterface((IStandUpControl *) this, ppv);
+	}
+	else {
+		return CTransformFilter::NonDelegatingQueryInterface(riid, ppv);
+	}
 }
 
 HRESULT CStandUpDetectorFilter2::Transform(IMediaSample *pSample)
 {
+	if(!m_bDetecting)
+	{
+		return S_OK;
+	}
 	m_nFrameCount++;
 	PBYTE p;
 	pSample->GetPointer(&p);
@@ -250,5 +254,30 @@ LONG CStandUpDetectorFilter2::GetWidth()
 LONG CStandUpDetectorFilter2::GetHeight()
 {
 	return m_biHeight > 0 ? m_biHeight : DEFUALT_HEIGHT;
+}
+
+STDMETHODIMP CStandUpDetectorFilter2::Start(BOOL bShowTrackingRes)
+{
+	if(m_bDetecting == FALSE)
+	{
+		m_pStandUpAlg = new CStandUpDetectAlg(1);
+		m_bDetecting = TRUE;
+	}
+	return S_OK;
+}
+
+STDMETHODIMP CStandUpDetectorFilter2::Stop()
+{
+	m_bDetecting = FALSE;
+	Sleep(10);
+	delete m_pStandUpAlg;
+	m_pStandUpAlg = NULL;
+	return S_OK;
+}
+
+STDMETHODIMP CStandUpDetectorFilter2::SetParams(int leftBorder, int rightBorder, int totalRowNum, int totalColNum, int detectLine)
+{
+	m_pStandUpAlg->SetParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
+	return S_OK;
 }
 

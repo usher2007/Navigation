@@ -684,3 +684,23 @@ HRESULT CAPIController::StudentStandUpSetParams(int leftBorder, int rightBorder,
 	return E_FAIL;
 }
 
+HRESULT CAPIController::StudentStartDetect(bool bShowDetectingRes)
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->StartStandUpDectect(bShowDetectingRes);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+HRESULT CAPIController::StudentStopDetect()
+{
+	if(m_pModuleFactory)
+	{
+		m_pModuleFactory->GetGraphManager()->StopStandUpDectect();
+		return S_OK;
+	}
+	return E_FAIL;
+}
+

@@ -42,4 +42,6 @@ public:
 	CEdit m_ctrlEditSTotalRowNum;
 	CEdit m_ctrlEditSTotalColNum;
 	afx_msg void OnBnClickedButtonssaveparams();
+	afx_msg void OnBnClickedButtonsstartdetect();
+	afx_msg void OnBnClickedButtonsstopdetect();
 };

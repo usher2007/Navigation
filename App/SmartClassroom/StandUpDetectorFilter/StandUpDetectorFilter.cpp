@@ -151,7 +151,7 @@ CStandUpDetectorFilter::CStandUpDetectorFilter(TCHAR *tszName, LPUNKNOWN punk, H
 	m_bDetecting = FALSE;
 	m_nFrameCount = 0;
 	m_bSoftDogChecked = TRUE;
-	m_pStandUpAlg = new CStandUpDetectAlg(0);
+	m_pStandUpAlg = new CStandUpDetectAlg(-1);
 }
 
 CUnknown * WINAPI CStandUpDetectorFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
@@ -220,6 +220,10 @@ STDMETHODIMP CStandUpDetectorFilter::NonDelegatingQueryInterface(REFIID riid, vo
 
 HRESULT CStandUpDetectorFilter::Transform(IMediaSample *pSample)
 {
+	if(!m_bDetecting)
+	{
+		return S_OK;
+	}
 	m_nFrameCount++;
 	PBYTE p;
 	pSample->GetPointer(&p);
@@ -256,11 +260,20 @@ LONG CStandUpDetectorFilter::GetHeight()
 
 STDMETHODIMP CStandUpDetectorFilter::Start(BOOL bShowTrackingRes)
 {
+	if(m_bDetecting == FALSE)
+	{
+		m_pStandUpAlg = new CStandUpDetectAlg(0);
+		m_bDetecting = TRUE;
+	}
 	return S_OK;
 }
 
 STDMETHODIMP CStandUpDetectorFilter::Stop()
 {
+	m_bDetecting = FALSE;
+	Sleep(10);
+	delete m_pStandUpAlg;
+	m_pStandUpAlg = NULL;
 	return S_OK;
 }
 

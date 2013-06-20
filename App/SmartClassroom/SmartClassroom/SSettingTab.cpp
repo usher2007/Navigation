@@ -48,6 +48,8 @@ BEGIN_MESSAGE_MAP(CSSettingTab, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTONSClearPresetPos, &CSSettingTab::OnBnClickedButtonsclearpresetpos)
 	ON_BN_CLICKED(IDC_BUTTONSSavePresetPos, &CSSettingTab::OnBnClickedButtonssavepresetpos)
 	ON_BN_CLICKED(IDC_BUTTONSSaveParams, &CSSettingTab::OnBnClickedButtonssaveparams)
+	ON_BN_CLICKED(IDC_BUTTONSStartDetect, &CSSettingTab::OnBnClickedButtonsstartdetect)
+	ON_BN_CLICKED(IDC_BUTTONSStopDetect, &CSSettingTab::OnBnClickedButtonsstopdetect)
 END_MESSAGE_MAP()
 
 
@@ -168,6 +170,26 @@ void CSSettingTab::OnBnClickedButtonssaveparams()
 		int totalColNum = getIntFromCEdit(&m_ctrlEditSTotalColNum);
 		int detectLine = getIntFromCEdit(&m_ctrlEditSDetectLine);
 		m_pAPIController->StudentStandUpSetParams(leftBorder, rightBorder, totalRowNum, totalColNum, detectLine);
+	}
+	return;
+}
+
+
+void CSSettingTab::OnBnClickedButtonsstartdetect()
+{
+	if(m_pAPIController)
+	{
+		m_pAPIController->StudentStartDetect(true);
+	}
+	return;
+}
+
+
+void CSSettingTab::OnBnClickedButtonsstopdetect()
+{
+	if(m_pAPIController)
+	{
+		m_pAPIController->StudentStopDetect();
 	}
 	return;
 }

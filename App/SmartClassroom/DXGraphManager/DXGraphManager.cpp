@@ -273,3 +273,38 @@ HRESULT CDXGraphManager::SetStuStandUpParams(int leftBorder, int rightBorder, in
 	}
 	return hr;
 }
+
+HRESULT CDXGraphManager::StartStandUpDectect(BOOL bShowDetectRes)
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStudentGraphLeft)
+	{
+		hr = m_pStudentGraphLeft->StartDetect(bShowDetectRes);
+	}
+	if(FAILED(hr))
+	{
+		return hr;
+	}
+	if(m_pStudentGraphRight)
+	{
+		hr = m_pStudentGraphRight->StartDetect(bShowDetectRes);
+	}
+	return hr;
+}
+
+HRESULT CDXGraphManager::StopStandUpDectect()
+{
+	HRESULT hr = E_FAIL;
+	if(m_pStudentGraphLeft)
+	{
+		hr = m_pStudentGraphLeft->StopDetect();
+	}
+	if(SUCCEEDED(hr))
+	{
+		if(m_pStudentGraphRight)
+		{
+			hr = m_pStudentGraphRight->StopDetect();
+		}
+	}
+	return hr;
+}
